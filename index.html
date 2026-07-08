@@ -8,10 +8,10 @@
     <meta name="keywords" content="ART,Token,Web3,Art,NFT,Decentralized,Crypto">
 
     <!-- 浏览器图标 Favicon -->
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="apple-touch-icon" href="logo-main.png">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="/logo-main.png">
 
-    <!-- 社交分享标签（Twitter / Telegram / Facebook） -->
+    <!-- 社交分享标签 -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="ART Token | Digital Art Web3 Ecosystem">
     <meta property="og:description" content="ART Token connects artists, collectors and creators on the blockchain. Fair launch, fully decentralized & community-driven.">
@@ -20,13 +20,13 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="ART Token | Digital Art Web3 Ecosystem">
     <meta name="twitter:description" content="Fair launch, no mint, no pause, immutable tax, 100% LP locked.">
-    <meta name="twitter:image" content="og-image.png">
+    <meta name="twitter:image" content="/og-image.png">
 
-    <!-- Tailwind CSS -->
+    <!-- Tailwind & FontAwesome -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome 图标 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- 自定义主题配置 -->
+
+    <!-- 主题配置 -->
     <script>
         tailwind.config = {
             theme: {
@@ -45,6 +45,7 @@
             }
         }
     </script>
+
     <style type="text/tailwindcss">
         @layer utilities {
             .text-gradient {
@@ -70,7 +71,7 @@
             50% { transform: translateY(-12px); }
         }
 
-        /* 全局滚动美化 */
+        /* 全局滚动 */
         html {
             scroll-behavior: smooth;
         }
@@ -81,14 +82,24 @@
             background: #9D5CFF;
             border-radius: 3px;
         }
+
+        /* ========== 双语核心样式【修复重点】 ========== */
+        /* 默认：英文显示，中文隐藏 */
+        .lang-en { display: inline; }
+        .lang-zh { display: none; }
+
+        /* 切换为中文模式 */
+        body.show-cn .lang-en { display: none; }
+        body.show-cn .lang-zh { display: inline; }
     </style>
-    <!-- 引入字体 -->
+
+    <!-- 字体 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="bg-dark text-white font-sans antialiased">
-    <!-- 顶部导航栏 -->
+    <!-- 顶部导航 -->
     <header class="fixed w-full top-0 z-50 bg-glass border-b border-white/10">
         <div class="container mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
             <a href="#" class="flex items-center gap-2">
@@ -96,14 +107,37 @@
                 <span class="text-xl font-bold tracking-tight">ART TOKEN</span>
             </a>
 
-            <!-- 桌面端菜单 -->
+            <!-- 桌面菜单 -->
             <nav class="hidden md:flex items-center gap-8">
-                <a href="#home" class="hover:text-primary transition-colors duration-300">Home</a>
-                <a href="#tokenomics" class="hover:text-primary transition-colors duration-300">Tokenomics</a>
-                <a href="#contract" class="hover:text-primary transition-colors">Contract</a>
-                <a href="#roadmap" class="hover:text-primary transition-colors">Roadmap</a>
-                <a href="#community" class="hover:text-primary transition-colors">Community</a>
-                <a href="#buy" class="bg-primary hover:bg-primary/90 px-5 py-2 rounded-full font-medium transition-all">Buy ART</a>
+                <a href="#home" class="hover:text-primary transition-colors duration-300">
+                    <span class="lang-en">Home</span>
+                    <span class="lang-zh">首页</span>
+                </a>
+                <a href="#tokenomics" class="hover:text-primary transition-colors duration-300">
+                    <span class="lang-en">Tokenomics</span>
+                    <span class="lang-zh">代币经济</span>
+                </a>
+                <a href="#contract" class="hover:text-primary transition-colors">
+                    <span class="lang-en">Contract</span>
+                    <span class="lang-zh">合约信息</span>
+                </a>
+                <a href="#roadmap" class="hover:text-primary transition-colors">
+                    <span class="lang-en">Roadmap</span>
+                    <span class="lang-zh">路线图</span>
+                </a>
+                <a href="#community" class="hover:text-primary transition-colors">
+                    <span class="lang-en">Community</span>
+                    <span class="lang-zh">社区</span>
+                </a>
+                <a href="#buy" class="bg-primary hover:bg-primary/90 px-5 py-2 rounded-full font-medium transition-all">
+                    <span class="lang-en">Buy ART</span>
+                    <span class="lang-zh">购买代币</span>
+                </a>
+                <!-- 语言切换按钮 -->
+                <button id="langSwitch" class="border border-white/20 hover:border-primary px-3 py-1.5 rounded-full text-sm transition-all">
+                    <span class="lang-en">中文</span>
+                    <span class="lang-zh">EN</span>
+                </button>
             </nav>
 
             <!-- 移动端菜单按钮 -->
@@ -115,19 +149,40 @@
         <!-- 移动端菜单 -->
         <div id="mobileMenu" class="hidden md:hidden bg-darkCard border-t border-white/10">
             <div class="container mx-auto px-4 py-4 flex flex-col gap-4">
-                <a href="#home" class="py-2 hover:text-primary">Home</a>
-                <a href="#tokenomics" class="py-2 hover:text-primary">Tokenomics</a>
-                <a href="#contract" class="py-2 hover:text-primary">Contract</a>
-                <a href="#roadmap" class="py-2 hover:text-primary">Roadmap</a>
-                <a href="#community" class="py-2 hover:text-primary">Community</a>
-                <a href="#buy" class="bg-primary text-center py-2 rounded-full">Buy ART</a>
+                <a href="#home" class="py-2 hover:text-primary">
+                    <span class="lang-en">Home</span>
+                    <span class="lang-zh">首页</span>
+                </a>
+                <a href="#tokenomics" class="py-2 hover:text-primary">
+                    <span class="lang-en">Tokenomics</span>
+                    <span class="lang-zh">代币经济</span>
+                </a>
+                <a href="#contract" class="py-2 hover:text-primary">
+                    <span class="lang-en">Contract</span>
+                    <span class="lang-zh">合约信息</span>
+                </a>
+                <a href="#roadmap" class="py-2 hover:text-primary">
+                    <span class="lang-en">Roadmap</span>
+                    <span class="lang-zh">路线图</span>
+                </a>
+                <a href="#community" class="py-2 hover:text-primary">
+                    <span class="lang-en">Community</span>
+                    <span class="lang-zh">社区</span>
+                </a>
+                <a href="#buy" class="bg-primary text-center py-2 rounded-full">
+                    <span class="lang-en">Buy ART</span>
+                    <span class="lang-zh">购买代币</span>
+                </a>
+                <button id="mobileLangSwitch" class="border border-white/20 hover:border-primary py-2 rounded-full transition-all">
+                    <span class="lang-en">切换为中文</span>
+                    <span class="lang-zh">Switch to EN</span>
+                </button>
             </div>
         </div>
     </header>
 
-    <!-- 主视觉区块 Hero -->
+    <!-- 主视觉 -->
     <section id="home" class="min-h-screen flex items-center pt-24 pb-16 relative overflow-hidden">
-        <!-- 背景光晕 -->
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[120px] animate-pulse-slow"></div>
         <div class="absolute bottom-0 right-0 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[100px]"></div>
 
@@ -135,43 +190,58 @@
             <div class="grid md:grid-cols-2 gap-10 items-center">
                 <div class="order-2 md:order-1">
                     <span class="inline-block px-4 py-1 rounded-full border border-primary/40 text-primary text-sm mb-6">
-                        WEB3 DIGITAL ART ECOSYSTEM
+                        <span class="lang-en">WEB3 DIGITAL ART ECOSYSTEM</span>
+                        <span class="lang-zh">WEB3 数字艺术生态</span>
                     </span>
                     <h1 class="text-[clamp(2.5rem,5vw,4rem)] font-bold leading-tight mb-6">
-                        The Future of
-                        <span class="bg-gradient-to-r from-primary to-secondary text-gradient"> Digital Art</span>
+                        <span class="lang-en">The Future of</span>
+                        <span class="lang-zh">开启</span>
+                        <span class="bg-gradient-to-r from-primary to-secondary text-gradient">
+                            <span class="lang-en"> Digital Art</span>
+                            <span class="lang-zh">数字艺术新未来</span>
+                        </span>
                     </h1>
                     <p class="text-grayText text-lg mb-8 max-w-lg">
-                        ART Token connects artists, collectors and creators on the blockchain. 
-                        Fair launch, no mint, no pause, fully decentralized & community-driven.
+                        <span class="lang-en">ART Token connects artists, collectors and creators on the blockchain. Fair launch, no mint, no pause, fully decentralized & community-driven.</span>
+                        <span class="lang-zh">ART Token 链接区块链上的艺术家、收藏家与创作者。公平发射、无增发、无暂停、完全去中心化，社区自治。</span>
                     </p>
                     <div class="flex flex-wrap gap-4">
                         <a href="#buy" class="bg-primary hover:bg-primary/90 px-8 py-3 rounded-full font-medium transition-all">
-                            Get ART Now
+                            <span class="lang-en">Get ART Now</span>
+                            <span class="lang-zh">立即购买</span>
                         </a>
                         <a href="#contract" class="border border-white/20 hover:border-primary px-8 py-3 rounded-full font-medium transition-all">
-                            View Contract
+                            <span class="lang-en">View Contract</span>
+                            <span class="lang-zh">查看合约</span>
                         </a>
                     </div>
                     <div class="flex items-center gap-6 mt-10">
                         <div>
                             <p class="text-2xl font-bold">1B</p>
-                            <p class="text-grayText text-sm">Total Supply</p>
+                            <p class="text-grayText text-sm">
+                                <span class="lang-en">Total Supply</span>
+                                <span class="lang-zh">总供应量</span>
+                            </p>
                         </div>
                         <div class="w-px h-10 bg-white/20"></div>
                         <div>
                             <p class="text-2xl font-bold">0%</p>
-                            <p class="text-grayText text-sm">Hidden Dev Tax</p>
+                            <p class="text-grayText text-sm">
+                                <span class="lang-en">Hidden Dev Tax</span>
+                                <span class="lang-zh">无暗佣税费</span>
+                            </p>
                         </div>
                         <div class="w-px h-10 bg-white/20"></div>
                         <div>
                             <p class="text-2xl font-bold">100%</p>
-                            <p class="text-grayText text-sm">LP Locked</p>
+                            <p class="text-grayText text-sm">
+                                <span class="lang-en">LP Locked</span>
+                                <span class="lang-zh">流动性锁仓</span>
+                            </p>
                         </div>
                     </div>
                 </div>
                 <div class="order-1 md:order-2 flex justify-center">
-                    <!-- 主LOGO -->
                     <div class="w-[clamp(280px,60vw,420px)] h-[clamp(280px,60vw,420px)] rounded-2xl bg-darkCard border border-white/10 flex items-center justify-center animate-float overflow-hidden">
                         <img src="logo-main.png" alt="ART Token Logo" class="w-4/5 h-auto object-contain">
                     </div>
@@ -180,69 +250,123 @@
         </div>
     </section>
 
-    <!-- 代币经济 Tokenomics -->
+    <!-- 代币经济 -->
     <section id="tokenomics" class="py-20 bg-darkCard">
         <div class="container mx-auto px-4 md:px-6">
             <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">Tokenomics</h2>
-                <p class="text-grayText">Transparent & Fair Tokenomics, Community First, No Rug Pull</p>
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">
+                    <span class="lang-en">Tokenomics</span>
+                    <span class="lang-zh">代币经济</span>
+                </h2>
+                <p class="text-grayText">
+                    <span class="lang-en">Transparent & Fair Tokenomics, Community First, No Rug Pull</span>
+                    <span class="lang-zh">透明公平的代币机制，社区优先，绝不跑路</span>
+                </p>
             </div>
-
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div class="bg-dark p-8 rounded-2xl border border-white/10 hover:border-primary/40 transition-all">
                     <i class="fa-solid fa-coins text-primary text-3xl mb-4"></i>
-                    <h3 class="text-xl font-semibold mb-2">Total Supply</h3>
+                    <h3 class="text-xl font-semibold mb-2">
+                        <span class="lang-en">Total Supply</span>
+                        <span class="lang-zh">总供应量</span>
+                    </h3>
                     <p class="text-2xl font-bold text-primary">1,000,000,000 ART</p>
-                    <p class="text-grayText mt-2 text-sm">Max Supply, No Mint Function</p>
+                    <p class="text-grayText mt-2 text-sm">
+                        <span class="lang-en">Max Supply, No Mint Function</span>
+                        <span class="lang-zh">总量恒定，无增发功能</span>
+                    </p>
                 </div>
                 <div class="bg-dark p-8 rounded-2xl border border-white/10 hover:border-primary/40 transition-all">
                     <i class="fa-solid fa-cart-shopping text-primary text-3xl mb-4"></i>
-                    <h3 class="text-xl font-semibold mb-2">Buy Tax</h3>
+                    <h3 class="text-xl font-semibold mb-2">
+                        <span class="lang-en">Buy Tax</span>
+                        <span class="lang-zh">买入税费</span>
+                    </h3>
                     <p class="text-2xl font-bold text-primary">1.5%</p>
-                    <p class="text-grayText mt-2 text-sm">50% Burn + 50% Treasury</p>
+                    <p class="text-grayText mt-2 text-sm">
+                        <span class="lang-en">50% Burn + 50% Treasury</span>
+                        <span class="lang-zh">50%销毁 + 50%国库</span>
+                    </p>
                 </div>
                 <div class="bg-dark p-8 rounded-2xl border border-white/10 hover:border-primary/40 transition-all">
                     <i class="fa-solid fa-hand-holding-dollar text-primary text-3xl mb-4"></i>
-                    <h3 class="text-xl font-semibold mb-2">Sell Tax</h3>
+                    <h3 class="text-xl font-semibold mb-2">
+                        <span class="lang-en">Sell Tax</span>
+                        <span class="lang-zh">卖出税费</span>
+                    </h3>
                     <p class="text-2xl font-bold text-primary">1.5%</p>
-                    <p class="text-grayText mt-2 text-sm">50% Burn + 50% Treasury</p>
+                    <p class="text-grayText mt-2 text-sm">
+                        <span class="lang-en">50% Burn + 50% Treasury</span>
+                        <span class="lang-zh">50%销毁 + 50%国库</span>
+                    </p>
                 </div>
                 <div class="bg-dark p-8 rounded-2xl border border-white/10 hover:border-primary/40 transition-all">
                     <i class="fa-solid fa-lock text-primary text-3xl mb-4"></i>
-                    <h3 class="text-xl font-semibold mb-2">LP Locked</h3>
+                    <h3 class="text-xl font-semibold mb-2">
+                        <span class="lang-en">LP Locked</span>
+                        <span class="lang-zh">流动性锁仓</span>
+                    </h3>
                     <p class="text-2xl font-bold text-primary">100% Locked</p>
-                    <p class="text-grayText mt-2 text-sm">Long Term Locked, No Rug</p>
+                    <p class="text-grayText mt-2 text-sm">
+                        <span class="lang-en">Long Term Locked, No Rug</span>
+                        <span class="lang-zh">长期锁仓，安全可靠</span>
+                    </p>
                 </div>
             </div>
-
             <div class="mt-12 grid md:grid-cols-3 gap-6">
                 <div class="bg-dark p-8 rounded-2xl border border-white/10">
-                    <h3 class="text-xl font-semibold mb-3">🔥 Auto Burn</h3>
-                    <p class="text-grayText">Every transaction triggers automatic deflation. Continuous burn reduces total supply forever.</p>
+                    <h3 class="text-xl font-semibold mb-3">🔥
+                        <span class="lang-en">Auto Burn</span>
+                        <span class="lang-zh">自动销毁</span>
+                    </h3>
+                    <p class="text-grayText">
+                        <span class="lang-en">Every transaction triggers automatic deflation. Continuous burn reduces total supply forever.</span>
+                        <span class="lang-zh">每笔交易自动通缩，持续销毁永久减少流通总量。</span>
+                    </p>
                 </div>
                 <div class="bg-dark p-8 rounded-2xl border border-white/10">
-                    <h3 class="text-xl font-semibold mb-3">🛡️ No Central Control</h3>
-                    <p class="text-grayText">No pause, no blacklist, no mint. Admin role fully renounced after launch.</p>
+                    <h3 class="text-xl font-semibold mb-3">🛡️
+                        <span class="lang-en">No Central Control</span>
+                        <span class="lang-zh">无中心化管控</span>
+                    </h3>
+                    <p class="text-grayText">
+                        <span class="lang-en">No pause, no blacklist, no mint. Admin role fully renounced after launch.</span>
+                        <span class="lang-zh">无暂停、无黑名单、无增发，上线后完全放弃管理员权限。</span>
+                    </p>
                 </div>
                 <div class="bg-dark p-8 rounded-2xl border border-white/10">
-                    <h3 class="text-xl font-semibold mb-3">🎨 Art Ecosystem</h3>
-                    <p class="text-grayText">Support NFT, Artist incubation & creator incentives in the long run.</p>
+                    <h3 class="text-xl font-semibold mb-3">🎨
+                        <span class="lang-en">Art Ecosystem</span>
+                        <span class="lang-zh">艺术生态</span>
+                    </h3>
+                    <p class="text-grayText">
+                        <span class="lang-en">Support NFT, Artist incubation & creator incentives in the long run.</span>
+                        <span class="lang-zh">长期布局NFT、艺术家孵化与创作者激励体系。</span>
+                    </p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 合约信息 Contract -->
+    <!-- 合约信息 -->
     <section id="contract" class="py-20">
         <div class="container mx-auto px-4 md:px-6">
             <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">Contract & Security</h2>
-                <p class="text-grayText">Fully verified contract, 100% transparent & secure</p>
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">
+                    <span class="lang-en">Contract & Security</span>
+                    <span class="lang-zh">合约与安全</span>
+                </h2>
+                <p class="text-grayText">
+                    <span class="lang-en">Fully verified contract, 100% transparent & secure</span>
+                    <span class="lang-zh">合约完全开源验证，公开透明、安全无忧</span>
+                </p>
             </div>
-
             <div class="bg-darkCard p-8 rounded-2xl border border-white/10 max-w-4xl mx-auto">
                 <div class="mb-6">
-                    <p class="text-grayText text-sm mb-2">Contract Address</p>
+                    <p class="text-grayText text-sm mb-2">
+                        <span class="lang-en">Contract Address</span>
+                        <span class="lang-zh">合约地址</span>
+                    </p>
                     <div class="flex items-center gap-2 bg-dark p-4 rounded-lg border border-white/10">
                         <code id="contractAddr" class="text-sm md:text-base break-all">0xYourContractAddressHere</code>
                         <button onclick="copyAddr()" class="text-primary hover:text-secondary transition-colors flex-shrink-0">
@@ -250,139 +374,193 @@
                         </button>
                     </div>
                 </div>
-
                 <div class="grid md:grid-cols-2 gap-6 mb-8">
                     <div>
-                        <p class="text-grayText text-sm mb-2">LP Lock Record</p>
+                        <p class="text-grayText text-sm mb-2">
+                            <span class="lang-en">LP Lock Record</span>
+                            <span class="lang-zh">流动性锁仓记录</span>
+                        </p>
                         <a href="https://LP_LOCK_LINK" target="_blank" class="block bg-dark p-4 rounded-lg border border-white/10 text-primary hover:underline break-all">
-                            View LP Lock Record
+                            <span class="lang-en">View LP Lock Record</span>
+                            <span class="lang-zh">查看锁仓凭证</span>
                         </a>
                     </div>
                     <div>
-                        <p class="text-grayText text-sm mb-2">Block Explorer</p>
+                        <p class="text-grayText text-sm mb-2">
+                            <span class="lang-en">Block Explorer</span>
+                            <span class="lang-zh">区块浏览器</span>
+                        </p>
                         <a href="https://SCAN_LINK" target="_blank" class="block bg-dark p-4 rounded-lg border border-white/10 text-primary hover:underline break-all">
-                            View on Explorer
+                            <span class="lang-en">View on Explorer</span>
+                            <span class="lang-zh">前往查看</span>
                         </a>
                     </div>
                 </div>
-
                 <div class="border-t border-white/10 pt-6">
-                    <h3 class="text-lg font-semibold mb-4">Core Security Features</h3>
+                    <h3 class="text-lg font-semibold mb-4">
+                        <span class="lang-en">Core Security Features</span>
+                        <span class="lang-zh">核心安全特性</span>
+                    </h3>
                     <ul class="grid md:grid-cols-2 gap-3">
-                        <li class="flex items-center gap-2 text-grayText"><i class="fa-solid fa-check text-green-400"></i> No Mint Function</li>
-                        <li class="flex items-center gap-2 text-grayText"><i class="fa-solid fa-check text-green-400"></i> No Pause / No Freeze</li>
-                        <li class="flex items-center gap-2 text-grayText"><i class="fa-solid fa-check text-green-400"></i> Immutable Tax Rate</li>
-                        <li class="flex items-center gap-2 text-grayText"><i class="fa-solid fa-check text-green-400"></i> No Blacklist</li>
-                        <li class="flex items-center gap-2 text-grayText"><i class="fa-solid fa-check text-green-400"></i> Admin Role Renounced</li>
-                        <li class="flex items-center gap-2 text-grayText"><i class="fa-solid fa-check text-green-400"></i> 100% LP Long Locked</li>
+                        <li class="flex items-center gap-2 text-grayText"><i class="fa-solid fa-check text-green-400"></i> <span class="lang-en">No Mint Function</span><span class="lang-zh">无增发功能</span></li>
+                        <li class="flex items-center gap-2 text-grayText"><i class="fa-solid fa-check text-green-400"></i> <span class="lang-en">No Pause / No Freeze</span><span class="lang-zh">无暂停/无冻结</span></li>
+                        <li class="flex items-center gap-2 text-grayText"><i class="fa-solid fa-check text-green-400"></i> <span class="lang-en">Immutable Tax Rate</span><span class="lang-zh">税费不可修改</span></li>
+                        <li class="flex items-center gap-2 text-grayText"><i class="fa-solid fa-check text-green-400"></i> <span class="lang-en">No Blacklist</span><span class="lang-zh">无黑名单</span></li>
+                        <li class="flex items-center gap-2 text-grayText"><i class="fa-solid fa-check text-green-400"></i> <span class="lang-en">Admin Role Renounced</span><span class="lang-zh">已放弃管理员权限</span></li>
+                        <li class="flex items-center gap-2 text-grayText"><i class="fa-solid fa-check text-green-400"></i> <span class="lang-en">100% LP Long Locked</span><span class="lang-zh">流动性全额长期锁仓</span></li>
                     </ul>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 购买入口 Buy -->
+    <!-- 购买区域 -->
     <section id="buy" class="py-20 bg-darkCard">
         <div class="container mx-auto px-4 md:px-6">
             <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">How To Buy ART</h2>
-                <p class="text-grayText">Simple steps to join our Art Community</p>
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">
+                    <span class="lang-en">How To Buy ART</span>
+                    <span class="lang-zh">如何购买</span>
+                </h2>
+                <p class="text-grayText">
+                    <span class="lang-en">Simple steps to join our Art Community</span>
+                    <span class="lang-zh">简单几步，加入艺术社区</span>
+                </p>
             </div>
-
             <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
                 <div class="bg-dark p-8 rounded-2xl border border-white/10 text-center">
                     <div class="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
                         <span class="text-primary text-xl font-bold">1</span>
                     </div>
-                    <h3 class="text-xl font-semibold mb-3">Install Wallet</h3>
-                    <p class="text-grayText">Download MetaMask or other Web3 Wallet, switch to BSC Chain.</p>
+                    <h3 class="text-xl font-semibold mb-3">
+                        <span class="lang-en">Install Wallet</span>
+                        <span class="lang-zh">下载钱包</span>
+                    </h3>
+                    <p class="text-grayText">
+                        <span class="lang-en">Download MetaMask or other Web3 Wallet, switch to BSC Chain.</span>
+                        <span class="lang-zh">安装小狐狸等Web3钱包，切换至BSC币安智能链。</span>
+                    </p>
                 </div>
                 <div class="bg-dark p-8 rounded-2xl border border-white/10 text-center">
                     <div class="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
                         <span class="text-primary text-xl font-bold">2</span>
                     </div>
-                    <h3 class="text-xl font-semibold mb-3">Add Funds</h3>
-                    <p class="text-grayText">Add BNB to your wallet for swap & gas fee.</p>
+                    <h3 class="text-xl font-semibold mb-3">
+                        <span class="lang-en">Add Funds</span>
+                        <span class="lang-zh">转入资产</span>
+                    </h3>
+                    <p class="text-grayText">
+                        <span class="lang-en">Add BNB to your wallet for swap & gas fee.</span>
+                        <span class="lang-zh">钱包存入BNB，用于兑换与支付矿工费。</span>
+                    </p>
                 </div>
                 <div class="bg-dark p-8 rounded-2xl border border-white/10 text-center">
                     <div class="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
                         <span class="text-primary text-xl font-bold">3</span>
                     </div>
-                    <h3 class="text-xl font-semibold mb-3">Swap on DEX</h3>
-                    <p class="text-grayText">Open PancakeSwap, paste contract address & swap for ART.</p>
+                    <h3 class="text-xl font-semibold mb-3">
+                        <span class="lang-en">Swap on DEX</span>
+                        <span class="lang-zh">去中心化兑换</span>
+                    </h3>
+                    <p class="text-grayText">
+                        <span class="lang-en">Open PancakeSwap, paste contract address & swap for ART.</span>
+                        <span class="lang-zh">打开薄饼交易所，粘贴合约地址完成兑换。</span>
+                    </p>
                 </div>
             </div>
-
             <div class="text-center mt-10">
-                <!-- PancakeSwap 购买链接，替换合约地址 -->
                 <a href="https://pancakeswap.finance/swap?outputCurrency=0xYourContractAddressHere" target="_blank" class="inline-block bg-primary hover:bg-primary/90 px-10 py-4 rounded-full text-lg font-medium transition-all">
-                    Buy on PancakeSwap <i class="fa-solid fa-arrow-up-right-dots ml-2"></i>
+                    <span class="lang-en">Buy on PancakeSwap</span>
+                    <span class="lang-zh">前往薄饼购买</span>
+                    <i class="fa-solid fa-arrow-up-right-dots ml-2"></i>
                 </a>
             </div>
         </div>
     </section>
 
-    <!-- 路线图 Roadmap -->
+    <!-- 路线图 -->
     <section id="roadmap" class="py-20">
         <div class="container mx-auto px-4 md:px-6">
             <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">Roadmap</h2>
-                <p class="text-grayText">Clear planning for ART & Digital Art Ecosystem</p>
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">
+                    <span class="lang-en">Roadmap</span>
+                    <span class="lang-zh">发展路线图</span>
+                </h2>
+                <p class="text-grayText">
+                    <span class="lang-en">Clear planning for ART & Digital Art Ecosystem</span>
+                    <span class="lang-zh">ART 与数字艺术生态清晰规划</span>
+                </p>
             </div>
-
             <div class="grid md:grid-cols-4 gap-6">
                 <div class="bg-darkCard p-6 rounded-2xl border border-white/10">
-                    <span class="text-primary font-medium">Phase 1</span>
-                    <h3 class="text-lg font-semibold mt-2 mb-4">Launch & Community</h3>
+                    <span class="text-primary font-medium">Phase 1 / 第一阶段</span>
+                    <h3 class="text-lg font-semibold mt-2 mb-4">
+                        <span class="lang-en">Launch & Community</span>
+                        <span class="lang-zh">上线与社区搭建</span>
+                    </h3>
                     <ul class="text-grayText text-sm space-y-2">
-                        <li>• Fair Token Launch</li>
-                        <li>• LP Lock & Admin Renounce</li>
-                        <li>• Official Website Launch</li>
-                        <li>• Global Community Build</li>
+                        <li>• <span class="lang-en">Fair Token Launch</span><span class="lang-zh">代币公平发射</span></li>
+                        <li>• <span class="lang-en">LP Lock & Admin Renounce</span><span class="lang-zh">锁仓并放弃管理员权限</span></li>
+                        <li>• <span class="lang-en">Official Website Launch</span><span class="lang-zh">官网正式上线</span></li>
+                        <li>• <span class="lang-en">Global Community Build</span><span class="lang-zh">全球社区建设</span></li>
                     </ul>
                 </div>
                 <div class="bg-darkCard p-6 rounded-2xl border border-white/10">
-                    <span class="text-primary font-medium">Phase 2</span>
-                    <h3 class="text-lg font-semibold mt-2 mb-4">NFT & Art Platform</h3>
+                    <span class="text-primary font-medium">Phase 2 / 第二阶段</span>
+                    <h3 class="text-lg font-semibold mt-2 mb-4">
+                        <span class="lang-en">NFT & Art Platform</span>
+                        <span class="lang-zh">NFT 与艺术平台</span>
+                    </h3>
                     <ul class="text-grayText text-sm space-y-2">
-                        <li>• NFT Collection Release</li>
-                        <li>• Artist Recruitment</li>
-                        <li>• ART Staking Launch</li>
-                        <li>• Influencer Partnership</li>
+                        <li>• <span class="lang-en">NFT Collection Release</span><span class="lang-zh">NFT 系列发行</span></li>
+                        <li>• <span class="lang-en">Artist Recruitment</span><span class="lang-zh">艺术家招募</span></li>
+                        <li>• <span class="lang-en">ART Staking Launch</span><span class="lang-zh">质押功能上线</span></li>
+                        <li>• <span class="lang-en">Influencer Partnership</span><span class="lang-zh">达人合作推广</span></li>
                     </ul>
                 </div>
                 <div class="bg-darkCard p-6 rounded-2xl border border-white/10">
-                    <span class="text-primary font-medium">Phase 3</span>
-                    <h3 class="text-lg font-semibold mt-2 mb-4">Ecosystem Expand</h3>
+                    <span class="text-primary font-medium">Phase 3 / 第三阶段</span>
+                    <h3 class="text-lg font-semibold mt-2 mb-4">
+                        <span class="lang-en">Ecosystem Expand</span>
+                        <span class="lang-zh">生态拓展</span>
+                    </h3>
                     <ul class="text-grayText text-sm space-y-2">
-                        <li>• Art Marketplace Upgrade</li>
-                        <li>• Cross-chain Layout</li>
-                        <li>• Brand Co-branding</li>
-                        <li>• Large CEX Listing</li>
+                        <li>• <span class="lang-en">Art Marketplace Upgrade</span><span class="lang-zh">艺术市场升级</span></li>
+                        <li>• <span class="lang-en">Cross-chain Layout</span><span class="lang-zh">多链布局</span></li>
+                        <li>• <span class="lang-en">Brand Co-branding</span><span class="lang-zh">品牌联名合作</span></li>
+                        <li>• <span class="lang-en">Large CEX Listing</span><span class="lang-zh">主流交易所上线</span></li>
                     </ul>
                 </div>
                 <div class="bg-darkCard p-6 rounded-2xl border border-white/10">
-                    <span class="text-primary font-medium">Phase 4</span>
-                    <h3 class="text-lg font-semibold mt-2 mb-4">Global Art Brand</h3>
+                    <span class="text-primary font-medium">Phase 4 / 第四阶段</span>
+                    <h3 class="text-lg font-semibold mt-2 mb-4">
+                        <span class="lang-en">Global Art Brand</span>
+                        <span class="lang-zh">全球艺术品牌</span>
+                    </h3>
                     <ul class="text-grayText text-sm space-y-2">
-                        <li>• Offline Art Activities</li>
-                        <li>• Global Artist Alliance</li>
-                        <li>• Art Metaverse</li>
-                        <li>• Long-term Ecological Governance</li>
+                        <li>• <span class="lang-en">Offline Art Activities</span><span class="lang-zh">线下艺术活动</span></li>
+                        <li>• <span class="lang-en">Global Artist Alliance</span><span class="lang-zh">全球艺术家联盟</span></li>
+                        <li>• <span class="lang-en">Art Metaverse</span><span class="lang-zh">艺术元宇宙</span></li>
+                        <li>• <span class="lang-en">Long-term Ecological Governance</span><span class="lang-zh">长期生态治理</span></li>
                     </ul>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 社群 Community -->
+    <!-- 社区 -->
     <section id="community" class="py-20 bg-darkCard">
         <div class="container mx-auto px-4 md:px-6">
             <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">Join Our Community</h2>
-                <p class="text-grayText">Connect with global artists & crypto members</p>
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">
+                    <span class="lang-en">Join Our Community</span>
+                    <span class="lang-zh">加入社区</span>
+                </h2>
+                <p class="text-grayText">
+                    <span class="lang-en">Connect with global artists & crypto members</span>
+                    <span class="lang-zh">链接全球艺术家与加密社区伙伴</span>
+                </p>
             </div>
-
             <div class="flex flex-wrap justify-center gap-6">
                 <a href="https://t.me/TELEGRAM_LINK" target="_blank" class="w-28 h-28 bg-dark rounded-2xl border border-white/10 flex flex-col items-center justify-center hover:border-primary hover:text-primary transition-all">
                     <i class="fa-brands fa-telegram text-3xl mb-2"></i>
@@ -404,7 +582,7 @@
         </div>
     </section>
 
-    <!-- 页脚 Footer -->
+    <!-- 页脚 -->
     <footer class="py-10 border-t border-white/10">
         <div class="container mx-auto px-4 md:px-6 text-center">
             <div class="flex items-center justify-center gap-2 mb-4">
@@ -412,28 +590,35 @@
                 <span class="text-xl font-bold">ART TOKEN</span>
             </div>
             <p class="text-grayText text-sm">
-                © 2025 ART Token. All Rights Reserved. Digital Art Web3 Ecosystem.
+                © 2025 ART Token. All Rights Reserved.
+                <span class="lang-en">Digital Art Web3 Ecosystem.</span>
+                <span class="lang-zh">数字艺术Web3生态。</span>
             </p>
             <p class="text-grayText text-xs mt-2">
-                Cryptocurrency investment carries high risks. Please do your own research.
+                <span class="lang-en">Cryptocurrency investment carries high risks. Please do your own research.</span>
+                <span class="lang-zh">加密货币投资存在高风险，请谨慎参与，自行判断。</span>
             </p>
         </div>
     </footer>
 
-    <!-- JS 交互逻辑 -->
+    <!-- JS 脚本 -->
     <script>
-        // 移动端菜单切换
+        // 移动端菜单
         const menuBtn = document.getElementById('menuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
         menuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
 
-        // 复制合约地址
+        // 复制地址
         function copyAddr() {
             const addr = document.getElementById('contractAddr').innerText;
             navigator.clipboard.writeText(addr).then(() => {
-                alert('Contract Address Copied Successfully!');
+                if(document.body.classList.contains('show-cn')){
+                    alert('合约地址复制成功！');
+                }else{
+                    alert('Contract Address Copied Successfully!');
+                }
             });
         }
 
@@ -444,6 +629,34 @@
                 mobileMenu.classList.add('hidden');
             });
         });
+
+        // 语言切换逻辑
+        const langSwitch = document.getElementById('langSwitch');
+        const mobileLangSwitch = document.getElementById('mobileLangSwitch');
+        const body = document.body;
+
+        // 读取本地存储，默认英文
+        let siteLang = localStorage.getItem('siteLang') || 'en';
+        if(siteLang === 'cn'){
+            body.classList.add('show-cn');
+        }else{
+            body.classList.remove('show-cn');
+        }
+
+        // 切换函数
+        function toggleLanguage(){
+            if(body.classList.contains('show-cn')){
+                body.classList.remove('show-cn');
+                localStorage.setItem('siteLang','en');
+            }else{
+                body.classList.add('show-cn');
+                localStorage.setItem('siteLang','cn');
+            }
+        }
+
+        // 绑定点击事件
+        langSwitch.addEventListener('click', toggleLanguage);
+        mobileLangSwitch.addEventListener('click', toggleLanguage);
     </script>
 </body>
 </html>
