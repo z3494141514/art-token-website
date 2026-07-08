@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ART Token | Digital Art Web3 Ecosystem</title>
+    <meta name="description" content="ART Token - The Next Generation Digital Art & NFT Ecosystem on Blockchain. Fair launch, no mint, no pause, fully decentralized.">
+    <meta name="keywords" content="ART,Token,Web3,Art,NFT,Decentralized,Crypto">
+
+    <!-- 浏览器图标 Favicon -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="logo-main.png">
+
+    <!-- 社交分享标签（Twitter / Telegram / Facebook） -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ART Token | Digital Art Web3 Ecosystem">
+    <meta property="og:description" content="ART Token connects artists, collectors and creators on the blockchain. Fair launch, fully decentralized & community-driven.">
+    <meta property="og:image" content="/og-image.png">
+    <meta property="og:url" content="https://你的自定义域名.com">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ART Token | Digital Art Web3 Ecosystem">
+    <meta name="twitter:description" content="Fair launch, no mint, no pause, immutable tax, 100% LP locked.">
+    <meta name="twitter:image" content="og-image.png">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome 图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 自定义主题配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#9D5CFF',
+                        secondary: '#22D3EE',
+                        dark: '#0A0A12',
+                        darkCard: '#12121F',
+                        grayText: '#A1A1AA'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-gradient {
+                background-clip: text;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            .bg-glass {
+                background: rgba(18, 18, 31, 0.7);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+            }
+            .animate-float {
+                animation: float 6s ease-in-out infinite;
+            }
+            .animate-pulse-slow {
+                animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+        }
+
+        /* 全局滚动美化 */
+        html {
+            scroll-behavior: smooth;
+        }
+        body::-webkit-scrollbar {
+            width: 6px;
+        }
+        body::-webkit-scrollbar-thumb {
+            background: #9D5CFF;
+            border-radius: 3px;
+        }
+    </style>
+    <!-- 引入字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-dark text-white font-sans antialiased">
+    <!-- 顶部导航栏 -->
+    <header class="fixed w-full top-0 z-50 bg-glass border-b border-white/10">
+        <div class="container mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-2">
+                <i class="fa-solid fa-palette text-primary text-2xl"></i>
+                <span class="text-xl font-bold tracking-tight">ART TOKEN</span>
+            </a>
+
+            <!-- 桌面端菜单 -->
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="#home" class="hover:text-primary transition-colors duration-300">Home</a>
+                <a href="#tokenomics" class="hover:text-primary transition-colors duration-300">Tokenomics</a>
+                <a href="#contract" class="hover:text-primary transition-colors">Contract</a>
+                <a href="#roadmap" class="hover:text-primary transition-colors">Roadmap</a>
+                <a href="#community" class="hover:text-primary transition-colors">Community</a>
+                <a href="#buy" class="bg-primary hover:bg-primary/90 px-5 py-2 rounded-full font-medium transition-all">Buy ART</a>
+            </nav>
+
+            <!-- 移动端菜单按钮 -->
+            <button id="menuBtn" class="md:hidden text-2xl">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- 移动端菜单 -->
+        <div id="mobileMenu" class="hidden md:hidden bg-darkCard border-t border-white/10">
+            <div class="container mx-auto px-4 py-4 flex flex-col gap-4">
+                <a href="#home" class="py-2 hover:text-primary">Home</a>
+                <a href="#tokenomics" class="py-2 hover:text-primary">Tokenomics</a>
+                <a href="#contract" class="py-2 hover:text-primary">Contract</a>
+                <a href="#roadmap" class="py-2 hover:text-primary">Roadmap</a>
+                <a href="#community" class="py-2 hover:text-primary">Community</a>
+                <a href="#buy" class="bg-primary text-center py-2 rounded-full">Buy ART</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主视觉区块 Hero -->
+    <section id="home" class="min-h-screen flex items-center pt-24 pb-16 relative overflow-hidden">
+        <!-- 背景光晕 -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[120px] animate-pulse-slow"></div>
+        <div class="absolute bottom-0 right-0 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[100px]"></div>
+
+        <div class="container mx-auto px-4 md:px-6 relative z-10">
+            <div class="grid md:grid-cols-2 gap-10 items-center">
+                <div class="order-2 md:order-1">
+                    <span class="inline-block px-4 py-1 rounded-full border border-primary/40 text-primary text-sm mb-6">
+                        WEB3 DIGITAL ART ECOSYSTEM
+                    </span>
+                    <h1 class="text-[clamp(2.5rem,5vw,4rem)] font-bold leading-tight mb-6">
+                        The Future of
+                        <span class="bg-gradient-to-r from-primary to-secondary text-gradient"> Digital Art</span>
+                    </h1>
+                    <p class="text-grayText text-lg mb-8 max-w-lg">
+                        ART Token connects artists, collectors and creators on the blockchain. 
+                        Fair launch, no mint, no pause, fully decentralized & community-driven.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#buy" class="bg-primary hover:bg-primary/90 px-8 py-3 rounded-full font-medium transition-all">
+                            Get ART Now
+                        </a>
+                        <a href="#contract" class="border border-white/20 hover:border-primary px-8 py-3 rounded-full font-medium transition-all">
+                            View Contract
+                        </a>
+                    </div>
+                    <div class="flex items-center gap-6 mt-10">
+                        <div>
+                            <p class="text-2xl font-bold">1B</p>
+                            <p class="text-grayText text-sm">Total Supply</p>
+                        </div>
+                        <div class="w-px h-10 bg-white/20"></div>
+                        <div>
+                            <p class="text-2xl font-bold">0%</p>
+                            <p class="text-grayText text-sm">Hidden Dev Tax</p>
+                        </div>
+                        <div class="w-px h-10 bg-white/20"></div>
+                        <div>
+                            <p class="text-2xl font-bold">100%</p>
+                            <p class="text-grayText text-sm">LP Locked</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-1 md:order-2 flex justify-center">
+                    <!-- 主LOGO -->
+                    <div class="w-[clamp(280px,60vw,420px)] h-[clamp(280px,60vw,420px)] rounded-2xl bg-darkCard border border-white/10 flex items-center justify-center animate-float overflow-hidden">
+                        <img src="logo-main.png" alt="ART Token Logo" class="w-4/5 h-auto object-contain">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 代币经济 Tokenomics -->
+    <section id="tokenomics" class="py-20 bg-darkCard">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">Tokenomics</h2>
+                <p class="text-grayText">Transparent & Fair Tokenomics, Community First, No Rug Pull</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-dark p-8 rounded-2xl border border-white/10 hover:border-primary/40 transition-all">
+                    <i class="fa-solid fa-coins text-primary text-3xl mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Total Supply</h3>
+                    <p class="text-2xl font-bold text-primary">1,000,000,000 ART</p>
+                    <p class="text-grayText mt-2 text-sm">Max Supply, No Mint Function</p>
+                </div>
+                <div class="bg-dark p-8 rounded-2xl border border-white/10 hover:border-primary/40 transition-all">
+                    <i class="fa-solid fa-cart-shopping text-primary text-3xl mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Buy Tax</h3>
+                    <p class="text-2xl font-bold text-primary">1.5%</p>
+                    <p class="text-grayText mt-2 text-sm">50% Burn + 50% Treasury</p>
+                </div>
+                <div class="bg-dark p-8 rounded-2xl border border-white/10 hover:border-primary/40 transition-all">
+                    <i class="fa-solid fa-hand-holding-dollar text-primary text-3xl mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Sell Tax</h3>
+                    <p class="text-2xl font-bold text-primary">1.5%</p>
+                    <p class="text-grayText mt-2 text-sm">50% Burn + 50% Treasury</p>
+                </div>
+                <div class="bg-dark p-8 rounded-2xl border border-white/10 hover:border-primary/40 transition-all">
+                    <i class="fa-solid fa-lock text-primary text-3xl mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">LP Locked</h3>
+                    <p class="text-2xl font-bold text-primary">100% Locked</p>
+                    <p class="text-grayText mt-2 text-sm">Long Term Locked, No Rug</p>
+                </div>
+            </div>
+
+            <div class="mt-12 grid md:grid-cols-3 gap-6">
+                <div class="bg-dark p-8 rounded-2xl border border-white/10">
+                    <h3 class="text-xl font-semibold mb-3">🔥 Auto Burn</h3>
+                    <p class="text-grayText">Every transaction triggers automatic deflation. Continuous burn reduces total supply forever.</p>
+                </div>
+                <div class="bg-dark p-8 rounded-2xl border border-white/10">
+                    <h3 class="text-xl font-semibold mb-3">🛡️ No Central Control</h3>
+                    <p class="text-grayText">No pause, no blacklist, no mint. Admin role fully renounced after launch.</p>
+                </div>
+                <div class="bg-dark p-8 rounded-2xl border border-white/10">
+                    <h3 class="text-xl font-semibold mb-3">🎨 Art Ecosystem</h3>
+                    <p class="text-grayText">Support NFT, Artist incubation & creator incentives in the long run.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 合约信息 Contract -->
+    <section id="contract" class="py-20">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">Contract & Security</h2>
+                <p class="text-grayText">Fully verified contract, 100% transparent & secure</p>
+            </div>
+
+            <div class="bg-darkCard p-8 rounded-2xl border border-white/10 max-w-4xl mx-auto">
+                <div class="mb-6">
+                    <p class="text-grayText text-sm mb-2">Contract Address</p>
+                    <div class="flex items-center gap-2 bg-dark p-4 rounded-lg border border-white/10">
+                        <code id="contractAddr" class="text-sm md:text-base break-all">0xYourContractAddressHere</code>
+                        <button onclick="copyAddr()" class="text-primary hover:text-secondary transition-colors flex-shrink-0">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div>
+                        <p class="text-grayText text-sm mb-2">LP Lock Record</p>
+                        <a href="https://LP_LOCK_LINK" target="_blank" class="block bg-dark p-4 rounded-lg border border-white/10 text-primary hover:underline break-all">
+                            View LP Lock Record
+                        </a>
+                    </div>
+                    <div>
+                        <p class="text-grayText text-sm mb-2">Block Explorer</p>
+                        <a href="https://SCAN_LINK" target="_blank" class="block bg-dark p-4 rounded-lg border border-white/10 text-primary hover:underline break-all">
+                            View on Explorer
+                        </a>
+                    </div>
+                </div>
+
+                <div class="border-t border-white/10 pt-6">
+                    <h3 class="text-lg font-semibold mb-4">Core Security Features</h3>
+                    <ul class="grid md:grid-cols-2 gap-3">
+                        <li class="flex items-center gap-2 text-grayText"><i class="fa-solid fa-check text-green-400"></i> No Mint Function</li>
+                        <li class="flex items-center gap-2 text-grayText"><i class="fa-solid fa-check text-green-400"></i> No Pause / No Freeze</li>
+                        <li class="flex items-center gap-2 text-grayText"><i class="fa-solid fa-check text-green-400"></i> Immutable Tax Rate</li>
+                        <li class="flex items-center gap-2 text-grayText"><i class="fa-solid fa-check text-green-400"></i> No Blacklist</li>
+                        <li class="flex items-center gap-2 text-grayText"><i class="fa-solid fa-check text-green-400"></i> Admin Role Renounced</li>
+                        <li class="flex items-center gap-2 text-grayText"><i class="fa-solid fa-check text-green-400"></i> 100% LP Long Locked</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 购买入口 Buy -->
+    <section id="buy" class="py-20 bg-darkCard">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">How To Buy ART</h2>
+                <p class="text-grayText">Simple steps to join our Art Community</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                <div class="bg-dark p-8 rounded-2xl border border-white/10 text-center">
+                    <div class="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
+                        <span class="text-primary text-xl font-bold">1</span>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Install Wallet</h3>
+                    <p class="text-grayText">Download MetaMask or other Web3 Wallet, switch to BSC Chain.</p>
+                </div>
+                <div class="bg-dark p-8 rounded-2xl border border-white/10 text-center">
+                    <div class="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
+                        <span class="text-primary text-xl font-bold">2</span>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Add Funds</h3>
+                    <p class="text-grayText">Add BNB to your wallet for swap & gas fee.</p>
+                </div>
+                <div class="bg-dark p-8 rounded-2xl border border-white/10 text-center">
+                    <div class="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
+                        <span class="text-primary text-xl font-bold">3</span>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Swap on DEX</h3>
+                    <p class="text-grayText">Open PancakeSwap, paste contract address & swap for ART.</p>
+                </div>
+            </div>
+
+            <div class="text-center mt-10">
+                <!-- PancakeSwap 购买链接，替换合约地址 -->
+                <a href="https://pancakeswap.finance/swap?outputCurrency=0xYourContractAddressHere" target="_blank" class="inline-block bg-primary hover:bg-primary/90 px-10 py-4 rounded-full text-lg font-medium transition-all">
+                    Buy on PancakeSwap <i class="fa-solid fa-arrow-up-right-dots ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 路线图 Roadmap -->
+    <section id="roadmap" class="py-20">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">Roadmap</h2>
+                <p class="text-grayText">Clear planning for ART & Digital Art Ecosystem</p>
+            </div>
+
+            <div class="grid md:grid-cols-4 gap-6">
+                <div class="bg-darkCard p-6 rounded-2xl border border-white/10">
+                    <span class="text-primary font-medium">Phase 1</span>
+                    <h3 class="text-lg font-semibold mt-2 mb-4">Launch & Community</h3>
+                    <ul class="text-grayText text-sm space-y-2">
+                        <li>• Fair Token Launch</li>
+                        <li>• LP Lock & Admin Renounce</li>
+                        <li>• Official Website Launch</li>
+                        <li>• Global Community Build</li>
+                    </ul>
+                </div>
+                <div class="bg-darkCard p-6 rounded-2xl border border-white/10">
+                    <span class="text-primary font-medium">Phase 2</span>
+                    <h3 class="text-lg font-semibold mt-2 mb-4">NFT & Art Platform</h3>
+                    <ul class="text-grayText text-sm space-y-2">
+                        <li>• NFT Collection Release</li>
+                        <li>• Artist Recruitment</li>
+                        <li>• ART Staking Launch</li>
+                        <li>• Influencer Partnership</li>
+                    </ul>
+                </div>
+                <div class="bg-darkCard p-6 rounded-2xl border border-white/10">
+                    <span class="text-primary font-medium">Phase 3</span>
+                    <h3 class="text-lg font-semibold mt-2 mb-4">Ecosystem Expand</h3>
+                    <ul class="text-grayText text-sm space-y-2">
+                        <li>• Art Marketplace Upgrade</li>
+                        <li>• Cross-chain Layout</li>
+                        <li>• Brand Co-branding</li>
+                        <li>• Large CEX Listing</li>
+                    </ul>
+                </div>
+                <div class="bg-darkCard p-6 rounded-2xl border border-white/10">
+                    <span class="text-primary font-medium">Phase 4</span>
+                    <h3 class="text-lg font-semibold mt-2 mb-4">Global Art Brand</h3>
+                    <ul class="text-grayText text-sm space-y-2">
+                        <li>• Offline Art Activities</li>
+                        <li>• Global Artist Alliance</li>
+                        <li>• Art Metaverse</li>
+                        <li>• Long-term Ecological Governance</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 社群 Community -->
+    <section id="community" class="py-20 bg-darkCard">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">Join Our Community</h2>
+                <p class="text-grayText">Connect with global artists & crypto members</p>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-6">
+                <a href="https://t.me/TELEGRAM_LINK" target="_blank" class="w-28 h-28 bg-dark rounded-2xl border border-white/10 flex flex-col items-center justify-center hover:border-primary hover:text-primary transition-all">
+                    <i class="fa-brands fa-telegram text-3xl mb-2"></i>
+                    <span>Telegram</span>
+                </a>
+                <a href="https://twitter.com/TWITTER_LINK" target="_blank" class="w-28 h-28 bg-dark rounded-2xl border border-white/10 flex flex-col items-center justify-center hover:border-primary hover:text-primary transition-all">
+                    <i class="fa-brands fa-x-twitter text-3xl mb-2"></i>
+                    <span>Twitter / X</span>
+                </a>
+                <a href="https://discord.com/DISCORD_LINK" target="_blank" class="w-28 h-28 bg-dark rounded-2xl border border-white/10 flex flex-col items-center justify-center hover:border-primary hover:text-primary transition-all">
+                    <i class="fa-brands fa-discord text-3xl mb-2"></i>
+                    <span>Discord</span>
+                </a>
+                <a href="#" target="_blank" class="w-28 h-28 bg-dark rounded-2xl border border-white/10 flex flex-col items-center justify-center hover:border-primary hover:text-primary transition-all">
+                    <i class="fa-brands fa-instagram text-3xl mb-2"></i>
+                    <span>Instagram</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 Footer -->
+    <footer class="py-10 border-t border-white/10">
+        <div class="container mx-auto px-4 md:px-6 text-center">
+            <div class="flex items-center justify-center gap-2 mb-4">
+                <i class="fa-solid fa-palette text-primary text-2xl"></i>
+                <span class="text-xl font-bold">ART TOKEN</span>
+            </div>
+            <p class="text-grayText text-sm">
+                © 2025 ART Token. All Rights Reserved. Digital Art Web3 Ecosystem.
+            </p>
+            <p class="text-grayText text-xs mt-2">
+                Cryptocurrency investment carries high risks. Please do your own research.
+            </p>
+        </div>
+    </footer>
+
+    <!-- JS 交互逻辑 -->
+    <script>
+        // 移动端菜单切换
+        const menuBtn = document.getElementById('menuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // 复制合约地址
+        function copyAddr() {
+            const addr = document.getElementById('contractAddr').innerText;
+            navigator.clipboard.writeText(addr).then(() => {
+                alert('Contract Address Copied Successfully!');
+            });
+        }
+
+        // 点击导航关闭移动端菜单
+        const mobileLinks = mobileMenu.querySelectorAll('a');
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
