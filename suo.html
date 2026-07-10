@@ -355,10 +355,6 @@
                 "function withdrawLock(uint256 lockId) external",
                 "function withdrawVest(uint256 vestId) external",
             ];
-            const ERC20_ABI = [
-                "function symbol() view returns (string)",
-                "function decimals() view returns (uint8)",
-            ];
 
             let provider = null, signer = null, contract = null, userAddress = null;
             let lockStore = [], vestStore = [];
@@ -432,10 +428,8 @@
 
             function startTimer() { clearTimer(); timerInterval = setInterval(updateAllCards, 1000); }
 
-            // 实时更新卡片状态
             function updateAllCards() {
                 const now = Math.floor(Date.now() / 1000);
-                // 一次性锁仓
                 lockStore.forEach(lock => {
                     const card = document.querySelector(`.lock-card[data-lock-id="${lock.id}"]`);
                     if (!card || lock.withdrawn) return;
@@ -464,7 +458,6 @@
                         if (btnEl) btnEl.disabled = true;
                     }
                 });
-                // Vesting
                 vestStore.forEach(vest => {
                     const card = document.querySelector(`.vest-card[data-vest-id="${vest.id}"]`);
                     if (!card) return;
@@ -500,7 +493,6 @@
                 });
             }
 
-            // ----------------- Multicall 批量查询 -----------------
             async function multicall(provider, calls) {
                 const mc = new ethers.Contract(MULTICALL_ADDRESS, MULTICALL_ABI, provider);
                 return await mc.aggregate3(calls);
@@ -520,7 +512,6 @@
                 return results.map(r => r.success ? iface.decodeFunctionResult(method, r.returnData) : null);
             }
 
-            // ----------------- 数据加载 -----------------
             async function loadAllData() {
                 const rpc = new ethers.providers.JsonRpcProvider(RPC_URLS[0]);
                 try { await Promise.all([loadTotalLocked(rpc), loadLocks(rpc), loadVests(rpc)]); }
@@ -534,23 +525,46 @@
                 try {
                     const lockContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
                     const [lc, vc] = await Promise.all([lockContract.lockCount(), lockContract.vestCount()]);
-                    const lockCount = lc.toNumber(), vestCount = vc.toNumber();
+                    const totalLockCount = lc.toNumber(), totalVestCount = vc.toNumber();
                     const tokenAmounts = {};
-                    if (lockCount + vestCount === 0) {
+                    let activeLockCount = 0, activeVestCount = 0;
+
+                    if (totalLockCount + totalVestCount === 0) {
                         totalLockedEl.textContent = '暂无锁仓';
                         totalLockedSubEl.textContent = '共 0 笔记录';
                         return;
                     }
-                    const lockCalls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenLocks', Array.from({length: lockCount}, (_,i) => [i+1]));
-                    const vestCalls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenVests', Array.from({length: vestCount}, (_,i) => [i+1]));
+
+                    const lockCalls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenLocks', Array.from({length: totalLockCount}, (_,i) => [i+1]));
+                    const vestCalls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenVests', Array.from({length: totalVestCount}, (_,i) => [i+1]));
                     const [lockRes, vestRes] = await Promise.all([
                         multicall(provider, lockCalls),
                         multicall(provider, vestCalls)
                     ]);
                     const locks = decodeResults(lockRes, CONTRACT_ABI, 'tokenLocks');
                     const vests = decodeResults(vestRes, CONTRACT_ABI, 'tokenVests');
-                    locks.forEach(l => { if(l) { const a=l.token.toLowerCase(); if(!tokenAmounts[a]) tokenAmounts[a]={amount:ethers.BigNumber.from(0),symbol:null,decimals:18}; tokenAmounts[a].amount=tokenAmounts[a].amount.add(l.amount); } });
-                    vests.forEach(v => { if(v) { const a=v.token.toLowerCase(); if(!tokenAmounts[a]) tokenAmounts[a]={amount:ethers.BigNumber.from(0),symbol:null,decimals:18}; tokenAmounts[a].amount=tokenAmounts[a].amount.add(v.totalAmount); } });
+
+                    // 只统计未领取的一次性锁仓
+                    locks.forEach(l => {
+                        if (l && !l.withdrawn) {
+                            activeLockCount++;
+                            const a = l.token.toLowerCase();
+                            if (!tokenAmounts[a]) tokenAmounts[a] = { amount: ethers.BigNumber.from(0), symbol: null, decimals: 18 };
+                            tokenAmounts[a].amount = tokenAmounts[a].amount.add(l.amount);
+                        }
+                    });
+
+                    // 只统计未完全释放的 Vesting，且只计剩余部分
+                    vests.forEach(v => {
+                        if (v && v.released.lt(v.totalAmount)) {
+                            activeVestCount++;
+                            const remaining = v.totalAmount.sub(v.released);
+                            const a = v.token.toLowerCase();
+                            if (!tokenAmounts[a]) tokenAmounts[a] = { amount: ethers.BigNumber.from(0), symbol: null, decimals: 18 };
+                            tokenAmounts[a].amount = tokenAmounts[a].amount.add(remaining);
+                        }
+                    });
+
                     const addrs = Object.keys(tokenAmounts);
                     const symCalls = addrs.map(a => ({target:a, allowFailure:true, callData: new ethers.utils.Interface(['function symbol() view returns (string)']).encodeFunctionData('symbol')}));
                     const decCalls = addrs.map(a => ({target:a, allowFailure:true, callData: new ethers.utils.Interface(['function decimals() view returns (uint8)']).encodeFunctionData('decimals')}));
@@ -563,6 +577,7 @@
                         if(decRes[i].success) try{d=decDecoder.decodeFunctionResult('decimals',decRes[i].returnData)[0];}catch(e){}
                         tokenAmounts[a].symbol=s; tokenAmounts[a].decimals=d;
                     });
+
                     const parts = [];
                     for(const info of Object.values(tokenAmounts)) {
                         if(info.amount.gt(0)) {
@@ -573,8 +588,12 @@
                         }
                     }
                     totalLockedEl.textContent = parts.length ? parts.join(' + ') : '暂无锁仓';
-                    totalLockedSubEl.textContent = `共 ${lockCount} 笔锁仓 · ${vestCount} 笔线性释放`;
-                } catch(e) { totalLockedEl.textContent='加载失败'; totalLockedSubEl.textContent='点击刷新重试'; }
+                    totalLockedSubEl.textContent = `有效锁仓 ${activeLockCount} 笔 · 线性释放 ${activeVestCount} 笔`;
+                } catch(e) {
+                    console.error(e);
+                    totalLockedEl.textContent='加载失败';
+                    totalLockedSubEl.textContent='点击刷新重试';
+                }
             }
 
             async function loadLocks(provider) {
@@ -585,7 +604,6 @@
                     const calls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenLocks', Array.from({length: lockCount}, (_,i) => [i+1]));
                     const results = await multicall(provider, calls);
                     const locks = decodeResults(results, CONTRACT_ABI, 'tokenLocks');
-                    const now = Math.floor(Date.now()/1000);
                     lockStore = [];
                     const tokenAddrs = new Set();
                     locks.forEach((lock, idx) => {
