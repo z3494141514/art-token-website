@@ -635,10 +635,11 @@
             const CHAIN_ID = 97;               // BSC 测试网
             const CHAIN_ID_HEX = '0x61';
             const RPC_URLS = [
-                'https://bsc-testnet.public.blastapi.io',  // 更稳定的测试网 RPC
-                'https://data-seed-prebsc-1-s1.binance.org:8545/',
-                'https://data-seed-prebsc-2-s1.binance.org:8545/',
-            ];
+    'https://bsc-testnet-rpc.publicnode.com',   // ✅ 支持 CORS
+    'https://bsc-testnet.binance.org/',         // ✅ 支持 CORS
+    'https://data-seed-prebsc-1-s1.binance.org:8545/', // 部分环境可用
+    'https://data-seed-prebsc-2-s1.binance.org:8545/',
+];
 
             const CONTRACT_ABI = [
                 "function lockCount() view returns (uint256)",
