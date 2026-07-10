@@ -621,23 +621,23 @@
         </section>
 
         <footer style="text-align:center;padding:24px 0;border-top:1px solid var(--border);color:var(--text-dim);font-size:0.75rem;letter-spacing:2px;">
-            © 2026 铁军招募计划 · Powered by Smart Contract · BSC Mainnet
+            © 2026 铁军招募计划 · Powered by Smart Contract · BSC Testnet
         </footer>
     </div>
 
+    <!-- ethers.js -->
     <script src="https://cdn.bootcdn.net/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 
     <script>
         (function() {
             // ==================== 配置 ====================
-            const CONTRACT_ADDRESS = '0xYourMultiTokenLockerAddress'; // 替换为真实合约地址
-            const CHAIN_ID = 56;
-            const CHAIN_ID_HEX = '0x38';
+            const CONTRACT_ADDRESS = '0x3d4F23636A149930EAa69a4ACaba50fd8E1Eb1Ed'; // 测试网合约地址
+            const CHAIN_ID = 97;               // BSC 测试网
+            const CHAIN_ID_HEX = '0x61';
             const RPC_URLS = [
-                'https://bsc-dataseed.binance.org/',
-                'https://bsc-dataseed1.defibit.io/',
-                'https://bsc-dataseed1.ninicoin.io/',
-                'https://rpc.ankr.com/bsc',
+                'https://bsc-testnet.public.blastapi.io',  // 更稳定的测试网 RPC
+                'https://data-seed-prebsc-1-s1.binance.org:8545/',
+                'https://data-seed-prebsc-2-s1.binance.org:8545/',
             ];
 
             const CONTRACT_ABI = [
@@ -669,6 +669,7 @@
             const vestListEl = document.getElementById('vestList');
             const toastContainer = document.getElementById('toastContainer');
 
+            // Toast 通知
             function showToast(message, type = '') {
                 const toast = document.createElement('div');
                 toast.className = `toast ${type}`;
@@ -679,6 +680,7 @@
                 toastContainer.appendChild(toast);
             }
 
+            // 手动连接/断开
             async function toggleWallet() {
                 if (userAddress) {
                     disconnectWallet();
@@ -709,7 +711,8 @@
                 userAddress = account;
                 chainId = parseInt(await window.ethereum.request({ method: 'eth_chainId' }), 16);
                 if (chainId !== CHAIN_ID) {
-                    showToast('请切换到 BSC 主网', 'error');
+                    // 修复文案：测试网
+                    showToast('请切换到 BSC 测试网 (Chain 97)', 'error');
                     try {
                         await window.ethereum.request({
                             method: 'wallet_switchEthereumChain',
@@ -717,7 +720,7 @@
                         });
                         chainId = CHAIN_ID;
                     } catch (e) {
-                        showToast('切换网络失败，请手动切换', 'error');
+                        showToast('切换网络失败，请手动切换到 BSC 测试网', 'error');
                         return;
                     }
                 }
@@ -750,6 +753,7 @@
                 }
             }
 
+            // 监听钱包事件
             if (window.ethereum) {
                 window.ethereum.on('accountsChanged', (accounts) => {
                     if (accounts.length === 0) disconnectWallet();
@@ -764,6 +768,7 @@
                 });
             }
 
+            // 加载所有数据
             async function loadAllData() {
                 if (!contract || !userAddress) return;
                 const readProvider = new ethers.providers.JsonRpcProvider(RPC_URLS[0]);
@@ -794,12 +799,14 @@
                 }
             }
 
+            // 总锁仓金额
             async function loadTotalLocked(readContract) {
                 try {
                     const lockCount = (await readContract.lockCount()).toNumber();
                     const vestCount = (await readContract.vestCount()).toNumber();
                     const tokenAmounts = {};
                     const promises = [];
+
                     for (let i = 1; i <= lockCount; i++) {
                         promises.push((async () => {
                             try {
@@ -824,9 +831,15 @@
 
                     const tokenAddresses = Object.keys(tokenAmounts);
                     const symbolPromises = tokenAddresses.map(async (addr) => {
-                        const info = await getTokenInfo(addr, readContract.provider);
-                        tokenAmounts[addr].symbol = info.symbol;
-                        tokenAmounts[addr].decimals = info.decimals;
+                        try {
+                            const info = await getTokenInfo(addr, readContract.provider);
+                            tokenAmounts[addr].symbol = info.symbol;
+                            tokenAmounts[addr].decimals = info.decimals;
+                        } catch (e) {
+                            // 获取失败保留占位符
+                            tokenAmounts[addr].symbol = 'TOKEN';
+                            tokenAmounts[addr].decimals = 18;
+                        }
                     });
                     await Promise.all(symbolPromises);
 
@@ -865,6 +878,7 @@
                 }
             }
 
+            // 加载一次性锁仓列表
             async function loadLocks(readContract) {
                 try {
                     const count = (await readContract.lockCount()).toNumber();
@@ -876,7 +890,8 @@
                         promises.push((async () => {
                             try {
                                 const lock = await readContract.tokenLocks(i);
-                                if (lock.beneficiary.toLowerCase() === userAddress.toLowerCase()) {
+                                // 增加 beneficiary 存在性检查
+                                if (lock.beneficiary && lock.beneficiary.toLowerCase() === userAddress.toLowerCase()) {
                                     const tokenInfo = await getTokenInfo(lock.token, readContract.provider);
                                     userLocks.push({ id: i, token: lock.token, amount: lock.amount, unlockTime: lock.unlockTime.toNumber(), withdrawn: lock.withdrawn, symbol: tokenInfo.symbol, decimals: tokenInfo.decimals });
                                 }
@@ -917,6 +932,7 @@
                 }
             }
 
+            // 加载线性释放列表
             async function loadVests(readContract) {
                 try {
                     const count = (await readContract.vestCount()).toNumber();
@@ -928,7 +944,7 @@
                         promises.push((async () => {
                             try {
                                 const vest = await readContract.tokenVests(i);
-                                if (vest.beneficiary.toLowerCase() === userAddress.toLowerCase()) {
+                                if (vest.beneficiary && vest.beneficiary.toLowerCase() === userAddress.toLowerCase()) {
                                     const tokenInfo = await getTokenInfo(vest.token, readContract.provider);
                                     userVests.push({ id: i, token: vest.token, totalAmount: vest.totalAmount, cliffTime: vest.cliffTime.toNumber(), endTime: vest.endTime.toNumber(), releaseInterval: vest.releaseInterval.toNumber(), lastClaimTime: vest.lastClaimTime.toNumber(), released: vest.released, symbol: tokenInfo.symbol, decimals: tokenInfo.decimals });
                                 }
@@ -966,6 +982,7 @@
                 }
             }
 
+            // 领取锁仓
             window.claimLock = async function(lockId) {
                 if (!contract || !signer) { showToast('请先连接钱包', 'error'); return; }
                 const btn = document.getElementById('btnLock' + lockId);
@@ -987,6 +1004,7 @@
                 if (btn) { btn.classList.remove('loading'); btn.disabled = false; }
             };
 
+            // 领取线性释放
             window.claimVest = async function(vestId) {
                 if (!contract || !signer) { showToast('请先连接钱包', 'error'); return; }
                 const btn = document.getElementById('btnVest' + vestId);
@@ -1008,26 +1026,21 @@
                 if (btn) { btn.disabled = false; btn.textContent = '🔥 领取代币'; }
             };
 
-            // ==================== 自动连接钱包（适用于TP等DApp浏览器） ====================
+            // 自动连接钱包（不主动弹窗）
             async function autoConnect() {
                 if (!window.ethereum) return;
                 try {
-                    // 先尝试静默获取已授权账户
                     const accounts = await window.ethereum.request({ method: 'eth_accounts' });
                     if (accounts.length > 0) {
                         await setupWallet(accounts[0]);
-                    } else {
-                        // 未授权则主动弹出授权窗口（TP钱包会自动处理）
-                        await connectWallet(false);
                     }
                 } catch (e) {
                     console.warn('自动连接失败:', e.message);
                 }
             }
 
-            // 页面初始化
+            // 初始化
             (async function init() {
-                // 优先加载公开的总锁仓数据（无需钱包）
                 try {
                     const readProvider = new ethers.providers.JsonRpcProvider(RPC_URLS[0]);
                     const readContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, readProvider);
@@ -1037,7 +1050,6 @@
                     totalLockedSubEl.textContent = '无法连接RPC节点';
                 }
 
-                // 自动连接钱包
                 await autoConnect();
             })();
 
