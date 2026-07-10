@@ -165,6 +165,7 @@
         .vest-card:hover { border-color: var(--border-gold); box-shadow: 0 4px 24px var(--shadow-gold); transform: translateY(-2px); }
         .vest-progress { width: 100%; height: 6px; background: #1a1a24; border-radius: 3px; margin: 10px 0; overflow: hidden; }
         .vest-progress-bar { height: 100%; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); border-radius: 3px; transition: width 0.3s ease; }
+        .vest-note { font-size: 0.7rem; color: var(--gold-light); margin-top: 2px; letter-spacing: 1px; }
         .btn-claim-vest {
             display: inline-flex; align-items: center; gap: 8px; padding: 8px 20px; border-radius: 50px;
             font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease;
@@ -279,18 +280,19 @@
             const btnConnect = $('btnConnect'), btnConnectText = $('btnConnectText');
             const toastContainer = $('toastContainer');
 
-            // ---------- 代币信息缓存（localStorage） ----------
+            // 日期格式化（精确到秒）
+            function formatDateTime(timestamp) {
+                const d = new Date(timestamp * 1000);
+                const pad = (n) => String(n).padStart(2, '0');
+                return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+            }
+
             function getCachedTokenInfo(addr) {
-                try {
-                    const raw = localStorage.getItem('tokenCache_' + addr.toLowerCase());
-                    if (raw) return JSON.parse(raw);
-                } catch (e) {}
+                try { const raw = localStorage.getItem('tokenCache_' + addr.toLowerCase()); if (raw) return JSON.parse(raw); } catch (e) {}
                 return null;
             }
             function setCachedTokenInfo(addr, info) {
-                try {
-                    localStorage.setItem('tokenCache_' + addr.toLowerCase(), JSON.stringify(info));
-                } catch (e) {}
+                try { localStorage.setItem('tokenCache_' + addr.toLowerCase(), JSON.stringify(info)); } catch (e) {}
             }
 
             function showToast(msg, type = '') {
@@ -412,14 +414,13 @@
                         else if (canClaim) { btnEl.disabled = false; btnEl.textContent = '🔥 领取代币'; btnEl.onclick = () => claimVest(vest.id); }
                         else {
                             btnEl.disabled = true;
-                            if (!isCliffOver) btnEl.textContent = `⏳ 悬崖期至 ${new Date(vest.cliffTime*1000).toLocaleDateString('zh-CN')}`;
-                            else btnEl.textContent = `⏳ 下次可领：${new Date((vest.lastClaimTime + vest.releaseInterval)*1000).toLocaleDateString('zh-CN')}`;
+                            if (!isCliffOver) btnEl.textContent = `⏳ 悬崖期至 ${formatDateTime(vest.cliffTime)}`;
+                            else btnEl.textContent = `⏳ 下次可领：${formatDateTime(vest.lastClaimTime + vest.releaseInterval)}`;
                         }
                     }
                 });
             }
 
-            // ---------- Multicall ----------
             async function multicall(provider, calls) {
                 const mc = new ethers.Contract(MULTICALL_ADDRESS, MULTICALL_ABI, provider);
                 return await mc.aggregate3(calls);
@@ -442,17 +443,13 @@
                 }
             }
 
-            // 获取代币信息（优先缓存）
             async function fetchTokenInfos(provider, tokenAddresses) {
                 const uncached = [];
                 const resultMap = {};
                 for (const addr of tokenAddresses) {
                     const cached = getCachedTokenInfo(addr);
-                    if (cached) {
-                        resultMap[addr] = cached;
-                    } else {
-                        uncached.push(addr);
-                    }
+                    if (cached) { resultMap[addr] = cached; }
+                    else { uncached.push(addr); }
                 }
                 if (uncached.length > 0) {
                     const symCalls = uncached.map(a => ({ target: a, allowFailure: true,
@@ -530,11 +527,7 @@
                     }
                     totalLockedEl.textContent = parts.length ? parts.join(' + ') : '暂无锁仓';
                     totalLockedSubEl.textContent = `有效锁仓 ${activeLockCount} 笔 · 线性释放 ${activeVestCount} 笔`;
-                } catch (e) {
-                    console.error(e);
-                    totalLockedEl.textContent = '加载失败';
-                    totalLockedSubEl.textContent = '点击刷新重试';
-                }
+                } catch (e) { totalLockedEl.textContent='加载失败'; totalLockedSubEl.textContent='点击刷新重试'; }
             }
 
             async function loadLocks(provider) {
@@ -568,7 +561,7 @@
                     const formatted = ethers.utils.formatUnits(lock.amount, lock.decimals);
                     const displayAmount = parseFloat(formatted).toLocaleString('zh-CN', { maximumFractionDigits: 2 });
                     const isClaimed = lock.withdrawn;
-                    const unlockDate = new Date(lock.unlockTime * 1000).toLocaleString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+                    const unlockDate = formatDateTime(lock.unlockTime);
                     let statusHTML = isClaimed ? '<span class="lock-status status-claimed">✅ 已领取</span>' :
                         (now >= lock.unlockTime ? '<span class="lock-status status-ready">⚡ 可领取</span>' : '<span class="lock-status status-waiting">⏳ 等待解锁</span>');
                     let btnHTML = isClaimed ? '<button class="btn-claim" disabled>已领取</button>' :
@@ -632,7 +625,9 @@
                         <div style="font-size:0.8rem;color:var(--text-dim);">已领取：${released.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${vest.symbol}</div>
                         <div class="vest-progress"><div class="vest-progress-bar" style="width:${progress.toFixed(1)}%;"></div></div>
                         <div class="vest-progress-text" style="font-size:0.7rem;color:var(--text-dim);">释放进度：${progress.toFixed(1)}%</div>
-                        <div class="lock-time">📅 悬崖期：${new Date(vest.cliffTime*1000).toLocaleDateString('zh-CN')} · 结束：${new Date(vest.endTime*1000).toLocaleDateString('zh-CN')}</div>
+                        <div class="vest-note">过悬崖期后可线性释放！</div>
+                        <div class="lock-time">📅 悬崖期结束：${formatDateTime(vest.cliffTime)}</div>
+                        <div class="lock-time">📅 预计释放完成日期：${formatDateTime(vest.endTime)}</div>
                         <button class="btn-claim-vest" disabled></button>
                     </div>`;
                 }).join('');
