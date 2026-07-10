@@ -8,7 +8,6 @@
     <meta name="theme-color" content="#0d0d14">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
     <style>
-        /* ========== 所有样式保持不变 ========== */
         :root {
             --bg-deep: #0a0a10;
             --bg-card: #12121c;
@@ -513,12 +512,24 @@
             background: rgba(155, 30, 30, 0.4);
         }
         @keyframes toastIn {
-            from { opacity: 0; transform: translateX(60px); }
-            to { opacity: 1; transform: translateX(0); }
+            from {
+                opacity: 0;
+                transform: translateX(60px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
         @keyframes toastOut {
-            from { opacity: 1; transform: translateX(0); }
-            to { opacity: 0; transform: translateX(60px); }
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(60px);
+            }
         }
 
         .empty-state {
@@ -572,8 +583,11 @@
 
         <section class="hero-section">
             <div class="hero-badge">⚔️ 铁军招募计划 ⚔️</div>
-            <h1 class="hero-title">铁军<span class="accent">锁仓</span>领取</h1>
+            <h1 class="hero-title">
+                铁军<span class="accent">锁仓</span>领取
+            </h1>
             <p class="hero-desc">链上智能合约锁定 · 到期自动释放 · 铁血纪律守护资产安全</p>
+
             <div class="stat-card" style="margin-top:16px;">
                 <div class="stat-card-inner">
                     <div class="stat-label">📊 合约总锁仓</div>
@@ -586,14 +600,20 @@
         <section style="padding: 10px 0 30px;">
             <div class="section-title">🔒 一次性锁仓</div>
             <div id="lockList" class="lock-grid">
-                <div class="empty-state"><div class="icon">🔗</div><p>请连接钱包查看您的锁仓记录</p></div>
+                <div class="empty-state">
+                    <div class="icon">🔗</div>
+                    <p>请连接钱包查看您的锁仓记录</p>
+                </div>
             </div>
         </section>
 
         <section style="padding: 10px 0 40px;">
             <div class="section-title">📅 线性释放 Vesting</div>
             <div id="vestList" class="lock-grid">
-                <div class="empty-state"><div class="icon">⏳</div><p>请连接钱包查看线性释放记录</p></div>
+                <div class="empty-state">
+                    <div class="icon">⏳</div>
+                    <p>请连接钱包查看线性释放记录</p>
+                </div>
             </div>
         </section>
 
@@ -604,7 +624,6 @@
 
     <script src="https://cdn.bootcdn.net/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <script>
-        // 核心逻辑等待 DOM 和 ethers 就绪后执行
         window.addEventListener('load', () => {
             // ==================== 配置 ====================
             const CONTRACT_ADDRESS = '0x3d4F23636A149930EAa69a4ACaba50fd8E1Eb1Ed';
@@ -631,8 +650,11 @@
                 "function decimals() view returns (uint8)",
             ];
 
-            let provider = null, signer = null, contract = null;
-            let userAddress = null, chainId = null;
+            let provider = null,
+                signer = null,
+                contract = null,
+                userAddress = null,
+                chainId = null;
             const tokenCache = {};
 
             const $ = id => document.getElementById(id);
@@ -653,7 +675,7 @@
                 toastContainer.appendChild(toast);
             }
 
-            window.toggleWallet = async function() {
+            window.toggleWallet = async function () {
                 if (userAddress) disconnectWallet();
                 else await connectWallet(true);
             };
@@ -720,12 +742,10 @@
                 }
             }
 
-            // 超时 Promise 工具
             function withTimeout(promise, ms) {
                 return Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))]);
             }
 
-            // 监听钱包事件
             if (window.ethereum) {
                 window.ethereum.on('accountsChanged', (accounts) => {
                     if (accounts.length === 0) disconnectWallet();
@@ -768,9 +788,8 @@
                 try {
                     const [lockCount, vestCount] = await withTimeout(
                         Promise.all([readContract.lockCount(), readContract.vestCount()]),
-                    5000);
+                        5000);
                     const tokenAmounts = {};
-                    // 并行抓取锁仓数据
                     const tasks = [];
                     for (let i = 1; i <= lockCount.toNumber(); i++) tasks.push(
                         withTimeout(readContract.tokenLocks(i), 3000).catch(() => null)
@@ -779,7 +798,6 @@
                         withTimeout(readContract.tokenVests(i), 3000).catch(() => null)
                     );
                     const results = await Promise.all(tasks);
-                    // 汇总数量
                     results.slice(0, lockCount.toNumber()).forEach(lock => {
                         if (lock) {
                             const addr = lock.token.toLowerCase();
@@ -794,7 +812,6 @@
                             tokenAmounts[addr].amount = tokenAmounts[addr].amount.add(vest.totalAmount);
                         }
                     });
-                    // 获取代币信息（并行超时）
                     const symbolTasks = Object.keys(tokenAmounts).map(addr =>
                         withTimeout(getTokenInfo(addr, readContract.provider), 3000).catch(() => ({ symbol: 'TOKEN', decimals: 18 }))
                     );
@@ -803,14 +820,13 @@
                         tokenAmounts[addr].symbol = infos[idx].symbol;
                         tokenAmounts[addr].decimals = infos[idx].decimals;
                     });
-                    // 格式化显示
                     const parts = [];
                     for (const [addr, info] of Object.entries(tokenAmounts)) {
                         if (info.amount.gt(0)) {
                             const num = parseFloat(ethers.utils.formatUnits(info.amount, info.decimals));
                             if (num > 0) {
-                                if (num >= 1e6) parts.push(`${(num/1e6).toFixed(2)}M ${info.symbol}`);
-                                else if (num >= 1e3) parts.push(`${(num/1e3).toFixed(2)}K ${info.symbol}`);
+                                if (num >= 1e6) parts.push(`${(num / 1e6).toFixed(2)}M ${info.symbol}`);
+                                else if (num >= 1e3) parts.push(`${(num / 1e3).toFixed(2)}K ${info.symbol}`);
                                 else parts.push(`${num.toFixed(2)} ${info.symbol}`);
                             }
                         }
@@ -827,10 +843,7 @@
                 const key = addr.toLowerCase();
                 if (tokenCache[key]) return tokenCache[key];
                 const contract = new ethers.Contract(addr, ERC20_ABI, provider);
-                const [symbol, decimals] = await Promise.all([
-                    contract.symbol(),
-                    contract.decimals()
-                ]);
+                const [symbol, decimals] = await Promise.all([contract.symbol(), contract.decimals()]);
                 const res = { symbol, decimals };
                 tokenCache[key] = res;
                 return res;
@@ -838,38 +851,78 @@
 
             async function loadLocks(readContract) {
                 try {
-                    const count = await withTimeout(readContract.lockCount(), 3000);
+                    const count = await withTimeout(readContract.lockCount(), 4000);
+                    console.log(`[loadLocks] 锁仓总数：${count.toNumber()}`);
                     if (count.toNumber() === 0) {
                         lockListEl.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>暂无一次性锁仓记录</p></div>`;
                         return;
                     }
+
                     const now = Math.floor(Date.now() / 1000);
                     const userLocks = [];
                     const tasks = [];
                     for (let i = 1; i <= count.toNumber(); i++) {
                         tasks.push((async () => {
                             try {
-                                const lock = await withTimeout(readContract.tokenLocks(i), 2000);
-                                if (lock && lock.beneficiary && lock.beneficiary.toLowerCase() === userAddress.toLowerCase()) {
-                                    const info = await withTimeout(getTokenInfo(lock.token, readContract.provider), 2000).catch(() => ({ symbol: 'TOKEN', decimals: 18 }));
-                                    userLocks.push({ id: i, ...lock, unlockTime: lock.unlockTime.toNumber(), symbol: info.symbol, decimals: info.decimals });
+                                const lock = await withTimeout(readContract.tokenLocks(i), 3000);
+                                if (!lock) {
+                                    console.warn(`[loadLocks] #${i} 返回为空`);
+                                    return;
                                 }
-                            } catch (e) {}
+                                console.log(`[loadLocks] #${i} beneficiary=`, lock.beneficiary,
+                                    'amount=', lock.amount.toString(),
+                                    'unlockTime=', lock.unlockTime.toString(),
+                                    'withdrawn=', lock.withdrawn);
+                                if (!lock.beneficiary || lock.beneficiary === ethers.constants.AddressZero) {
+                                    console.warn(`[loadLocks] #${i} 受益人为零地址，跳过`);
+                                    return;
+                                }
+                                if (lock.beneficiary.toLowerCase() !== userAddress.toLowerCase()) {
+                                    console.log(`[loadLocks] #${i} 不属于当前用户，跳过`);
+                                    return;
+                                }
+
+                                let tokenSymbol = 'TOKEN',
+                                    tokenDecimals = 18;
+                                try {
+                                    const tokenInfo = await withTimeout(getTokenInfo(lock.token, readContract.provider), 2000);
+                                    tokenSymbol = tokenInfo.symbol;
+                                    tokenDecimals = tokenInfo.decimals;
+                                } catch (e) {
+                                    console.warn(`[loadLocks] #${i} 代币信息获取失败，使用默认值`);
+                                }
+
+                                userLocks.push({
+                                    id: i,
+                                    token: lock.token,
+                                    amount: lock.amount,
+                                    unlockTime: lock.unlockTime.toNumber(),
+                                    withdrawn: lock.withdrawn,
+                                    symbol: tokenSymbol,
+                                    decimals: tokenDecimals
+                                });
+                            } catch (err) {
+                                console.error(`[loadLocks] 读取锁仓 #${i} 失败:`, err.message);
+                            }
                         })());
                     }
                     await Promise.all(tasks);
-                    userLocks.sort((a,b) => a.id - b.id);
-                    if (!userLocks.length) {
+
+                    console.log(`[loadLocks] 找到 ${userLocks.length} 条属于自己的锁仓`);
+                    userLocks.sort((a, b) => a.id - b.id);
+
+                    if (userLocks.length === 0) {
                         lockListEl.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>您暂无锁仓记录</p></div>`;
                         return;
                     }
-                    // 渲染卡片
-                    const cards = userLocks.map(lock => {
-                        const amount = ethers.utils.formatUnits(lock.amount, lock.decimals);
-                        const displayAmount = parseFloat(amount).toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+
+                    lockListEl.innerHTML = userLocks.map(lock => {
+                        const formatted = ethers.utils.formatUnits(lock.amount, lock.decimals);
+                        const displayAmount = parseFloat(formatted).toLocaleString('zh-CN', { maximumFractionDigits: 2 });
                         const isReady = !lock.withdrawn && now >= lock.unlockTime;
                         const isClaimed = lock.withdrawn;
-                        const dateStr = new Date(lock.unlockTime * 1000).toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+                        const unlockDate = new Date(lock.unlockTime * 1000);
+                        const dateStr = unlockDate.toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
                         let statusHTML, btnHTML;
                         if (isClaimed) {
                             statusHTML = '<span class="lock-status status-claimed">✅ 已领取</span>';
@@ -882,21 +935,21 @@
                             const days = Math.floor(remaining / 86400);
                             const hours = Math.floor((remaining % 86400) / 3600);
                             const mins = Math.floor((remaining % 3600) / 60);
-                            const countdownStr = days > 0 ? `${days}天${hours}时` : `${hours}时${mins}分`;
+                            let countdownStr = days > 0 ? `${days}天${hours}时` : `${hours}时${mins}分`;
                             statusHTML = '<span class="lock-status status-waiting">⏳ 等待解锁</span>';
                             btnHTML = `<button class="btn-claim" disabled>剩余 ${countdownStr}</button>`;
                         }
-                        return `<div class="lock-card ${isClaimed ? 'claimed' : ''}"><div class="lock-card-header"><span class="lock-id">#LOCK-${String(lock.id).padStart(4, '0')}</span>${statusHTML}</div><div class="lock-amount">${displayAmount}</div><div class="lock-token">${lock.symbol}</div><div class="lock-time">📅 解锁时间：${dateStr}</div>${btnHTML}</div>`;
+                        return `<div class="lock-card ${isClaimed ? 'claimed' : ''}"><div class="lock-card-header"><span class="lock-id">#LOCK-${String(lock.id).padStart(4, '0')}</span>${statusHTML}</div><div class="lock-amount">${displayAmount}</div><div class="lock-token">${lock.symbol || 'TOKEN'}</div><div class="lock-time">📅 解锁时间：${dateStr}</div>${btnHTML}</div>`;
                     }).join('');
-                    lockListEl.innerHTML = cards;
                 } catch (err) {
+                    console.error('[loadLocks] 全局错误:', err);
                     lockListEl.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>加载失败，请刷新重试</p></div>`;
                 }
             }
 
             async function loadVests(readContract) {
                 try {
-                    const count = await withTimeout(readContract.vestCount(), 3000);
+                    const count = await withTimeout(readContract.vestCount(), 4000);
                     if (count.toNumber() === 0) {
                         vestListEl.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>暂无线性释放记录</p></div>`;
                         return;
@@ -907,21 +960,38 @@
                     for (let i = 1; i <= count.toNumber(); i++) {
                         tasks.push((async () => {
                             try {
-                                const vest = await withTimeout(readContract.tokenVests(i), 2000);
-                                if (vest && vest.beneficiary && vest.beneficiary.toLowerCase() === userAddress.toLowerCase()) {
-                                    const info = await withTimeout(getTokenInfo(vest.token, readContract.provider), 2000).catch(() => ({ symbol: 'TOKEN', decimals: 18 }));
-                                    userVests.push({ id: i, ...vest, cliffTime: vest.cliffTime.toNumber(), endTime: vest.endTime.toNumber(), releaseInterval: vest.releaseInterval.toNumber(), lastClaimTime: vest.lastClaimTime.toNumber(), released: vest.released, symbol: info.symbol, decimals: info.decimals });
-                                }
-                            } catch (e) {}
+                                const vest = await withTimeout(readContract.tokenVests(i), 3000);
+                                if (!vest || !vest.beneficiary || vest.beneficiary === ethers.constants.AddressZero) return;
+                                if (vest.beneficiary.toLowerCase() !== userAddress.toLowerCase()) return;
+                                let tokenSymbol = 'TOKEN',
+                                    tokenDecimals = 18;
+                                try {
+                                    const tokenInfo = await withTimeout(getTokenInfo(vest.token, readContract.provider), 2000);
+                                    tokenSymbol = tokenInfo.symbol;
+                                    tokenDecimals = tokenInfo.decimals;
+                                } catch (e) {}
+                                userVests.push({
+                                    id: i,
+                                    token: vest.token,
+                                    totalAmount: vest.totalAmount,
+                                    cliffTime: vest.cliffTime.toNumber(),
+                                    endTime: vest.endTime.toNumber(),
+                                    releaseInterval: vest.releaseInterval.toNumber(),
+                                    lastClaimTime: vest.lastClaimTime.toNumber(),
+                                    released: vest.released,
+                                    symbol: tokenSymbol,
+                                    decimals: tokenDecimals
+                                });
+                            } catch (err) {}
                         })());
                     }
                     await Promise.all(tasks);
-                    userVests.sort((a,b) => a.id - b.id);
+                    userVests.sort((a, b) => a.id - b.id);
                     if (!userVests.length) {
                         vestListEl.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>您暂无线性释放记录</p></div>`;
                         return;
                     }
-                    const cards = userVests.map(vest => {
+                    vestListEl.innerHTML = userVests.map(vest => {
                         const total = parseFloat(ethers.utils.formatUnits(vest.totalAmount, vest.decimals));
                         const released = parseFloat(ethers.utils.formatUnits(vest.released, vest.decimals));
                         let progress = 0;
@@ -939,18 +1009,18 @@
                         else if (canClaim) btnHTML = `<button class="btn-claim-vest" onclick="claimVest(${vest.id})" id="btnVest${vest.id}">🔥 领取代币</button>`;
                         else if (!isCliffOver) btnHTML = `<button class="btn-claim-vest" disabled>⏳ 悬崖期至 ${new Date(vest.cliffTime * 1000).toLocaleDateString('zh-CN')}</button>`;
                         else btnHTML = `<button class="btn-claim-vest" disabled>⏳ 下次可领：${new Date((vest.lastClaimTime + vest.releaseInterval) * 1000).toLocaleDateString('zh-CN')}</button>`;
-                        return `<div class="vest-card"><div class="lock-card-header"><span class="lock-id">#VEST-${String(vest.id).padStart(4, '0')}</span><span class="lock-status ${progress>=100?'status-ready':'status-waiting'}">${progress>=100 ? '✅ 已完全释放' : '📈 释放中'}</span></div><div class="lock-amount" style="font-size:1.3rem;">${total.toLocaleString('zh-CN',{maximumFractionDigits:2})} <span class="lock-token">${vest.symbol}</span></div><div style="font-size:0.8rem;color:var(--text-dim);">已领取：${released.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${vest.symbol}</div><div class="vest-progress"><div class="vest-progress-bar" style="width:${progress.toFixed(1)}%;"></div></div><div style="font-size:0.7rem;color:var(--text-dim);">释放进度：${progress.toFixed(1)}%</div><div class="lock-time">📅 悬崖期：${new Date(vest.cliffTime*1000).toLocaleDateString('zh-CN')} · 结束：${new Date(vest.endTime*1000).toLocaleDateString('zh-CN')}</div>${btnHTML}</div>`;
+                        return `<div class="vest-card"><div class="lock-card-header"><span class="lock-id">#VEST-${String(vest.id).padStart(4, '0')}</span><span class="lock-status ${progress >= 100 ? 'status-ready' : 'status-waiting'}">${progress >= 100 ? '✅ 已完全释放' : '📈 释放中'}</span></div><div class="lock-amount" style="font-size:1.3rem;">${total.toLocaleString('zh-CN', { maximumFractionDigits: 2 })} <span class="lock-token">${vest.symbol}</span></div><div style="font-size:0.8rem;color:var(--text-dim);">已领取：${released.toLocaleString('zh-CN', { maximumFractionDigits: 2 })} ${vest.symbol}</div><div class="vest-progress"><div class="vest-progress-bar" style="width:${progress.toFixed(1)}%;"></div></div><div style="font-size:0.7rem;color:var(--text-dim);">释放进度：${progress.toFixed(1)}%</div><div class="lock-time">📅 悬崖期：${new Date(vest.cliffTime * 1000).toLocaleDateString('zh-CN')} · 结束：${new Date(vest.endTime * 1000).toLocaleDateString('zh-CN')}</div>${btnHTML}</div>`;
                     }).join('');
-                    vestListEl.innerHTML = cards;
                 } catch (err) {
                     vestListEl.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>加载失败，请刷新重试</p></div>`;
                 }
             }
 
-            window.claimLock = async function(lockId) {
+            window.claimLock = async function (lockId) {
                 if (!contract || !signer) { showToast('请先连接钱包', 'error'); return; }
                 const btn = document.getElementById('btnLock' + lockId);
-                if (btn) { btn.classList.add('loading'); btn.disabled = true; }
+                if (btn) { btn.classList.add('loading');
+                    btn.disabled = true; }
                 try {
                     const tx = await contract.withdrawLock(lockId);
                     showToast('交易已提交，等待确认...', '');
@@ -961,13 +1031,15 @@
                     console.error(err);
                     showToast('领取失败: ' + (err.message || '未知错误'), 'error');
                 }
-                if (btn) { btn.classList.remove('loading'); btn.disabled = false; }
+                if (btn) { btn.classList.remove('loading');
+                    btn.disabled = false; }
             };
 
-            window.claimVest = async function(vestId) {
+            window.claimVest = async function (vestId) {
                 if (!contract || !signer) { showToast('请先连接钱包', 'error'); return; }
                 const btn = document.getElementById('btnVest' + vestId);
-                if (btn) { btn.disabled = true; btn.textContent = '⏳ 处理中...'; }
+                if (btn) { btn.disabled = true;
+                    btn.textContent = '⏳ 处理中...'; }
                 try {
                     const tx = await contract.withdrawVest(vestId);
                     showToast('交易已提交，等待确认...', '');
@@ -978,12 +1050,11 @@
                     console.error(err);
                     showToast('领取失败: ' + (err.message || '未知错误'), 'error');
                 }
-                if (btn) { btn.disabled = false; btn.textContent = '🔥 领取代币'; }
+                if (btn) { btn.disabled = false;
+                    btn.textContent = '🔥 领取代币'; }
             };
 
-            // 页面加载完成后自动连接（不弹窗）
             (async function autoInit() {
-                // 先尝试加载总锁仓（无需钱包）
                 try {
                     const readProvider = new ethers.providers.JsonRpcProvider(RPC_URLS[0]);
                     const readContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, readProvider);
@@ -992,7 +1063,6 @@
                     totalLockedEl.textContent = '--';
                     totalLockedSubEl.textContent = 'RPC连接较慢，请稍后刷新';
                 }
-                // 自动静默连接钱包
                 if (window.ethereum) {
                     try {
                         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
