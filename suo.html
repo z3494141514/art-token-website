@@ -632,11 +632,10 @@
         (function() {
             // ==================== 配置 ====================
             const CONTRACT_ADDRESS = '0x3d4F23636A149930EAa69a4ACaba50fd8E1Eb1Ed'; // 测试网合约地址
-            const CHAIN_ID = 97;               // BSC 测试网
+            const CHAIN_ID = 97;
             const CHAIN_ID_HEX = '0x61';
-            // 替换为已验证支持 CORS 的测试网 RPC 节点
             const RPC_URLS = [
-                'https://bsc-testnet-rpc.publicnode.com',
+                'https://bsc-testnet-rpc.publicnode.com',   // 已验证支持 CORS
                 'https://bsc-testnet.binance.org/',
                 'https://data-seed-prebsc-1-s1.binance.org:8545/',
                 'https://data-seed-prebsc-2-s1.binance.org:8545/',
@@ -671,7 +670,6 @@
             const vestListEl = document.getElementById('vestList');
             const toastContainer = document.getElementById('toastContainer');
 
-            // Toast 通知
             function showToast(message, type = '') {
                 const toast = document.createElement('div');
                 toast.className = `toast ${type}`;
@@ -682,7 +680,7 @@
                 toastContainer.appendChild(toast);
             }
 
-            // 手动连接/断开
+            // 手动连接
             async function toggleWallet() {
                 if (userAddress) {
                     disconnectWallet();
@@ -698,6 +696,7 @@
                 }
                 try {
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    console.log('获取账户成功:', accounts[0]);
                     await setupWallet(accounts[0]);
                     if (isManual) showToast('钱包连接成功！🛡️', 'success');
                 } catch (err) {
@@ -712,6 +711,7 @@
             async function setupWallet(account) {
                 userAddress = account;
                 chainId = parseInt(await window.ethereum.request({ method: 'eth_chainId' }), 16);
+                console.log('当前 Chain ID:', chainId);
                 if (chainId !== CHAIN_ID) {
                     showToast('请切换到 BSC 测试网 (Chain 97)', 'error');
                     try {
@@ -721,13 +721,14 @@
                         });
                         chainId = CHAIN_ID;
                     } catch (e) {
-                        showToast('切换网络失败，请手动切换到 BSC 测试网', 'error');
+                        showToast('切换网络失败，请手动切换', 'error');
                         return;
                     }
                 }
                 provider = new ethers.providers.Web3Provider(window.ethereum);
                 signer = provider.getSigner();
                 contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+                console.log('合约已连接，地址:', CONTRACT_ADDRESS);
                 updateWalletUI();
                 await loadAllData();
             }
@@ -754,7 +755,6 @@
                 }
             }
 
-            // 监听钱包事件
             if (window.ethereum) {
                 window.ethereum.on('accountsChanged', (accounts) => {
                     if (accounts.length === 0) disconnectWallet();
@@ -769,9 +769,10 @@
                 });
             }
 
-            // 加载所有数据
+            // 加载数据
             async function loadAllData() {
                 if (!contract || !userAddress) return;
+                console.log('开始加载数据...');
                 const readProvider = new ethers.providers.JsonRpcProvider(RPC_URLS[0]);
                 const readContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, readProvider);
                 try {
@@ -780,6 +781,7 @@
                         loadLocks(readContract),
                         loadVests(readContract),
                     ]);
+                    console.log('数据加载完成');
                 } catch (err) {
                     console.error('加载数据失败:', err);
                     let loaded = false;
@@ -800,11 +802,11 @@
                 }
             }
 
-            // 总锁仓金额
             async function loadTotalLocked(readContract) {
                 try {
                     const lockCount = (await readContract.lockCount()).toNumber();
                     const vestCount = (await readContract.vestCount()).toNumber();
+                    console.log(`合约中有 ${lockCount} 笔锁仓, ${vestCount} 笔线性释放`);
                     const tokenAmounts = {};
                     const promises = [];
 
@@ -878,7 +880,6 @@
                 }
             }
 
-            // 加载一次性锁仓列表
             async function loadLocks(readContract) {
                 try {
                     const count = (await readContract.lockCount()).toNumber();
@@ -931,7 +932,6 @@
                 }
             }
 
-            // 加载线性释放列表
             async function loadVests(readContract) {
                 try {
                     const count = (await readContract.vestCount()).toNumber();
@@ -981,7 +981,6 @@
                 }
             }
 
-            // 领取锁仓
             window.claimLock = async function(lockId) {
                 if (!contract || !signer) { showToast('请先连接钱包', 'error'); return; }
                 const btn = document.getElementById('btnLock' + lockId);
@@ -1003,7 +1002,6 @@
                 if (btn) { btn.classList.remove('loading'); btn.disabled = false; }
             };
 
-            // 领取线性释放
             window.claimVest = async function(vestId) {
                 if (!contract || !signer) { showToast('请先连接钱包', 'error'); return; }
                 const btn = document.getElementById('btnVest' + vestId);
@@ -1025,11 +1023,12 @@
                 if (btn) { btn.disabled = false; btn.textContent = '🔥 领取代币'; }
             };
 
-            // 自动连接钱包（不主动弹窗）
+            // 自动连接（如果之前已授权）
             async function autoConnect() {
                 if (!window.ethereum) return;
                 try {
                     const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    console.log('自动检测账户:', accounts);
                     if (accounts.length > 0) {
                         await setupWallet(accounts[0]);
                     }
@@ -1040,6 +1039,7 @@
 
             // 初始化
             (async function init() {
+                console.log('页面初始化...');
                 try {
                     const readProvider = new ethers.providers.JsonRpcProvider(RPC_URLS[0]);
                     const readContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, readProvider);
@@ -1047,9 +1047,11 @@
                 } catch (e) {
                     totalLockedEl.textContent = '--';
                     totalLockedSubEl.textContent = '无法连接RPC节点';
+                    console.error('初始化加载总锁仓失败:', e);
                 }
 
                 await autoConnect();
+                console.log('初始化完成');
             })();
 
             window.toggleWallet = toggleWallet;
