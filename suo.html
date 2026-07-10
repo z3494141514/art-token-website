@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>铁军招募计划 | 锁仓领取</title>
+    <meta name="description" content="铁军招募计划 - 链上锁仓代币领取平台">
+    <meta name="theme-color" content="#0d0d14">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+    <style>
+        :root {
+            --bg-deep: #0a0a10;
+            --bg-card: #12121c;
+            --bg-card-hover: #181828;
+            --gold: #c9a050;
+            --gold-light: #d4b860;
+            --gold-dark: #a07828;
+            --red: #9b1e1e;
+            --red-light: #c0392b;
+            --green-military: #2d5016;
+            --green-light: #3d6a1e;
+            --text: #e0ddd5;
+            --text-dim: #8a8780;
+            --text-bright: #f5f0e0;
+            --border: #2a2830;
+            --border-gold: rgba(201, 160, 80, 0.4);
+            --shadow-gold: rgba(201, 160, 80, 0.15);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --font-military: 'Georgia', 'Times New Roman', serif;
+            --font-main: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-deep);
+            color: var(--text);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-image:
+                radial-gradient(ellipse at 20% 20%, rgba(201, 160, 80, 0.04) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 60%, rgba(155, 30, 30, 0.05) 0%, transparent 60%),
+                radial-gradient(ellipse at 50% 80%, rgba(45, 80, 22, 0.04) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.03;
+            background: repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 3px,
+                    rgba(255, 255, 255, 0.3) 3px,
+                    rgba(255, 255, 255, 0.3) 4px);
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text-bright);
+        }
+        .navbar-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a1a2e, #2a2030);
+            border: 2px solid var(--gold-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 0 18px var(--shadow-gold);
+            flex-shrink: 0;
+        }
+        .navbar-title {
+            font-family: var(--font-military);
+            font-size: 1.3rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: var(--gold);
+        }
+        .navbar-subtitle {
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .btn-connect {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-gold);
+            background: rgba(18, 18, 28, 0.8);
+            color: var(--gold);
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-connect:hover {
+            background: rgba(201, 160, 80, 0.1);
+            border-color: var(--gold);
+            box-shadow: 0 0 20px var(--shadow-gold);
+            transform: translateY(-1px);
+        }
+        .btn-connect.connected {
+            border-color: var(--green-light);
+            color: #5cb85c;
+            background: rgba(45, 80, 22, 0.2);
+        }
+        .btn-connect .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #c0392b;
+            animation: dotPulse 2s ease-in-out infinite;
+        }
+        .btn-connect.connected .dot {
+            background: #5cb85c;
+        }
+        @keyframes dotPulse {
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(92, 184, 92, 0.6);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(92, 184, 92, 0);
+            }
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 40px 0 30px;
+        }
+        .hero-badge {
+            display: inline-block;
+            padding: 6px 18px;
+            border-radius: 50px;
+            border: 1px solid var(--border-gold);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            color: var(--gold);
+            background: rgba(201, 160, 80, 0.06);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+        .hero-title {
+            font-family: var(--font-military);
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: bold;
+            letter-spacing: 4px;
+            color: var(--text-bright);
+            margin-bottom: 8px;
+            text-shadow: 0 0 30px rgba(201, 160, 80, 0.25);
+        }
+        .hero-title .accent {
+            color: var(--gold);
+        }
+        .hero-desc {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            max-width: 500px;
+            margin: 0 auto 20px;
+            letter-spacing: 1px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            min-width: 220px;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, var(--shadow-gold), transparent, transparent, transparent, var(--shadow-gold), transparent);
+            animation: statRotate 8s linear infinite;
+            opacity: 0.5;
+            z-index: 0;
+        }
+        @keyframes statRotate {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .stat-card-inner {
+            position: relative;
+            z-index: 1;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 24px 28px;
+            text-align: center;
+            width: 100%;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .stat-value {
+            font-size: 2.4rem;
+            font-weight: bold;
+            color: var(--gold);
+            font-family: var(--font-military);
+            letter-spacing: 2px;
+            word-break: break-all;
+        }
+        .stat-sub {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        .section-title {
+            font-family: var(--font-military);
+            font-size: 1.4rem;
+            letter-spacing: 3px;
+            color: var(--text-bright);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .lock-grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: 1fr;
+        }
+        @media (min-width: 640px) {
+            .lock-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .lock-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .lock-card:hover {
+            border-color: var(--border-gold);
+            box-shadow: 0 4px 24px var(--shadow-gold);
+            transform: translateY(-2px);
+        }
+        .lock-card.claimed {
+            opacity: 0.55;
+            border-color: var(--border);
+        }
+        .lock-card.claimed:hover {
+            border-color: var(--border);
+            box-shadow: none;
+            transform: none;
+        }
+        .lock-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .lock-id {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            font-family: var(--font-military);
+        }
+        .lock-status {
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        .status-ready {
+            background: rgba(45, 80, 22, 0.3);
+            color: #5cb85c;
+            border: 1px solid rgba(92, 184, 92, 0.4);
+        }
+        .status-waiting {
+            background: rgba(201, 160, 80, 0.15);
+            color: var(--gold);
+            border: 1px solid var(--border-gold);
+        }
+        .status-claimed {
+            background: rgba(138, 135, 128, 0.15);
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+        }
+        .lock-amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-bright);
+            font-family: var(--font-military);
+        }
+        .lock-token {
+            font-size: 0.85rem;
+            color: var(--gold);
+            font-weight: 500;
+        }
+        .lock-time {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+        .lock-time .countdown {
+            color: var(--gold-light);
+            font-weight: 600;
+        }
+        .btn-claim {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 28px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #1a1a10;
+            letter-spacing: 2px;
+            margin-top: 12px;
+            width: 100%;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-claim:hover:not(:disabled) {
+            box-shadow: 0 0 28px rgba(201, 160, 80, 0.5);
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+        .btn-claim:disabled {
+            background: #3a3a40;
+            color: #6a6a6a;
+            cursor: not-allowed;
+            letter-spacing: 2px;
+        }
+        .btn-claim.loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .btn-claim .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        .btn-claim.loading .spinner {
+            display: inline-block;
+        }
+        .btn-claim.loading .btn-text {
+            display: none;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .vest-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            transition: all 0.3s ease;
+        }
+        .vest-card:hover {
+            border-color: var(--border-gold);
+            box-shadow: 0 4px 24px var(--shadow-gold);
+            transform: translateY(-2px);
+        }
+        .vest-progress {
+            width: 100%;
+            height: 6px;
+            background: #1a1a24;
+            border-radius: 3px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .vest-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
+            border-radius: 3px;
+            transition: width 0.6s ease;
+        }
+        .btn-claim-vest {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--gold);
+            background: transparent;
+            color: var(--gold);
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+        .btn-claim-vest:hover:not(:disabled) {
+            background: rgba(201, 160, 80, 0.15);
+            box-shadow: 0 0 16px var(--shadow-gold);
+        }
+        .btn-claim-vest:disabled {
+            border-color: #3a3a40;
+            color: #6a6a6a;
+            cursor: not-allowed;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border-gold);
+            color: var(--text-bright);
+            padding: 14px 22px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            pointer-events: auto;
+            cursor: pointer;
+            animation: toastIn 0.35s ease, toastOut 0.35s ease 2.5s forwards;
+            max-width: 320px;
+            letter-spacing: 1px;
+        }
+        .toast.success {
+            border-color: rgba(92, 184, 92, 0.5);
+            background: rgba(45, 80, 22, 0.5);
+        }
+        .toast.error {
+            border-color: rgba(192, 57, 43, 0.5);
+            background: rgba(155, 30, 30, 0.4);
+        }
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(60px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(60px);
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-dim);
+        }
+        .empty-state .icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+        .empty-state p {
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .btn-connect {
+                width: 100%;
+                justify-content: center;
+            }
+            .stat-value {
+                font-size: 1.8rem;
+            }
+            .hero-title {
+                letter-spacing: 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="container">
+        <nav class="navbar">
+            <a href="#" class="navbar-brand">
+                <div class="navbar-logo">🛡️</div>
+                <div>
+                    <div class="navbar-title">铁军招募</div>
+                    <div class="navbar-subtitle">Iron Army · Lock & Claim</div>
+                </div>
+            </a>
+            <button id="btnConnect" class="btn-connect" onclick="toggleWallet()">
+                <span class="dot"></span>
+                <span id="btnConnectText">连接钱包</span>
+            </button>
+        </nav>
+
+        <section class="hero-section">
+            <div class="hero-badge">⚔️ 铁军招募计划 ⚔️</div>
+            <h1 class="hero-title">
+                铁军<span class="accent">锁仓</span>领取
+            </h1>
+            <p class="hero-desc">链上智能合约锁定 · 到期自动释放 · 铁血纪律守护资产安全</p>
+
+            <div class="stat-card" style="margin-top:16px;">
+                <div class="stat-card-inner">
+                    <div class="stat-label">📊 合约总锁仓</div>
+                    <div class="stat-value" id="totalLocked">--</div>
+                    <div class="stat-sub" id="totalLockedSub">加载中...</div>
+                </div>
+            </div>
+        </section>
+
+        <section style="padding: 10px 0 30px;">
+            <div class="section-title">🔒 一次性锁仓</div>
+            <div id="lockList" class="lock-grid">
+                <div class="empty-state">
+                    <div class="icon">🔗</div>
+                    <p>请连接钱包查看您的锁仓记录</p>
+                </div>
+            </div>
+        </section>
+
+        <section style="padding: 10px 0 40px;">
+            <div class="section-title">📅 线性释放 Vesting</div>
+            <div id="vestList" class="lock-grid">
+                <div class="empty-state">
+                    <div class="icon">⏳</div>
+                    <p>请连接钱包查看线性释放记录</p>
+                </div>
+            </div>
+        </section>
+
+        <footer style="text-align:center;padding:24px 0;border-top:1px solid var(--border);color:var(--text-dim);font-size:0.75rem;letter-spacing:2px;">
+            © 2026 铁军招募计划 · Powered by Smart Contract · BSC Mainnet
+        </footer>
+    </div>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+
+    <script>
+        (function() {
+            // ==================== 配置 ====================
+            const CONTRACT_ADDRESS = '0xYourMultiTokenLockerAddress'; // 替换为真实合约地址
+            const CHAIN_ID = 56;
+            const CHAIN_ID_HEX = '0x38';
+            const RPC_URLS = [
+                'https://bsc-dataseed.binance.org/',
+                'https://bsc-dataseed1.defibit.io/',
+                'https://bsc-dataseed1.ninicoin.io/',
+                'https://rpc.ankr.com/bsc',
+            ];
+
+            const CONTRACT_ABI = [
+                "function lockCount() view returns (uint256)",
+                "function vestCount() view returns (uint256)",
+                "function tokenLocks(uint256) view returns (address token, address beneficiary, uint256 amount, uint256 unlockTime, bool withdrawn)",
+                "function tokenVests(uint256) view returns (address token, address beneficiary, uint256 totalAmount, uint256 cliffTime, uint256 endTime, uint256 releaseInterval, uint256 lastClaimTime, uint256 released)",
+                "function withdrawLock(uint256 lockId) external",
+                "function withdrawVest(uint256 vestId) external",
+            ];
+
+            const ERC20_ABI = [
+                "function symbol() view returns (string)",
+                "function decimals() view returns (uint8)",
+            ];
+
+            let provider = null;
+            let signer = null;
+            let contract = null;
+            let userAddress = null;
+            let chainId = null;
+            const tokenCache = {};
+
+            const btnConnect = document.getElementById('btnConnect');
+            const btnConnectText = document.getElementById('btnConnectText');
+            const totalLockedEl = document.getElementById('totalLocked');
+            const totalLockedSubEl = document.getElementById('totalLockedSub');
+            const lockListEl = document.getElementById('lockList');
+            const vestListEl = document.getElementById('vestList');
+            const toastContainer = document.getElementById('toastContainer');
+
+            function showToast(message, type = '') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                toast.addEventListener('click', () => toast.remove());
+                const autoRemove = setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
+                toast.addEventListener('click', () => clearTimeout(autoRemove));
+                toastContainer.appendChild(toast);
+            }
+
+            async function toggleWallet() {
+                if (userAddress) {
+                    disconnectWallet();
+                } else {
+                    await connectWallet(true);
+                }
+            }
+
+            async function connectWallet(isManual = false) {
+                if (!window.ethereum) {
+                    if (isManual) showToast('请安装 MetaMask 或使用 TP 钱包打开', 'error');
+                    return;
+                }
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    await setupWallet(accounts[0]);
+                    if (isManual) showToast('钱包连接成功！🛡️', 'success');
+                } catch (err) {
+                    console.error('连接钱包失败:', err);
+                    if (isManual) {
+                        if (err.code === 4001) showToast('用户拒绝了连接请求', 'error');
+                        else showToast('连接失败: ' + (err.message || '未知错误'), 'error');
+                    }
+                }
+            }
+
+            async function setupWallet(account) {
+                userAddress = account;
+                chainId = parseInt(await window.ethereum.request({ method: 'eth_chainId' }), 16);
+                if (chainId !== CHAIN_ID) {
+                    showToast('请切换到 BSC 主网', 'error');
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: CHAIN_ID_HEX }],
+                        });
+                        chainId = CHAIN_ID;
+                    } catch (e) {
+                        showToast('切换网络失败，请手动切换', 'error');
+                        return;
+                    }
+                }
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                signer = provider.getSigner();
+                contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+                updateWalletUI();
+                await loadAllData();
+            }
+
+            function disconnectWallet() {
+                userAddress = null;
+                signer = null;
+                contract = null;
+                provider = null;
+                updateWalletUI();
+                lockListEl.innerHTML = `<div class="empty-state"><div class="icon">🔗</div><p>请连接钱包查看您的锁仓记录</p></div>`;
+                vestListEl.innerHTML = `<div class="empty-state"><div class="icon">⏳</div><p>请连接钱包查看线性释放记录</p></div>`;
+                totalLockedEl.textContent = '--';
+                totalLockedSubEl.textContent = '请连接钱包';
+            }
+
+            function updateWalletUI() {
+                if (userAddress) {
+                    btnConnect.classList.add('connected');
+                    btnConnectText.textContent = userAddress.substring(0, 6) + '...' + userAddress.substring(userAddress.length - 4);
+                } else {
+                    btnConnect.classList.remove('connected');
+                    btnConnectText.textContent = '连接钱包';
+                }
+            }
+
+            if (window.ethereum) {
+                window.ethereum.on('accountsChanged', (accounts) => {
+                    if (accounts.length === 0) disconnectWallet();
+                    else if (accounts[0] !== userAddress) setupWallet(accounts[0]);
+                });
+                window.ethereum.on('chainChanged', (newChainId) => {
+                    if (parseInt(newChainId, 16) === CHAIN_ID && userAddress) {
+                        setupWallet(userAddress);
+                    } else {
+                        disconnectWallet();
+                    }
+                });
+            }
+
+            async function loadAllData() {
+                if (!contract || !userAddress) return;
+                const readProvider = new ethers.providers.JsonRpcProvider(RPC_URLS[0]);
+                const readContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, readProvider);
+                try {
+                    await Promise.all([
+                        loadTotalLocked(readContract),
+                        loadLocks(readContract),
+                        loadVests(readContract),
+                    ]);
+                } catch (err) {
+                    console.error('加载数据失败:', err);
+                    let loaded = false;
+                    for (let i = 1; i < RPC_URLS.length; i++) {
+                        try {
+                            const altProvider = new ethers.providers.JsonRpcProvider(RPC_URLS[i]);
+                            const altContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, altProvider);
+                            await Promise.all([
+                                loadTotalLocked(altContract),
+                                loadLocks(altContract),
+                                loadVests(altContract),
+                            ]);
+                            loaded = true;
+                            break;
+                        } catch (e2) { console.warn('备用RPC失败:', RPC_URLS[i]); }
+                    }
+                    if (!loaded) showToast('加载数据失败，请检查网络或刷新页面', 'error');
+                }
+            }
+
+            async function loadTotalLocked(readContract) {
+                try {
+                    const lockCount = (await readContract.lockCount()).toNumber();
+                    const vestCount = (await readContract.vestCount()).toNumber();
+                    const tokenAmounts = {};
+                    const promises = [];
+                    for (let i = 1; i <= lockCount; i++) {
+                        promises.push((async () => {
+                            try {
+                                const lock = await readContract.tokenLocks(i);
+                                const addr = lock.token.toLowerCase();
+                                if (!tokenAmounts[addr]) tokenAmounts[addr] = { amount: ethers.BigNumber.from(0), symbol: null, decimals: 18 };
+                                tokenAmounts[addr].amount = tokenAmounts[addr].amount.add(lock.amount);
+                            } catch (e) {}
+                        })());
+                    }
+                    for (let i = 1; i <= vestCount; i++) {
+                        promises.push((async () => {
+                            try {
+                                const vest = await readContract.tokenVests(i);
+                                const addr = vest.token.toLowerCase();
+                                if (!tokenAmounts[addr]) tokenAmounts[addr] = { amount: ethers.BigNumber.from(0), symbol: null, decimals: 18 };
+                                tokenAmounts[addr].amount = tokenAmounts[addr].amount.add(vest.totalAmount);
+                            } catch (e) {}
+                        })());
+                    }
+                    await Promise.all(promises);
+
+                    const tokenAddresses = Object.keys(tokenAmounts);
+                    const symbolPromises = tokenAddresses.map(async (addr) => {
+                        const info = await getTokenInfo(addr, readContract.provider);
+                        tokenAmounts[addr].symbol = info.symbol;
+                        tokenAmounts[addr].decimals = info.decimals;
+                    });
+                    await Promise.all(symbolPromises);
+
+                    const parts = [];
+                    for (const [addr, info] of Object.entries(tokenAmounts)) {
+                        if (info.amount.gt(0)) {
+                            const formatted = ethers.utils.formatUnits(info.amount, info.decimals);
+                            const num = parseFloat(formatted);
+                            if (num > 0) {
+                                if (num >= 1000000) parts.push(`${(num / 1000000).toFixed(2)}M ${info.symbol || 'TOKEN'}`);
+                                else if (num >= 1000) parts.push(`${(num / 1000).toFixed(2)}K ${info.symbol || 'TOKEN'}`);
+                                else parts.push(`${num.toFixed(2)} ${info.symbol || 'TOKEN'}`);
+                            }
+                        }
+                    }
+                    totalLockedEl.textContent = parts.length > 0 ? parts.join(' + ') : '暂无锁仓';
+                    totalLockedSubEl.textContent = `共 ${lockCount} 笔锁仓 · ${vestCount} 笔线性释放`;
+                } catch (err) {
+                    totalLockedEl.textContent = '加载失败';
+                    totalLockedSubEl.textContent = '点击刷新重试';
+                }
+            }
+
+            async function getTokenInfo(tokenAddress, provider) {
+                const addr = tokenAddress.toLowerCase();
+                if (tokenCache[addr] && tokenCache[addr].symbol) return tokenCache[addr];
+                try {
+                    const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
+                    const [symbol, decimals] = await Promise.all([tokenContract.symbol(), tokenContract.decimals()]);
+                    tokenCache[addr] = { symbol, decimals };
+                    return { symbol, decimals };
+                } catch (e) {
+                    const fallback = { symbol: addr.substring(0, 6) + '...', decimals: 18 };
+                    tokenCache[addr] = fallback;
+                    return fallback;
+                }
+            }
+
+            async function loadLocks(readContract) {
+                try {
+                    const count = (await readContract.lockCount()).toNumber();
+                    if (count === 0) { lockListEl.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>暂无一次性锁仓记录</p></div>`; return; }
+                    const now = Math.floor(Date.now() / 1000);
+                    const userLocks = [];
+                    const promises = [];
+                    for (let i = 1; i <= count; i++) {
+                        promises.push((async () => {
+                            try {
+                                const lock = await readContract.tokenLocks(i);
+                                if (lock.beneficiary.toLowerCase() === userAddress.toLowerCase()) {
+                                    const tokenInfo = await getTokenInfo(lock.token, readContract.provider);
+                                    userLocks.push({ id: i, token: lock.token, amount: lock.amount, unlockTime: lock.unlockTime.toNumber(), withdrawn: lock.withdrawn, symbol: tokenInfo.symbol, decimals: tokenInfo.decimals });
+                                }
+                            } catch (e) {}
+                        })());
+                    }
+                    await Promise.all(promises);
+                    userLocks.sort((a, b) => a.id - b.id);
+                    if (userLocks.length === 0) { lockListEl.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>您暂无锁仓记录</p></div>`; return; }
+
+                    lockListEl.innerHTML = userLocks.map(lock => {
+                        const formatted = ethers.utils.formatUnits(lock.amount, lock.decimals);
+                        const displayAmount = parseFloat(formatted).toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+                        const isReady = !lock.withdrawn && now >= lock.unlockTime;
+                        const isClaimed = lock.withdrawn;
+                        const unlockDate = new Date(lock.unlockTime * 1000);
+                        const dateStr = unlockDate.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+                        let statusHTML, btnHTML;
+                        if (isClaimed) {
+                            statusHTML = '<span class="lock-status status-claimed">✅ 已领取</span>';
+                            btnHTML = '<button class="btn-claim" disabled>已领取</button>';
+                        } else if (isReady) {
+                            statusHTML = '<span class="lock-status status-ready">⚡ 可领取</span>';
+                            btnHTML = `<button class="btn-claim" onclick="claimLock(${lock.id})" id="btnLock${lock.id}"><span class="spinner"></span><span class="btn-text">🔥 立即领取</span></button>`;
+                        } else {
+                            const remaining = lock.unlockTime - now;
+                            const days = Math.floor(remaining / 86400);
+                            const hours = Math.floor((remaining % 86400) / 3600);
+                            const mins = Math.floor((remaining % 3600) / 60);
+                            let countdownStr = days > 0 ? `${days}天${hours}时` : `${hours}时${mins}分`;
+                            statusHTML = '<span class="lock-status status-waiting">⏳ 等待解锁</span>';
+                            btnHTML = `<button class="btn-claim" disabled>剩余 ${countdownStr}</button>`;
+                        }
+                        return `<div class="lock-card ${isClaimed ? 'claimed' : ''}"><div class="lock-card-header"><span class="lock-id">#LOCK-${String(lock.id).padStart(4, '0')}</span>${statusHTML}</div><div class="lock-amount">${displayAmount}</div><div class="lock-token">${lock.symbol || 'TOKEN'}</div><div class="lock-time">📅 解锁时间：${dateStr}</div>${btnHTML}</div>`;
+                    }).join('');
+                } catch (err) {
+                    lockListEl.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>加载失败，请刷新重试</p></div>`;
+                }
+            }
+
+            async function loadVests(readContract) {
+                try {
+                    const count = (await readContract.vestCount()).toNumber();
+                    if (count === 0) { vestListEl.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>暂无线性释放记录</p></div>`; return; }
+                    const now = Math.floor(Date.now() / 1000);
+                    const userVests = [];
+                    const promises = [];
+                    for (let i = 1; i <= count; i++) {
+                        promises.push((async () => {
+                            try {
+                                const vest = await readContract.tokenVests(i);
+                                if (vest.beneficiary.toLowerCase() === userAddress.toLowerCase()) {
+                                    const tokenInfo = await getTokenInfo(vest.token, readContract.provider);
+                                    userVests.push({ id: i, token: vest.token, totalAmount: vest.totalAmount, cliffTime: vest.cliffTime.toNumber(), endTime: vest.endTime.toNumber(), releaseInterval: vest.releaseInterval.toNumber(), lastClaimTime: vest.lastClaimTime.toNumber(), released: vest.released, symbol: tokenInfo.symbol, decimals: tokenInfo.decimals });
+                                }
+                            } catch (e) {}
+                        })());
+                    }
+                    await Promise.all(promises);
+                    userVests.sort((a, b) => a.id - b.id);
+                    if (userVests.length === 0) { vestListEl.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>您暂无线性释放记录</p></div>`; return; }
+
+                    vestListEl.innerHTML = userVests.map(vest => {
+                        const formatted = ethers.utils.formatUnits(vest.totalAmount, vest.decimals);
+                        const displayAmount = parseFloat(formatted).toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+                        const releasedFormatted = ethers.utils.formatUnits(vest.released, vest.decimals);
+                        const displayReleased = parseFloat(releasedFormatted).toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+                        let progress = 0;
+                        if (now >= vest.cliffTime) {
+                            const totalPeriod = vest.endTime - vest.cliffTime;
+                            const runTime = Math.min(now - vest.cliffTime, totalPeriod);
+                            progress = totalPeriod > 0 ? (runTime / totalPeriod) * 100 : 100;
+                        }
+                        progress = Math.min(100, Math.max(0, progress));
+                        const isCliffOver = now >= vest.cliffTime;
+                        const isFullyReleased = vest.released.gte(vest.totalAmount);
+                        const canClaim = isCliffOver && !isFullyReleased && (vest.released.eq(0) || now >= vest.lastClaimTime + vest.releaseInterval);
+                        let btnHTML;
+                        if (isFullyReleased) btnHTML = '<button class="btn-claim-vest" disabled>✅ 已全部释放</button>';
+                        else if (canClaim) btnHTML = `<button class="btn-claim-vest" onclick="claimVest(${vest.id})" id="btnVest${vest.id}">🔥 领取代币</button>`;
+                        else if (!isCliffOver) btnHTML = `<button class="btn-claim-vest" disabled>⏳ 悬崖期至 ${new Date(vest.cliffTime * 1000).toLocaleDateString('zh-CN')}</button>`;
+                        else btnHTML = `<button class="btn-claim-vest" disabled>⏳ 下次可领：${new Date((vest.lastClaimTime + vest.releaseInterval) * 1000).toLocaleDateString('zh-CN')}</button>`;
+                        return `<div class="vest-card"><div class="lock-card-header"><span class="lock-id">#VEST-${String(vest.id).padStart(4, '0')}</span><span class="lock-status ${progress >= 100 ? 'status-ready' : 'status-waiting'}">${progress >= 100 ? '✅ 已完全释放' : '📈 释放中'}</span></div><div class="lock-amount" style="font-size:1.3rem;">${displayAmount} <span class="lock-token">${vest.symbol || 'TOKEN'}</span></div><div style="font-size:0.8rem;color:var(--text-dim);margin-top:2px;">已领取：${displayReleased} ${vest.symbol || 'TOKEN'}</div><div class="vest-progress"><div class="vest-progress-bar" style="width:${progress.toFixed(1)}%;"></div></div><div style="font-size:0.7rem;color:var(--text-dim);">释放进度：${progress.toFixed(1)}%</div><div class="lock-time">📅 悬崖期：${new Date(vest.cliffTime * 1000).toLocaleDateString('zh-CN')} · 结束：${new Date(vest.endTime * 1000).toLocaleDateString('zh-CN')}</div>${btnHTML}</div>`;
+                    }).join('');
+                } catch (err) {
+                    vestListEl.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>加载失败，请刷新重试</p></div>`;
+                }
+            }
+
+            window.claimLock = async function(lockId) {
+                if (!contract || !signer) { showToast('请先连接钱包', 'error'); return; }
+                const btn = document.getElementById('btnLock' + lockId);
+                if (btn) { btn.classList.add('loading'); btn.disabled = true; }
+                try {
+                    const tx = await contract.withdrawLock(lockId);
+                    showToast('交易已提交，等待确认...', '');
+                    await tx.wait();
+                    showToast(`锁仓 #${lockId} 领取成功！🎉`, 'success');
+                    await loadAllData();
+                } catch (err) {
+                    console.error('领取失败:', err);
+                    if (err.code === 4001) showToast('用户取消了交易', 'error');
+                    else if (err.message && err.message.includes('Not beneficiary')) showToast('您不是该锁仓的受益人', 'error');
+                    else if (err.message && err.message.includes('Not unlock yet')) showToast('锁仓尚未到期', 'error');
+                    else if (err.message && err.message.includes('Already withdrawn')) showToast('该锁仓已领取', 'error');
+                    else showToast('领取失败: ' + (err.message || '未知错误'), 'error');
+                }
+                if (btn) { btn.classList.remove('loading'); btn.disabled = false; }
+            };
+
+            window.claimVest = async function(vestId) {
+                if (!contract || !signer) { showToast('请先连接钱包', 'error'); return; }
+                const btn = document.getElementById('btnVest' + vestId);
+                if (btn) { btn.disabled = true; btn.textContent = '⏳ 处理中...'; }
+                try {
+                    const tx = await contract.withdrawVest(vestId);
+                    showToast('交易已提交，等待确认...', '');
+                    await tx.wait();
+                    showToast(`线性释放 #${vestId} 领取成功！🎉`, 'success');
+                    await loadAllData();
+                } catch (err) {
+                    console.error('领取失败:', err);
+                    if (err.code === 4001) showToast('用户取消了交易', 'error');
+                    else if (err.message && err.message.includes('Not beneficiary')) showToast('您不是该释放的受益人', 'error');
+                    else if (err.message && err.message.includes('Wait for next cycle')) showToast('请等待下一个领取周期', 'error');
+                    else if (err.message && err.message.includes('No token to claim')) showToast('当前无可领取代币', 'error');
+                    else showToast('领取失败: ' + (err.message || '未知错误'), 'error');
+                }
+                if (btn) { btn.disabled = false; btn.textContent = '🔥 领取代币'; }
+            };
+
+            // ==================== 自动连接钱包（适用于TP等DApp浏览器） ====================
+            async function autoConnect() {
+                if (!window.ethereum) return;
+                try {
+                    // 先尝试静默获取已授权账户
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    if (accounts.length > 0) {
+                        await setupWallet(accounts[0]);
+                    } else {
+                        // 未授权则主动弹出授权窗口（TP钱包会自动处理）
+                        await connectWallet(false);
+                    }
+                } catch (e) {
+                    console.warn('自动连接失败:', e.message);
+                }
+            }
+
+            // 页面初始化
+            (async function init() {
+                // 优先加载公开的总锁仓数据（无需钱包）
+                try {
+                    const readProvider = new ethers.providers.JsonRpcProvider(RPC_URLS[0]);
+                    const readContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, readProvider);
+                    await loadTotalLocked(readContract);
+                } catch (e) {
+                    totalLockedEl.textContent = '--';
+                    totalLockedSubEl.textContent = '无法连接RPC节点';
+                }
+
+                // 自动连接钱包
+                await autoConnect();
+            })();
+
+            window.toggleWallet = toggleWallet;
+            window.claimLock = window.claimLock;
+            window.claimVest = window.claimVest;
+        })();
+    </script>
+</body>
+</html>
