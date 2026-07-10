@@ -634,12 +634,13 @@
             const CONTRACT_ADDRESS = '0x3d4F23636A149930EAa69a4ACaba50fd8E1Eb1Ed'; // 测试网合约地址
             const CHAIN_ID = 97;               // BSC 测试网
             const CHAIN_ID_HEX = '0x61';
+            // 替换为已验证支持 CORS 的测试网 RPC 节点
             const RPC_URLS = [
-    'https://bsc-testnet-rpc.publicnode.com',   // ✅ 支持 CORS
-    'https://bsc-testnet.binance.org/',         // ✅ 支持 CORS
-    'https://data-seed-prebsc-1-s1.binance.org:8545/', // 部分环境可用
-    'https://data-seed-prebsc-2-s1.binance.org:8545/',
-];
+                'https://bsc-testnet-rpc.publicnode.com',
+                'https://bsc-testnet.binance.org/',
+                'https://data-seed-prebsc-1-s1.binance.org:8545/',
+                'https://data-seed-prebsc-2-s1.binance.org:8545/',
+            ];
 
             const CONTRACT_ABI = [
                 "function lockCount() view returns (uint256)",
@@ -712,7 +713,6 @@
                 userAddress = account;
                 chainId = parseInt(await window.ethereum.request({ method: 'eth_chainId' }), 16);
                 if (chainId !== CHAIN_ID) {
-                    // 修复文案：测试网
                     showToast('请切换到 BSC 测试网 (Chain 97)', 'error');
                     try {
                         await window.ethereum.request({
@@ -837,7 +837,6 @@
                             tokenAmounts[addr].symbol = info.symbol;
                             tokenAmounts[addr].decimals = info.decimals;
                         } catch (e) {
-                            // 获取失败保留占位符
                             tokenAmounts[addr].symbol = 'TOKEN';
                             tokenAmounts[addr].decimals = 18;
                         }
@@ -891,7 +890,6 @@
                         promises.push((async () => {
                             try {
                                 const lock = await readContract.tokenLocks(i);
-                                // 增加 beneficiary 存在性检查
                                 if (lock.beneficiary && lock.beneficiary.toLowerCase() === userAddress.toLowerCase()) {
                                     const tokenInfo = await getTokenInfo(lock.token, readContract.provider);
                                     userLocks.push({ id: i, token: lock.token, amount: lock.amount, unlockTime: lock.unlockTime.toNumber(), withdrawn: lock.withdrawn, symbol: tokenInfo.symbol, decimals: tokenInfo.decimals });
