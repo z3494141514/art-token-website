@@ -159,408 +159,128 @@
             background: #5cb85c;
         }
         @keyframes dotPulse {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(92, 184, 92, 0.6);
-            }
-            50% {
-                box-shadow: 0 0 0 10px rgba(92, 184, 92, 0);
-            }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(92,184,92,0.6); }
+            50% { box-shadow: 0 0 0 10px rgba(92,184,92,0); }
         }
 
-        .hero-section {
-            text-align: center;
-            padding: 40px 0 30px;
-        }
+        .hero-section { text-align: center; padding: 40px 0 30px; }
         .hero-badge {
-            display: inline-block;
-            padding: 6px 18px;
-            border-radius: 50px;
-            border: 1px solid var(--border-gold);
-            font-size: 0.8rem;
-            letter-spacing: 3px;
-            color: var(--gold);
-            background: rgba(201, 160, 80, 0.06);
-            margin-bottom: 16px;
-            text-transform: uppercase;
+            display: inline-block; padding: 6px 18px; border-radius: 50px;
+            border: 1px solid var(--border-gold); font-size: 0.8rem;
+            letter-spacing: 3px; color: var(--gold);
+            background: rgba(201,160,80,0.06); margin-bottom: 16px; text-transform: uppercase;
         }
         .hero-title {
-            font-family: var(--font-military);
-            font-size: clamp(2rem, 5vw, 3.2rem);
-            font-weight: bold;
-            letter-spacing: 4px;
-            color: var(--text-bright);
-            margin-bottom: 8px;
-            text-shadow: 0 0 30px rgba(201, 160, 80, 0.25);
+            font-family: var(--font-military); font-size: clamp(2rem,5vw,3.2rem);
+            font-weight: bold; letter-spacing: 4px; color: var(--text-bright);
+            margin-bottom: 8px; text-shadow: 0 0 30px rgba(201,160,80,0.25);
         }
-        .hero-title .accent {
-            color: var(--gold);
-        }
-        .hero-desc {
-            color: var(--text-dim);
-            font-size: 0.95rem;
-            max-width: 500px;
-            margin: 0 auto 20px;
-            letter-spacing: 1px;
-        }
+        .hero-title .accent { color: var(--gold); }
+        .hero-desc { color: var(--text-dim); font-size: 0.95rem; max-width: 500px; margin: 0 auto 20px; letter-spacing: 1px; }
 
         .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 28px 32px;
-            display: inline-flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.4s ease;
-            min-width: 220px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 28px 32px; display: inline-flex;
+            flex-direction: column; align-items: center; gap: 6px;
+            position: relative; overflow: hidden; transition: all 0.4s ease; min-width: 220px;
         }
         .stat-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: conic-gradient(from 0deg, transparent, var(--shadow-gold), transparent, transparent, transparent, var(--shadow-gold), transparent);
-            animation: statRotate 8s linear infinite;
-            opacity: 0.5;
-            z-index: 0;
+            animation: statRotate 8s linear infinite; opacity: 0.5; z-index: 0;
         }
-        @keyframes statRotate {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+        @keyframes statRotate { to { transform: rotate(360deg); } }
         .stat-card-inner {
-            position: relative;
-            z-index: 1;
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            padding: 24px 28px;
-            text-align: center;
-            width: 100%;
+            position: relative; z-index: 1; background: var(--bg-card);
+            border-radius: var(--radius); padding: 24px 28px; text-align: center; width: 100%;
         }
-        .stat-label {
-            font-size: 0.8rem;
-            letter-spacing: 3px;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            margin-bottom: 4px;
-        }
+        .stat-label { font-size: 0.8rem; letter-spacing: 3px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
         .stat-value {
-            font-size: 2.4rem;
-            font-weight: bold;
-            color: var(--gold);
-            font-family: var(--font-military);
-            letter-spacing: 2px;
-            word-break: break-all;
+            font-size: 2.4rem; font-weight: bold; color: var(--gold);
+            font-family: var(--font-military); letter-spacing: 2px; word-break: break-all;
         }
-        .stat-sub {
-            font-size: 0.8rem;
-            color: var(--text-dim);
-            margin-top: 2px;
-        }
+        .stat-sub { font-size: 0.8rem; color: var(--text-dim); margin-top: 2px; }
 
         .section-title {
-            font-family: var(--font-military);
-            font-size: 1.4rem;
-            letter-spacing: 3px;
-            color: var(--text-bright);
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-family: var(--font-military); font-size: 1.4rem; letter-spacing: 3px;
+            color: var(--text-bright); margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
         }
-        .section-title::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border);
-        }
+        .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-        .lock-grid {
-            display: grid;
-            gap: 16px;
-            grid-template-columns: 1fr;
-        }
-        @media (min-width: 640px) {
-            .lock-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
+        .lock-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+        @media (min-width: 640px) { .lock-grid { grid-template-columns: repeat(2, 1fr); } }
 
         .lock-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 20px 24px;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 20px 24px; transition: all 0.3s ease;
+            position: relative; overflow: hidden;
         }
-        .lock-card:hover {
-            border-color: var(--border-gold);
-            box-shadow: 0 4px 24px var(--shadow-gold);
-            transform: translateY(-2px);
-        }
-        .lock-card.claimed {
-            opacity: 0.55;
-            border-color: var(--border);
-        }
-        .lock-card.claimed:hover {
-            border-color: var(--border);
-            box-shadow: none;
-            transform: none;
-        }
-        .lock-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .lock-id {
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            letter-spacing: 2px;
-            font-family: var(--font-military);
-        }
-        .lock-status {
-            font-size: 0.75rem;
-            padding: 4px 12px;
-            border-radius: 50px;
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
-        .status-ready {
-            background: rgba(45, 80, 22, 0.3);
-            color: #5cb85c;
-            border: 1px solid rgba(92, 184, 92, 0.4);
-        }
-        .status-waiting {
-            background: rgba(201, 160, 80, 0.15);
-            color: var(--gold);
-            border: 1px solid var(--border-gold);
-        }
-        .status-claimed {
-            background: rgba(138, 135, 128, 0.15);
-            color: var(--text-dim);
-            border: 1px solid var(--border);
-        }
-        .lock-amount {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--text-bright);
-            font-family: var(--font-military);
-        }
-        .lock-token {
-            font-size: 0.85rem;
-            color: var(--gold);
-            font-weight: 500;
-        }
-        .lock-time {
-            font-size: 0.8rem;
-            color: var(--text-dim);
-            margin-top: 4px;
-        }
-        .lock-time .countdown {
-            color: var(--gold-light);
-            font-weight: 600;
+        .lock-card:hover { border-color: var(--border-gold); box-shadow: 0 4px 24px var(--shadow-gold); transform: translateY(-2px); }
+        .lock-card.claimed { opacity: 0.55; border-color: var(--border); }
+        .lock-card.claimed:hover { border-color: var(--border); box-shadow: none; transform: none; }
+        .lock-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+        .lock-id { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; font-family: var(--font-military); }
+        .lock-status { font-size: 0.75rem; padding: 4px 12px; border-radius: 50px; font-weight: 600; letter-spacing: 1px; }
+        .status-ready { background: rgba(45,80,22,0.3); color: #5cb85c; border: 1px solid rgba(92,184,92,0.4); }
+        .status-waiting { background: rgba(201,160,80,0.15); color: var(--gold); border: 1px solid var(--border-gold); }
+        .status-claimed { background: rgba(138,135,128,0.15); color: var(--text-dim); border: 1px solid var(--border); }
+        .lock-amount { font-size: 1.5rem; font-weight: bold; color: var(--text-bright); font-family: var(--font-military); }
+        .lock-token { font-size: 0.85rem; color: var(--gold); font-weight: 500; }
+        .lock-time { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; }
+        .lock-countdown {
+            font-size: 1.1rem; font-weight: 600; color: var(--gold-light); letter-spacing: 1px;
+            margin-top: 2px; font-variant-numeric: tabular-nums;
         }
         .btn-claim {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 28px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
+            display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px;
+            border-radius: 50px; font-weight: 700; font-size: 0.9rem; cursor: pointer;
+            transition: all 0.3s ease; border: none;
             background: linear-gradient(135deg, var(--gold-dark), var(--gold));
-            color: #1a1a10;
-            letter-spacing: 2px;
-            margin-top: 12px;
-            width: 100%;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
+            color: #1a1a10; letter-spacing: 2px; margin-top: 12px; width: 100%;
+            justify-content: center; position: relative; overflow: hidden;
         }
-        .btn-claim:hover:not(:disabled) {
-            box-shadow: 0 0 28px rgba(201, 160, 80, 0.5);
-            transform: translateY(-2px);
-            filter: brightness(1.1);
-        }
-        .btn-claim:disabled {
-            background: #3a3a40;
-            color: #6a6a6a;
-            cursor: not-allowed;
-            letter-spacing: 2px;
-        }
-        .btn-claim.loading {
-            pointer-events: none;
-            opacity: 0.7;
-        }
-        .btn-claim .spinner {
-            display: none;
-            width: 18px;
-            height: 18px;
-            border: 2px solid transparent;
-            border-top-color: currentColor;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-        }
-        .btn-claim.loading .spinner {
-            display: inline-block;
-        }
-        .btn-claim.loading .btn-text {
-            display: none;
-        }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+        .btn-claim:hover:not(:disabled) { box-shadow: 0 0 28px rgba(201,160,80,0.5); transform: translateY(-2px); filter: brightness(1.1); }
+        .btn-claim:disabled { background: #3a3a40; color: #6a6a6a; cursor: not-allowed; }
+        .btn-claim.loading { pointer-events: none; opacity: 0.7; }
+        .btn-claim .spinner { display: none; width: 18px; height: 18px; border: 2px solid transparent; border-top-color: currentColor; border-radius: 50%; animation: spin 0.7s linear infinite; }
+        .btn-claim.loading .spinner { display: inline-block; }
+        .btn-claim.loading .btn-text { display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .vest-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 20px 24px;
-            transition: all 0.3s ease;
-        }
-        .vest-card:hover {
-            border-color: var(--border-gold);
-            box-shadow: 0 4px 24px var(--shadow-gold);
-            transform: translateY(-2px);
-        }
-        .vest-progress {
-            width: 100%;
-            height: 6px;
-            background: #1a1a24;
-            border-radius: 3px;
-            margin: 10px 0;
-            overflow: hidden;
-        }
-        .vest-progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
-            border-radius: 3px;
-            transition: width 0.6s ease;
-        }
+        .vest-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; transition: all 0.3s ease; }
+        .vest-card:hover { border-color: var(--border-gold); box-shadow: 0 4px 24px var(--shadow-gold); transform: translateY(-2px); }
+        .vest-progress { width: 100%; height: 6px; background: #1a1a24; border-radius: 3px; margin: 10px 0; overflow: hidden; }
+        .vest-progress-bar { height: 100%; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); border-radius: 3px; transition: width 0.3s ease; }
         .btn-claim-vest {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 20px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 1px solid var(--gold);
-            background: transparent;
-            color: var(--gold);
-            letter-spacing: 1px;
-            margin-top: 8px;
+            display: inline-flex; align-items: center; gap: 8px; padding: 8px 20px;
+            border-radius: 50px; font-weight: 600; font-size: 0.85rem; cursor: pointer;
+            transition: all 0.3s ease; border: 1px solid var(--gold); background: transparent;
+            color: var(--gold); letter-spacing: 1px; margin-top: 8px;
         }
-        .btn-claim-vest:hover:not(:disabled) {
-            background: rgba(201, 160, 80, 0.15);
-            box-shadow: 0 0 16px var(--shadow-gold);
-        }
-        .btn-claim-vest:disabled {
-            border-color: #3a3a40;
-            color: #6a6a6a;
-            cursor: not-allowed;
-        }
+        .btn-claim-vest:hover:not(:disabled) { background: rgba(201,160,80,0.15); box-shadow: 0 0 16px var(--shadow-gold); }
+        .btn-claim-vest:disabled { border-color: #3a3a40; color: #6a6a6a; cursor: not-allowed; }
 
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            pointer-events: none;
-        }
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .toast {
-            background: var(--bg-card);
-            border: 1px solid var(--border-gold);
-            color: var(--text-bright);
-            padding: 14px 22px;
-            border-radius: var(--radius-sm);
-            font-size: 0.9rem;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-            pointer-events: auto;
-            cursor: pointer;
-            animation: toastIn 0.35s ease, toastOut 0.35s ease 2.5s forwards;
-            max-width: 320px;
-            letter-spacing: 1px;
+            background: var(--bg-card); border: 1px solid var(--border-gold); color: var(--text-bright);
+            padding: 14px 22px; border-radius: var(--radius-sm); font-size: 0.9rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5); pointer-events: auto; cursor: pointer;
+            animation: toastIn 0.35s ease, toastOut 0.35s ease 2.5s forwards; max-width: 320px; letter-spacing: 1px;
         }
-        .toast.success {
-            border-color: rgba(92, 184, 92, 0.5);
-            background: rgba(45, 80, 22, 0.5);
-        }
-        .toast.error {
-            border-color: rgba(192, 57, 43, 0.5);
-            background: rgba(155, 30, 30, 0.4);
-        }
-        @keyframes toastIn {
-            from {
-                opacity: 0;
-                transform: translateX(60px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        @keyframes toastOut {
-            from {
-                opacity: 1;
-                transform: translateX(0);
-            }
-            to {
-                opacity: 0;
-                transform: translateX(60px);
-            }
-        }
+        .toast.success { border-color: rgba(92,184,92,0.5); background: rgba(45,80,22,0.5); }
+        .toast.error { border-color: rgba(192,57,43,0.5); background: rgba(155,30,30,0.4); }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(60px); } }
 
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: var(--text-dim);
-        }
-        .empty-state .icon {
-            font-size: 3rem;
-            margin-bottom: 12px;
-        }
-        .empty-state p {
-            letter-spacing: 2px;
-            font-size: 0.9rem;
-        }
+        .empty-state { text-align: center; padding: 50px 20px; color: var(--text-dim); }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+        .empty-state p { letter-spacing: 2px; font-size: 0.9rem; }
 
         @media (max-width: 480px) {
-            .navbar {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .btn-connect {
-                width: 100%;
-                justify-content: center;
-            }
-            .stat-value {
-                font-size: 1.8rem;
-            }
-            .hero-title {
-                letter-spacing: 2px;
-            }
+            .navbar { flex-direction: column; align-items: flex-start; }
+            .btn-connect { width: 100%; justify-content: center; }
+            .stat-value { font-size: 1.8rem; }
+            .hero-title { letter-spacing: 2px; }
         }
     </style>
 </head>
@@ -583,11 +303,8 @@
 
         <section class="hero-section">
             <div class="hero-badge">⚔️ 铁军招募计划 ⚔️</div>
-            <h1 class="hero-title">
-                铁军<span class="accent">锁仓</span>领取
-            </h1>
+            <h1 class="hero-title">铁军<span class="accent">锁仓</span>领取</h1>
             <p class="hero-desc">链上智能合约锁定 · 到期自动释放 · 铁血纪律守护资产安全</p>
-
             <div class="stat-card" style="margin-top:16px;">
                 <div class="stat-card-inner">
                     <div class="stat-label">📊 合约总锁仓</div>
@@ -600,20 +317,14 @@
         <section style="padding: 10px 0 30px;">
             <div class="section-title">🔒 一次性锁仓</div>
             <div id="lockList" class="lock-grid">
-                <div class="empty-state">
-                    <div class="icon">🔗</div>
-                    <p>请连接钱包查看您的锁仓记录</p>
-                </div>
+                <div class="empty-state"><div class="icon">🔗</div><p>请连接钱包查看您的锁仓记录</p></div>
             </div>
         </section>
 
         <section style="padding: 10px 0 40px;">
             <div class="section-title">📅 线性释放 Vesting</div>
             <div id="vestList" class="lock-grid">
-                <div class="empty-state">
-                    <div class="icon">⏳</div>
-                    <p>请连接钱包查看线性释放记录</p>
-                </div>
+                <div class="empty-state"><div class="icon">⏳</div><p>请连接钱包查看线性释放记录</p></div>
             </div>
         </section>
 
@@ -625,17 +336,17 @@
     <script src="https://cdn.bootcdn.net/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <script>
         window.addEventListener('load', () => {
-            // ==================== 配置 ====================
             const CONTRACT_ADDRESS = '0x3d4F23636A149930EAa69a4ACaba50fd8E1Eb1Ed';
             const CHAIN_ID = 97;
             const CHAIN_ID_HEX = '0x61';
             const RPC_URLS = [
                 'https://bsc-testnet-rpc.publicnode.com',
                 'https://bsc-testnet.binance.org/',
-                'https://data-seed-prebsc-1-s1.binance.org:8545/',
-                'https://data-seed-prebsc-2-s1.binance.org:8545/',
             ];
-
+            const MULTICALL_ADDRESS = '0xca11bde05977b3631167028862be2a173976ca11';
+            const MULTICALL_ABI = [
+                "function aggregate3(tuple(address target, bool allowFailure, bytes callData)[] calls) view returns (tuple(bool success, bytes returnData)[])",
+            ];
             const CONTRACT_ABI = [
                 "function lockCount() view returns (uint256)",
                 "function vestCount() view returns (uint256)",
@@ -644,26 +355,19 @@
                 "function withdrawLock(uint256 lockId) external",
                 "function withdrawVest(uint256 vestId) external",
             ];
-
             const ERC20_ABI = [
                 "function symbol() view returns (string)",
                 "function decimals() view returns (uint8)",
             ];
 
-            let provider = null,
-                signer = null,
-                contract = null,
-                userAddress = null,
-                chainId = null;
-            const tokenCache = {};
+            let provider = null, signer = null, contract = null, userAddress = null;
+            let lockStore = [], vestStore = [];
+            let timerInterval = null;
 
             const $ = id => document.getElementById(id);
-            const btnConnect = $('btnConnect');
-            const btnConnectText = $('btnConnectText');
-            const totalLockedEl = $('totalLocked');
-            const totalLockedSubEl = $('totalLockedSub');
-            const lockListEl = $('lockList');
-            const vestListEl = $('vestList');
+            const totalLockedEl = $('totalLocked'), totalLockedSubEl = $('totalLockedSub');
+            const lockListEl = $('lockList'), vestListEl = $('vestList');
+            const btnConnect = $('btnConnect'), btnConnectText = $('btnConnectText');
             const toastContainer = $('toastContainer');
 
             function showToast(msg, type = '') {
@@ -675,400 +379,374 @@
                 toastContainer.appendChild(toast);
             }
 
-            window.toggleWallet = async function () {
-                if (userAddress) disconnectWallet();
-                else await connectWallet(true);
-            };
+            window.toggleWallet = () => userAddress ? disconnectWallet() : connectWallet(true);
 
             async function connectWallet(isManual = false) {
-                if (!window.ethereum) {
-                    if (isManual) showToast('请安装 MetaMask 或使用 TP 钱包打开', 'error');
-                    return;
-                }
+                if (!window.ethereum) { if (isManual) showToast('请安装 MetaMask 或使用 TP 钱包打开','error'); return; }
                 try {
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     await setupWallet(accounts[0]);
-                    if (isManual) showToast('钱包连接成功！🛡️', 'success');
+                    if (isManual) showToast('钱包连接成功！🛡️','success');
                 } catch (err) {
-                    if (isManual) {
-                        if (err.code === 4001) showToast('用户拒绝了连接请求', 'error');
-                        else showToast('连接失败: ' + (err.message || '未知错误'), 'error');
-                    }
+                    if (isManual) showToast(err.code === 4001 ? '用户拒绝了连接请求' : '连接失败','error');
                 }
             }
 
             async function setupWallet(account) {
                 userAddress = account;
-                chainId = parseInt(await window.ethereum.request({ method: 'eth_chainId' }), 16);
+                const chainId = parseInt(await window.ethereum.request({ method: 'eth_chainId' }), 16);
                 if (chainId !== CHAIN_ID) {
-                    showToast('请切换到 BSC 测试网 (Chain 97)', 'error');
-                    try {
-                        await window.ethereum.request({
-                            method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: CHAIN_ID_HEX }],
-                        });
-                        chainId = CHAIN_ID;
-                    } catch (e) {
-                        showToast('切换网络失败，请手动切换到 BSC 测试网', 'error');
-                        return;
-                    }
+                    showToast('请切换到 BSC 测试网 (Chain 97)','error');
+                    try { await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: CHAIN_ID_HEX }] }); }
+                    catch (e) { showToast('切换网络失败','error'); return; }
                 }
                 provider = new ethers.providers.Web3Provider(window.ethereum);
                 signer = provider.getSigner();
                 contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
                 updateWalletUI();
                 await loadAllData();
+                startTimer();
             }
 
             function disconnectWallet() {
-                userAddress = null;
-                signer = null;
-                contract = null;
-                provider = null;
+                userAddress = null; signer = null; contract = null; provider = null;
                 updateWalletUI();
+                clearTimer();
+                lockStore = []; vestStore = [];
                 lockListEl.innerHTML = `<div class="empty-state"><div class="icon">🔗</div><p>请连接钱包查看您的锁仓记录</p></div>`;
                 vestListEl.innerHTML = `<div class="empty-state"><div class="icon">⏳</div><p>请连接钱包查看线性释放记录</p></div>`;
-                totalLockedEl.textContent = '--';
-                totalLockedSubEl.textContent = '请连接钱包';
+                totalLockedEl.textContent = '--'; totalLockedSubEl.textContent = '请连接钱包';
             }
 
             function updateWalletUI() {
                 if (userAddress) {
                     btnConnect.classList.add('connected');
-                    btnConnectText.textContent = userAddress.substring(0, 6) + '...' + userAddress.substring(userAddress.length - 4);
+                    btnConnectText.textContent = userAddress.substring(0,6) + '...' + userAddress.substring(userAddress.length-4);
                 } else {
                     btnConnect.classList.remove('connected');
                     btnConnectText.textContent = '连接钱包';
                 }
             }
 
-            function withTimeout(promise, ms) {
-                return Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))]);
-            }
+            function clearTimer() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
 
-            if (window.ethereum) {
-                window.ethereum.on('accountsChanged', (accounts) => {
-                    if (accounts.length === 0) disconnectWallet();
-                    else if (accounts[0] !== userAddress) setupWallet(accounts[0]);
-                });
-                window.ethereum.on('chainChanged', (newChainId) => {
-                    if (parseInt(newChainId, 16) === CHAIN_ID && userAddress) setupWallet(userAddress);
-                    else disconnectWallet();
-                });
-            }
+            function startTimer() { clearTimer(); timerInterval = setInterval(updateAllCards, 1000); }
 
-            async function loadAllData() {
-                if (!contract || !userAddress) return;
-                const readContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI,
-                    new ethers.providers.JsonRpcProvider(RPC_URLS[0]));
-                try {
-                    await Promise.all([
-                        loadTotalLocked(readContract),
-                        loadLocks(readContract),
-                        loadVests(readContract)
-                    ]);
-                } catch (err) {
-                    console.error('加载失败，尝试备用 RPC', err);
-                    for (let i = 1; i < RPC_URLS.length; i++) {
-                        try {
-                            const alt = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI,
-                                new ethers.providers.JsonRpcProvider(RPC_URLS[i]));
-                            await Promise.all([
-                                loadTotalLocked(alt),
-                                loadLocks(alt),
-                                loadVests(alt)
-                            ]);
-                            break;
-                        } catch (e) { console.warn('备用RPC失败'); }
+            // 实时更新卡片状态
+            function updateAllCards() {
+                const now = Math.floor(Date.now() / 1000);
+                // 一次性锁仓
+                lockStore.forEach(lock => {
+                    const card = document.querySelector(`.lock-card[data-lock-id="${lock.id}"]`);
+                    if (!card || lock.withdrawn) return;
+                    const remaining = lock.unlockTime - now;
+                    const statusEl = card.querySelector('.lock-status');
+                    const countdownEl = card.querySelector('.lock-countdown');
+                    const btnEl = card.querySelector('.btn-claim');
+                    if (remaining <= 0) {
+                        if (statusEl) { statusEl.className = 'lock-status status-ready'; statusEl.textContent = '⚡ 可领取'; }
+                        if (countdownEl) countdownEl.textContent = '';
+                        if (btnEl) {
+                            btnEl.disabled = false;
+                            btnEl.innerHTML = '<span class="spinner"></span><span class="btn-text">🔥 立即领取</span>';
+                            btnEl.onclick = () => claimLock(lock.id);
+                        }
+                    } else {
+                        const days = Math.floor(remaining / 86400);
+                        const hours = Math.floor((remaining % 86400) / 3600);
+                        const minutes = Math.floor((remaining % 3600) / 60);
+                        const seconds = remaining % 60;
+                        let str = '';
+                        if (days > 0) str += `${days}天 `;
+                        str += `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+                        if (countdownEl) countdownEl.textContent = str;
+                        if (statusEl) { statusEl.className = 'lock-status status-waiting'; statusEl.textContent = '⏳ 等待解锁'; }
+                        if (btnEl) btnEl.disabled = true;
                     }
+                });
+                // Vesting
+                vestStore.forEach(vest => {
+                    const card = document.querySelector(`.vest-card[data-vest-id="${vest.id}"]`);
+                    if (!card) return;
+                    const progressBar = card.querySelector('.vest-progress-bar');
+                    const progressText = card.querySelector('.vest-progress-text');
+                    const statusEl = card.querySelector('.lock-status');
+                    const btnEl = card.querySelector('.btn-claim-vest');
+                    let progress = 0;
+                    if (now >= vest.cliffTime) {
+                        const totalPeriod = vest.endTime - vest.cliffTime;
+                        const runTime = Math.min(now - vest.cliffTime, totalPeriod);
+                        progress = totalPeriod > 0 ? (runTime / totalPeriod) * 100 : 100;
+                    }
+                    progress = Math.min(100, Math.max(0, progress));
+                    if (progressBar) progressBar.style.width = `${progress.toFixed(1)}%`;
+                    if (progressText) progressText.textContent = `释放进度：${progress.toFixed(1)}%`;
+                    const isCliffOver = now >= vest.cliffTime;
+                    const isFullyReleased = vest.released.gte(vest.totalAmount);
+                    const canClaim = isCliffOver && !isFullyReleased && (vest.released.eq(0) || now >= vest.lastClaimTime + vest.releaseInterval);
+                    if (statusEl) {
+                        if (isFullyReleased || progress >= 100) { statusEl.className = 'lock-status status-ready'; statusEl.textContent = '✅ 已完全释放'; }
+                        else { statusEl.className = 'lock-status status-waiting'; statusEl.textContent = '📈 释放中'; }
+                    }
+                    if (btnEl) {
+                        if (isFullyReleased) { btnEl.disabled = true; btnEl.textContent = '✅ 已全部释放'; }
+                        else if (canClaim) { btnEl.disabled = false; btnEl.textContent = '🔥 领取代币'; btnEl.onclick = () => claimVest(vest.id); }
+                        else {
+                            btnEl.disabled = true;
+                            if (!isCliffOver) btnEl.textContent = `⏳ 悬崖期至 ${new Date(vest.cliffTime*1000).toLocaleDateString('zh-CN')}`;
+                            else btnEl.textContent = `⏳ 下次可领：${new Date((vest.lastClaimTime + vest.releaseInterval)*1000).toLocaleDateString('zh-CN')}`;
+                        }
+                    }
+                });
+            }
+
+            // ----------------- Multicall 批量查询 -----------------
+            async function multicall(provider, calls) {
+                const mc = new ethers.Contract(MULTICALL_ADDRESS, MULTICALL_ABI, provider);
+                return await mc.aggregate3(calls);
+            }
+
+            function buildCalls(contractAddr, abi, method, paramsList) {
+                const iface = new ethers.utils.Interface(abi);
+                return paramsList.map(params => ({
+                    target: contractAddr,
+                    allowFailure: true,
+                    callData: iface.encodeFunctionData(method, params)
+                }));
+            }
+
+            function decodeResults(results, abi, method) {
+                const iface = new ethers.utils.Interface(abi);
+                return results.map(r => r.success ? iface.decodeFunctionResult(method, r.returnData) : null);
+            }
+
+            // ----------------- 数据加载 -----------------
+            async function loadAllData() {
+                const rpc = new ethers.providers.JsonRpcProvider(RPC_URLS[0]);
+                try { await Promise.all([loadTotalLocked(rpc), loadLocks(rpc), loadVests(rpc)]); }
+                catch (e) {
+                    const backup = new ethers.providers.JsonRpcProvider(RPC_URLS[1]);
+                    await Promise.all([loadTotalLocked(backup), loadLocks(backup), loadVests(backup)]);
                 }
             }
 
-            async function loadTotalLocked(readContract) {
+            async function loadTotalLocked(provider) {
                 try {
-                    const [lockCount, vestCount] = await withTimeout(
-                        Promise.all([readContract.lockCount(), readContract.vestCount()]),
-                        5000);
+                    const lockContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+                    const [lc, vc] = await Promise.all([lockContract.lockCount(), lockContract.vestCount()]);
+                    const lockCount = lc.toNumber(), vestCount = vc.toNumber();
                     const tokenAmounts = {};
-                    const tasks = [];
-                    for (let i = 1; i <= lockCount.toNumber(); i++) tasks.push(
-                        withTimeout(readContract.tokenLocks(i), 3000).catch(() => null)
-                    );
-                    for (let i = 1; i <= vestCount.toNumber(); i++) tasks.push(
-                        withTimeout(readContract.tokenVests(i), 3000).catch(() => null)
-                    );
-                    const results = await Promise.all(tasks);
-                    results.slice(0, lockCount.toNumber()).forEach(lock => {
-                        if (lock) {
-                            const addr = lock.token.toLowerCase();
-                            if (!tokenAmounts[addr]) tokenAmounts[addr] = { amount: ethers.BigNumber.from(0), symbol: null, decimals: 18 };
-                            tokenAmounts[addr].amount = tokenAmounts[addr].amount.add(lock.amount);
-                        }
-                    });
-                    results.slice(lockCount.toNumber()).forEach(vest => {
-                        if (vest) {
-                            const addr = vest.token.toLowerCase();
-                            if (!tokenAmounts[addr]) tokenAmounts[addr] = { amount: ethers.BigNumber.from(0), symbol: null, decimals: 18 };
-                            tokenAmounts[addr].amount = tokenAmounts[addr].amount.add(vest.totalAmount);
-                        }
-                    });
-                    const symbolTasks = Object.keys(tokenAmounts).map(addr =>
-                        withTimeout(getTokenInfo(addr, readContract.provider), 3000).catch(() => ({ symbol: 'TOKEN', decimals: 18 }))
-                    );
-                    const infos = await Promise.all(symbolTasks);
-                    Object.keys(tokenAmounts).forEach((addr, idx) => {
-                        tokenAmounts[addr].symbol = infos[idx].symbol;
-                        tokenAmounts[addr].decimals = infos[idx].decimals;
+                    if (lockCount + vestCount === 0) {
+                        totalLockedEl.textContent = '暂无锁仓';
+                        totalLockedSubEl.textContent = '共 0 笔记录';
+                        return;
+                    }
+                    const lockCalls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenLocks', Array.from({length: lockCount}, (_,i) => [i+1]));
+                    const vestCalls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenVests', Array.from({length: vestCount}, (_,i) => [i+1]));
+                    const [lockRes, vestRes] = await Promise.all([
+                        multicall(provider, lockCalls),
+                        multicall(provider, vestCalls)
+                    ]);
+                    const locks = decodeResults(lockRes, CONTRACT_ABI, 'tokenLocks');
+                    const vests = decodeResults(vestRes, CONTRACT_ABI, 'tokenVests');
+                    locks.forEach(l => { if(l) { const a=l.token.toLowerCase(); if(!tokenAmounts[a]) tokenAmounts[a]={amount:ethers.BigNumber.from(0),symbol:null,decimals:18}; tokenAmounts[a].amount=tokenAmounts[a].amount.add(l.amount); } });
+                    vests.forEach(v => { if(v) { const a=v.token.toLowerCase(); if(!tokenAmounts[a]) tokenAmounts[a]={amount:ethers.BigNumber.from(0),symbol:null,decimals:18}; tokenAmounts[a].amount=tokenAmounts[a].amount.add(v.totalAmount); } });
+                    const addrs = Object.keys(tokenAmounts);
+                    const symCalls = addrs.map(a => ({target:a, allowFailure:true, callData: new ethers.utils.Interface(['function symbol() view returns (string)']).encodeFunctionData('symbol')}));
+                    const decCalls = addrs.map(a => ({target:a, allowFailure:true, callData: new ethers.utils.Interface(['function decimals() view returns (uint8)']).encodeFunctionData('decimals')}));
+                    const [symRes, decRes] = await Promise.all([multicall(provider, symCalls), multicall(provider, decCalls)]);
+                    const symDecoder = new ethers.utils.Interface(['function symbol() view returns (string)']);
+                    const decDecoder = new ethers.utils.Interface(['function decimals() view returns (uint8)']);
+                    addrs.forEach((a,i) => {
+                        let s='TOKEN', d=18;
+                        if(symRes[i].success) try{s=symDecoder.decodeFunctionResult('symbol',symRes[i].returnData)[0];}catch(e){}
+                        if(decRes[i].success) try{d=decDecoder.decodeFunctionResult('decimals',decRes[i].returnData)[0];}catch(e){}
+                        tokenAmounts[a].symbol=s; tokenAmounts[a].decimals=d;
                     });
                     const parts = [];
-                    for (const [addr, info] of Object.entries(tokenAmounts)) {
-                        if (info.amount.gt(0)) {
+                    for(const info of Object.values(tokenAmounts)) {
+                        if(info.amount.gt(0)) {
                             const num = parseFloat(ethers.utils.formatUnits(info.amount, info.decimals));
-                            if (num > 0) {
-                                if (num >= 1e6) parts.push(`${(num / 1e6).toFixed(2)}M ${info.symbol}`);
-                                else if (num >= 1e3) parts.push(`${(num / 1e3).toFixed(2)}K ${info.symbol}`);
-                                else parts.push(`${num.toFixed(2)} ${info.symbol}`);
-                            }
+                            if(num>=1e6) parts.push(`${(num/1e6).toFixed(2)}M ${info.symbol}`);
+                            else if(num>=1e3) parts.push(`${(num/1e3).toFixed(2)}K ${info.symbol}`);
+                            else parts.push(`${num.toFixed(2)} ${info.symbol}`);
                         }
                     }
                     totalLockedEl.textContent = parts.length ? parts.join(' + ') : '暂无锁仓';
                     totalLockedSubEl.textContent = `共 ${lockCount} 笔锁仓 · ${vestCount} 笔线性释放`;
-                } catch (err) {
-                    totalLockedEl.textContent = '加载失败';
-                    totalLockedSubEl.textContent = '点击刷新重试';
-                }
+                } catch(e) { totalLockedEl.textContent='加载失败'; totalLockedSubEl.textContent='点击刷新重试'; }
             }
 
-            async function getTokenInfo(addr, provider) {
-                const key = addr.toLowerCase();
-                if (tokenCache[key]) return tokenCache[key];
-                const contract = new ethers.Contract(addr, ERC20_ABI, provider);
-                const [symbol, decimals] = await Promise.all([contract.symbol(), contract.decimals()]);
-                const res = { symbol, decimals };
-                tokenCache[key] = res;
-                return res;
-            }
-
-            async function loadLocks(readContract) {
+            async function loadLocks(provider) {
                 try {
-                    const count = await withTimeout(readContract.lockCount(), 4000);
-                    console.log(`[loadLocks] 锁仓总数：${count.toNumber()}`);
-                    if (count.toNumber() === 0) {
-                        lockListEl.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>暂无一次性锁仓记录</p></div>`;
-                        return;
-                    }
-
-                    const now = Math.floor(Date.now() / 1000);
-                    const userLocks = [];
-                    const tasks = [];
-                    for (let i = 1; i <= count.toNumber(); i++) {
-                        tasks.push((async () => {
-                            try {
-                                const lock = await withTimeout(readContract.tokenLocks(i), 3000);
-                                if (!lock) {
-                                    console.warn(`[loadLocks] #${i} 返回为空`);
-                                    return;
-                                }
-                                console.log(`[loadLocks] #${i} beneficiary=`, lock.beneficiary,
-                                    'amount=', lock.amount.toString(),
-                                    'unlockTime=', lock.unlockTime.toString(),
-                                    'withdrawn=', lock.withdrawn);
-                                if (!lock.beneficiary || lock.beneficiary === ethers.constants.AddressZero) {
-                                    console.warn(`[loadLocks] #${i} 受益人为零地址，跳过`);
-                                    return;
-                                }
-                                if (lock.beneficiary.toLowerCase() !== userAddress.toLowerCase()) {
-                                    console.log(`[loadLocks] #${i} 不属于当前用户，跳过`);
-                                    return;
-                                }
-
-                                let tokenSymbol = 'TOKEN',
-                                    tokenDecimals = 18;
-                                try {
-                                    const tokenInfo = await withTimeout(getTokenInfo(lock.token, readContract.provider), 2000);
-                                    tokenSymbol = tokenInfo.symbol;
-                                    tokenDecimals = tokenInfo.decimals;
-                                } catch (e) {
-                                    console.warn(`[loadLocks] #${i} 代币信息获取失败，使用默认值`);
-                                }
-
-                                userLocks.push({
-                                    id: i,
-                                    token: lock.token,
-                                    amount: lock.amount,
-                                    unlockTime: lock.unlockTime.toNumber(),
-                                    withdrawn: lock.withdrawn,
-                                    symbol: tokenSymbol,
-                                    decimals: tokenDecimals
-                                });
-                            } catch (err) {
-                                console.error(`[loadLocks] 读取锁仓 #${i} 失败:`, err.message);
-                            }
-                        })());
-                    }
-                    await Promise.all(tasks);
-
-                    console.log(`[loadLocks] 找到 ${userLocks.length} 条属于自己的锁仓`);
-                    userLocks.sort((a, b) => a.id - b.id);
-
-                    if (userLocks.length === 0) {
-                        lockListEl.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>您暂无锁仓记录</p></div>`;
-                        return;
-                    }
-
-                    lockListEl.innerHTML = userLocks.map(lock => {
-                        const formatted = ethers.utils.formatUnits(lock.amount, lock.decimals);
-                        const displayAmount = parseFloat(formatted).toLocaleString('zh-CN', { maximumFractionDigits: 2 });
-                        const isReady = !lock.withdrawn && now >= lock.unlockTime;
-                        const isClaimed = lock.withdrawn;
-                        const unlockDate = new Date(lock.unlockTime * 1000);
-                        const dateStr = unlockDate.toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-                        let statusHTML, btnHTML;
-                        if (isClaimed) {
-                            statusHTML = '<span class="lock-status status-claimed">✅ 已领取</span>';
-                            btnHTML = '<button class="btn-claim" disabled>已领取</button>';
-                        } else if (isReady) {
-                            statusHTML = '<span class="lock-status status-ready">⚡ 可领取</span>';
-                            btnHTML = `<button class="btn-claim" onclick="claimLock(${lock.id})" id="btnLock${lock.id}"><span class="spinner"></span><span class="btn-text">🔥 立即领取</span></button>`;
-                        } else {
-                            const remaining = lock.unlockTime - now;
-                            const days = Math.floor(remaining / 86400);
-                            const hours = Math.floor((remaining % 86400) / 3600);
-                            const mins = Math.floor((remaining % 3600) / 60);
-                            let countdownStr = days > 0 ? `${days}天${hours}时` : `${hours}时${mins}分`;
-                            statusHTML = '<span class="lock-status status-waiting">⏳ 等待解锁</span>';
-                            btnHTML = `<button class="btn-claim" disabled>剩余 ${countdownStr}</button>`;
-                        }
-                        return `<div class="lock-card ${isClaimed ? 'claimed' : ''}"><div class="lock-card-header"><span class="lock-id">#LOCK-${String(lock.id).padStart(4, '0')}</span>${statusHTML}</div><div class="lock-amount">${displayAmount}</div><div class="lock-token">${lock.symbol || 'TOKEN'}</div><div class="lock-time">📅 解锁时间：${dateStr}</div>${btnHTML}</div>`;
-                    }).join('');
-                } catch (err) {
-                    console.error('[loadLocks] 全局错误:', err);
-                    lockListEl.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>加载失败，请刷新重试</p></div>`;
-                }
+                    const lockContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+                    const lockCount = (await lockContract.lockCount()).toNumber();
+                    if (lockCount === 0) { lockListEl.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>暂无一次性锁仓记录</p></div>`; return; }
+                    const calls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenLocks', Array.from({length: lockCount}, (_,i) => [i+1]));
+                    const results = await multicall(provider, calls);
+                    const locks = decodeResults(results, CONTRACT_ABI, 'tokenLocks');
+                    const now = Math.floor(Date.now()/1000);
+                    lockStore = [];
+                    const tokenAddrs = new Set();
+                    locks.forEach((lock, idx) => {
+                        if (!lock || !lock.beneficiary || lock.beneficiary === ethers.constants.AddressZero) return;
+                        if (lock.beneficiary.toLowerCase() !== userAddress.toLowerCase()) return;
+                        tokenAddrs.add(lock.token.toLowerCase());
+                        lockStore.push({ id: idx+1, token: lock.token, amount: lock.amount, unlockTime: lock.unlockTime.toNumber(), withdrawn: lock.withdrawn });
+                    });
+                    const addrList = Array.from(tokenAddrs);
+                    const symCalls = addrList.map(a => ({target:a, allowFailure:true, callData: new ethers.utils.Interface(['function symbol() view returns (string)']).encodeFunctionData('symbol')}));
+                    const decCalls = addrList.map(a => ({target:a, allowFailure:true, callData: new ethers.utils.Interface(['function decimals() view returns (uint8)']).encodeFunctionData('decimals')}));
+                    const [symRes, decRes] = await Promise.all([multicall(provider, symCalls), multicall(provider, decCalls)]);
+                    const symDecoder = new ethers.utils.Interface(['function symbol() view returns (string)']);
+                    const decDecoder = new ethers.utils.Interface(['function decimals() view returns (uint8)']);
+                    const infoMap = {};
+                    addrList.forEach((a,i) => {
+                        let s='TOKEN', d=18;
+                        if(symRes[i].success) try{s=symDecoder.decodeFunctionResult('symbol',symRes[i].returnData)[0];}catch(e){}
+                        if(decRes[i].success) try{d=decDecoder.decodeFunctionResult('decimals',decRes[i].returnData)[0];}catch(e){}
+                        infoMap[a] = {symbol:s, decimals:d};
+                    });
+                    lockStore.forEach(l => { const info = infoMap[l.token.toLowerCase()] || {symbol:'TOKEN',decimals:18}; l.symbol=info.symbol; l.decimals=info.decimals; });
+                    lockStore.sort((a,b)=>a.id-b.id);
+                    if (!lockStore.length) { lockListEl.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>您暂无锁仓记录</p></div>`; return; }
+                    renderLockCards();
+                    updateAllCards();
+                } catch (e) { lockListEl.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>加载失败，请刷新重试</p></div>`; }
             }
 
-            async function loadVests(readContract) {
+            function renderLockCards() {
+                const now = Math.floor(Date.now()/1000);
+                lockListEl.innerHTML = lockStore.map(lock => {
+                    const formatted = ethers.utils.formatUnits(lock.amount, lock.decimals);
+                    const displayAmount = parseFloat(formatted).toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+                    const isClaimed = lock.withdrawn;
+                    const unlockDate = new Date(lock.unlockTime * 1000).toLocaleString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+                    let statusHTML = isClaimed ? '<span class="lock-status status-claimed">✅ 已领取</span>' :
+                        (now >= lock.unlockTime ? '<span class="lock-status status-ready">⚡ 可领取</span>' : '<span class="lock-status status-waiting">⏳ 等待解锁</span>');
+                    let btnHTML = isClaimed ? '<button class="btn-claim" disabled>已领取</button>' :
+                        (now >= lock.unlockTime ? `<button class="btn-claim" onclick="claimLock(${lock.id})" id="btnLock${lock.id}"><span class="spinner"></span><span class="btn-text">🔥 立即领取</span></button>` :
+                        `<button class="btn-claim" disabled>剩余 <span class="lock-countdown"></span></button>`);
+                    return `<div class="lock-card ${isClaimed?'claimed':''}" data-lock-id="${lock.id}">
+                        <div class="lock-card-header"><span class="lock-id">#铁军-${String(lock.id).padStart(4,'0')}</span>${statusHTML}</div>
+                        <div class="lock-amount">${displayAmount}</div>
+                        <div class="lock-token">${lock.symbol}</div>
+                        <div class="lock-time">📅 解锁时间：${unlockDate}</div>
+                        <div class="lock-countdown"></div>
+                        ${btnHTML}
+                    </div>`;
+                }).join('');
+            }
+
+            async function loadVests(provider) {
                 try {
-                    const count = await withTimeout(readContract.vestCount(), 4000);
-                    if (count.toNumber() === 0) {
-                        vestListEl.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>暂无线性释放记录</p></div>`;
-                        return;
-                    }
-                    const now = Math.floor(Date.now() / 1000);
-                    const userVests = [];
-                    const tasks = [];
-                    for (let i = 1; i <= count.toNumber(); i++) {
-                        tasks.push((async () => {
-                            try {
-                                const vest = await withTimeout(readContract.tokenVests(i), 3000);
-                                if (!vest || !vest.beneficiary || vest.beneficiary === ethers.constants.AddressZero) return;
-                                if (vest.beneficiary.toLowerCase() !== userAddress.toLowerCase()) return;
-                                let tokenSymbol = 'TOKEN',
-                                    tokenDecimals = 18;
-                                try {
-                                    const tokenInfo = await withTimeout(getTokenInfo(vest.token, readContract.provider), 2000);
-                                    tokenSymbol = tokenInfo.symbol;
-                                    tokenDecimals = tokenInfo.decimals;
-                                } catch (e) {}
-                                userVests.push({
-                                    id: i,
-                                    token: vest.token,
-                                    totalAmount: vest.totalAmount,
-                                    cliffTime: vest.cliffTime.toNumber(),
-                                    endTime: vest.endTime.toNumber(),
-                                    releaseInterval: vest.releaseInterval.toNumber(),
-                                    lastClaimTime: vest.lastClaimTime.toNumber(),
-                                    released: vest.released,
-                                    symbol: tokenSymbol,
-                                    decimals: tokenDecimals
-                                });
-                            } catch (err) {}
-                        })());
-                    }
-                    await Promise.all(tasks);
-                    userVests.sort((a, b) => a.id - b.id);
-                    if (!userVests.length) {
-                        vestListEl.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>您暂无线性释放记录</p></div>`;
-                        return;
-                    }
-                    vestListEl.innerHTML = userVests.map(vest => {
-                        const total = parseFloat(ethers.utils.formatUnits(vest.totalAmount, vest.decimals));
-                        const released = parseFloat(ethers.utils.formatUnits(vest.released, vest.decimals));
-                        let progress = 0;
-                        if (now >= vest.cliffTime) {
-                            const totalPeriod = vest.endTime - vest.cliffTime;
-                            const runTime = Math.min(now - vest.cliffTime, totalPeriod);
-                            progress = totalPeriod > 0 ? (runTime / totalPeriod) * 100 : 100;
-                        }
-                        progress = Math.min(100, Math.max(0, progress));
-                        const isCliffOver = now >= vest.cliffTime;
-                        const isFullyReleased = vest.released.gte(vest.totalAmount);
-                        const canClaim = isCliffOver && !isFullyReleased && (vest.released.eq(0) || now >= vest.lastClaimTime + vest.releaseInterval);
-                        let btnHTML;
-                        if (isFullyReleased) btnHTML = '<button class="btn-claim-vest" disabled>✅ 已全部释放</button>';
-                        else if (canClaim) btnHTML = `<button class="btn-claim-vest" onclick="claimVest(${vest.id})" id="btnVest${vest.id}">🔥 领取代币</button>`;
-                        else if (!isCliffOver) btnHTML = `<button class="btn-claim-vest" disabled>⏳ 悬崖期至 ${new Date(vest.cliffTime * 1000).toLocaleDateString('zh-CN')}</button>`;
-                        else btnHTML = `<button class="btn-claim-vest" disabled>⏳ 下次可领：${new Date((vest.lastClaimTime + vest.releaseInterval) * 1000).toLocaleDateString('zh-CN')}</button>`;
-                        return `<div class="vest-card"><div class="lock-card-header"><span class="lock-id">#VEST-${String(vest.id).padStart(4, '0')}</span><span class="lock-status ${progress >= 100 ? 'status-ready' : 'status-waiting'}">${progress >= 100 ? '✅ 已完全释放' : '📈 释放中'}</span></div><div class="lock-amount" style="font-size:1.3rem;">${total.toLocaleString('zh-CN', { maximumFractionDigits: 2 })} <span class="lock-token">${vest.symbol}</span></div><div style="font-size:0.8rem;color:var(--text-dim);">已领取：${released.toLocaleString('zh-CN', { maximumFractionDigits: 2 })} ${vest.symbol}</div><div class="vest-progress"><div class="vest-progress-bar" style="width:${progress.toFixed(1)}%;"></div></div><div style="font-size:0.7rem;color:var(--text-dim);">释放进度：${progress.toFixed(1)}%</div><div class="lock-time">📅 悬崖期：${new Date(vest.cliffTime * 1000).toLocaleDateString('zh-CN')} · 结束：${new Date(vest.endTime * 1000).toLocaleDateString('zh-CN')}</div>${btnHTML}</div>`;
-                    }).join('');
-                } catch (err) {
-                    vestListEl.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>加载失败，请刷新重试</p></div>`;
-                }
+                    const lockContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+                    const vestCount = (await lockContract.vestCount()).toNumber();
+                    if (vestCount === 0) { vestListEl.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>暂无线性释放记录</p></div>`; return; }
+                    const calls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenVests', Array.from({length: vestCount}, (_,i) => [i+1]));
+                    const results = await multicall(provider, calls);
+                    const vests = decodeResults(results, CONTRACT_ABI, 'tokenVests');
+                    vestStore = [];
+                    const tokenAddrs = new Set();
+                    vests.forEach((vest, idx) => {
+                        if (!vest || !vest.beneficiary || vest.beneficiary === ethers.constants.AddressZero) return;
+                        if (vest.beneficiary.toLowerCase() !== userAddress.toLowerCase()) return;
+                        tokenAddrs.add(vest.token.toLowerCase());
+                        vestStore.push({ id: idx+1, token: vest.token, totalAmount: vest.totalAmount, cliffTime: vest.cliffTime.toNumber(), endTime: vest.endTime.toNumber(), releaseInterval: vest.releaseInterval.toNumber(), lastClaimTime: vest.lastClaimTime.toNumber(), released: vest.released });
+                    });
+                    const addrList = Array.from(tokenAddrs);
+                    const symCalls = addrList.map(a => ({target:a, allowFailure:true, callData: new ethers.utils.Interface(['function symbol() view returns (string)']).encodeFunctionData('symbol')}));
+                    const decCalls = addrList.map(a => ({target:a, allowFailure:true, callData: new ethers.utils.Interface(['function decimals() view returns (uint8)']).encodeFunctionData('decimals')}));
+                    const [symRes, decRes] = await Promise.all([multicall(provider, symCalls), multicall(provider, decCalls)]);
+                    const symDecoder = new ethers.utils.Interface(['function symbol() view returns (string)']);
+                    const decDecoder = new ethers.utils.Interface(['function decimals() view returns (uint8)']);
+                    const infoMap = {};
+                    addrList.forEach((a,i) => {
+                        let s='TOKEN', d=18;
+                        if(symRes[i].success) try{s=symDecoder.decodeFunctionResult('symbol',symRes[i].returnData)[0];}catch(e){}
+                        if(decRes[i].success) try{d=decDecoder.decodeFunctionResult('decimals',decRes[i].returnData)[0];}catch(e){}
+                        infoMap[a] = {symbol:s, decimals:d};
+                    });
+                    vestStore.forEach(v => { const info = infoMap[v.token.toLowerCase()] || {symbol:'TOKEN',decimals:18}; v.symbol=info.symbol; v.decimals=info.decimals; });
+                    vestStore.sort((a,b)=>a.id-b.id);
+                    if (!vestStore.length) { vestListEl.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>您暂无线性释放记录</p></div>`; return; }
+                    renderVestCards();
+                    updateAllCards();
+                } catch (e) { vestListEl.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>加载失败，请刷新重试</p></div>`; }
             }
 
-            window.claimLock = async function (lockId) {
-                if (!contract || !signer) { showToast('请先连接钱包', 'error'); return; }
-                const btn = document.getElementById('btnLock' + lockId);
-                if (btn) { btn.classList.add('loading');
-                    btn.disabled = true; }
+            function renderVestCards() {
+                const now = Math.floor(Date.now()/1000);
+                vestListEl.innerHTML = vestStore.map(vest => {
+                    const total = parseFloat(ethers.utils.formatUnits(vest.totalAmount, vest.decimals));
+                    const released = parseFloat(ethers.utils.formatUnits(vest.released, vest.decimals));
+                    let progress = 0;
+                    if (now >= vest.cliffTime) {
+                        const totalPeriod = vest.endTime - vest.cliffTime;
+                        const runTime = Math.min(now - vest.cliffTime, totalPeriod);
+                        progress = totalPeriod>0 ? (runTime/totalPeriod)*100 : 100;
+                    }
+                    progress = Math.min(100, Math.max(0, progress));
+                    const isFullyReleased = vest.released.gte(vest.totalAmount) || progress >= 100;
+                    return `<div class="vest-card" data-vest-id="${vest.id}">
+                        <div class="lock-card-header">
+                            <span class="lock-id">#VEST-${String(vest.id).padStart(4,'0')}</span>
+                            <span class="lock-status ${isFullyReleased?'status-ready':'status-waiting'}">${isFullyReleased?'✅ 已完全释放':'📈 释放中'}</span>
+                        </div>
+                        <div class="lock-amount" style="font-size:1.3rem;">${total.toLocaleString('zh-CN',{maximumFractionDigits:2})} <span class="lock-token">${vest.symbol}</span></div>
+                        <div style="font-size:0.8rem;color:var(--text-dim);">已领取：${released.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${vest.symbol}</div>
+                        <div class="vest-progress"><div class="vest-progress-bar" style="width:${progress.toFixed(1)}%;"></div></div>
+                        <div class="vest-progress-text" style="font-size:0.7rem;color:var(--text-dim);">释放进度：${progress.toFixed(1)}%</div>
+                        <div class="lock-time">📅 悬崖期：${new Date(vest.cliffTime*1000).toLocaleDateString('zh-CN')} · 结束：${new Date(vest.endTime*1000).toLocaleDateString('zh-CN')}</div>
+                        <button class="btn-claim-vest" disabled></button>
+                    </div>`;
+                }).join('');
+                updateAllCards();
+            }
+
+            window.claimLock = async function(lockId) {
+                if (!contract || !signer) { showToast('请先连接钱包','error'); return; }
+                const btn = document.getElementById('btnLock'+lockId);
+                if (btn) { btn.classList.add('loading'); btn.disabled = true; }
                 try {
                     const tx = await contract.withdrawLock(lockId);
-                    showToast('交易已提交，等待确认...', '');
+                    showToast('交易已提交，等待确认...','');
                     await tx.wait();
-                    showToast(`锁仓 #${lockId} 领取成功！🎉`, 'success');
+                    showToast(`锁仓 #${lockId} 领取成功！🎉`,'success');
                     await loadAllData();
                 } catch (err) {
                     console.error(err);
-                    showToast('领取失败: ' + (err.message || '未知错误'), 'error');
+                    showToast('领取失败: ' + (err.message||'未知错误'),'error');
                 }
-                if (btn) { btn.classList.remove('loading');
-                    btn.disabled = false; }
+                if (btn) { btn.classList.remove('loading'); btn.disabled = false; }
             };
 
-            window.claimVest = async function (vestId) {
-                if (!contract || !signer) { showToast('请先连接钱包', 'error'); return; }
-                const btn = document.getElementById('btnVest' + vestId);
-                if (btn) { btn.disabled = true;
-                    btn.textContent = '⏳ 处理中...'; }
+            window.claimVest = async function(vestId) {
+                if (!contract || !signer) { showToast('请先连接钱包','error'); return; }
+                const btn = document.getElementById('btnVest'+vestId);
+                if (btn) { btn.disabled = true; btn.textContent = '⏳ 处理中...'; }
                 try {
                     const tx = await contract.withdrawVest(vestId);
-                    showToast('交易已提交，等待确认...', '');
+                    showToast('交易已提交，等待确认...','');
                     await tx.wait();
-                    showToast(`线性释放 #${vestId} 领取成功！🎉`, 'success');
+                    showToast(`线性释放 #${vestId} 领取成功！🎉`,'success');
                     await loadAllData();
                 } catch (err) {
                     console.error(err);
-                    showToast('领取失败: ' + (err.message || '未知错误'), 'error');
+                    showToast('领取失败: ' + (err.message||'未知错误'),'error');
                 }
-                if (btn) { btn.disabled = false;
-                    btn.textContent = '🔥 领取代币'; }
+                if (btn) { btn.disabled = false; btn.textContent = '🔥 领取代币'; }
             };
 
             (async function autoInit() {
                 try {
-                    const readProvider = new ethers.providers.JsonRpcProvider(RPC_URLS[0]);
-                    const readContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, readProvider);
-                    await withTimeout(loadTotalLocked(readContract), 5000);
-                } catch (e) {
-                    totalLockedEl.textContent = '--';
-                    totalLockedSubEl.textContent = 'RPC连接较慢，请稍后刷新';
-                }
+                    const rpc = new ethers.providers.JsonRpcProvider(RPC_URLS[0]);
+                    await loadTotalLocked(rpc);
+                } catch (e) { totalLockedEl.textContent = '--'; totalLockedSubEl.textContent = 'RPC连接较慢'; }
                 if (window.ethereum) {
                     try {
                         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                        if (accounts.length > 0) {
-                            await setupWallet(accounts[0]);
-                        }
+                        if (accounts.length > 0) await setupWallet(accounts[0]);
                     } catch (e) {}
                 }
             })();
