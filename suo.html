@@ -122,37 +122,16 @@
             font-family: var(--font-military); letter-spacing: 1px; word-break: break-all;
             transition: transform 0.3s ease, opacity 0.3s ease;
         }
-        .stat-value.bump {
-            transform: scale(1.05);
-            opacity: 0.9;
-        }
+        .stat-value.bump { transform: scale(1.05); opacity: 0.9; }
         .stat-sub { font-size: 0.8rem; color: var(--text-dim); margin-top: 2px; }
-        .stat-num {
-            color: var(--gold);
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin: 0 4px;
-            transition: transform 0.2s;
-        }
+        .stat-num { color: var(--gold); font-size: 1.2rem; font-weight: 700; margin: 0 4px; transition: transform 0.2s; }
         .stat-refresh-btn {
-            background: none;
-            border: 1px solid var(--border-gold);
-            color: var(--gold);
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-left: 8px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            background: none; border: 1px solid var(--border-gold); color: var(--gold);
+            border-radius: 50%; width: 28px; height: 28px; font-size: 1rem; cursor: pointer;
+            margin-left: 8px; display: inline-flex; align-items: center; justify-content: center;
             transition: all 0.3s;
         }
-        .stat-refresh-btn:hover {
-            background: rgba(201,160,80,0.15);
-            box-shadow: 0 0 12px var(--shadow-gold);
-        }
+        .stat-refresh-btn:hover { background: rgba(201,160,80,0.15); box-shadow: 0 0 12px var(--shadow-gold); }
 
         .section-title {
             font-family: var(--font-military); font-size: 1.4rem; letter-spacing: 3px; color: var(--text-bright);
@@ -177,6 +156,7 @@
         .status-waiting { background: rgba(201,160,80,0.15); color: var(--gold); border: 1px solid var(--border-gold); }
         .status-claimed { background: rgba(138,135,128,0.15); color: var(--text-dim); border: 1px solid var(--border); }
         .status-cliff { background: rgba(192,57,43,0.25); color: #e74c3c; border: 1px solid rgba(231,76,60,0.4); }
+        .status-releasable { background: rgba(45,80,22,0.3); color: #5cb85c; border: 1px solid rgba(92,184,92,0.4); }
         .lock-amount { font-size: 1.5rem; font-weight: bold; color: var(--text-bright); font-family: var(--font-military); }
         .lock-token { font-size: 0.85rem; color: var(--gold); font-weight: 500; }
         .lock-time { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; }
@@ -317,8 +297,6 @@
             let isTimerRunning = false;
             let totalRefreshCounter = 0;
             const TOTAL_REFRESH_INTERVAL = 15;
-
-            // ========== 全局锁标记 ==========
             let isClaiming = false;
 
             const $ = id => document.getElementById(id);
@@ -454,7 +432,11 @@
                     if (remaining <= 0) {
                         if (statusEl) { statusEl.className = 'lock-status status-ready'; statusEl.textContent = '⚡ 可领取'; }
                         if (countdownEl) countdownEl.textContent = '';
-                        if (btnEl && !isClaiming) { btnEl.disabled = false; btnEl.innerHTML = '<span class="spinner"></span><span class="btn-text">🔥 立即领取</span>'; btnEl.onclick = () => claimLock(lock.id); }
+                        if (btnEl && !isClaiming) {
+                            btnEl.disabled = false;
+                            btnEl.innerHTML = '<span class="spinner"></span><span class="btn-text">🔥 立即领取</span>';
+                            btnEl.onclick = () => claimLock(lock.id);
+                        }
                     } else {
                         const days = Math.floor(remaining / 86400);
                         const hours = Math.floor((remaining % 86400) / 3600);
@@ -480,7 +462,11 @@
 
                     let progress = 0;
                     let isCliff = now < vest.cliffTime;
-                    if (now >= vest.cliffTime) { const totalPeriod = vest.endTime - vest.cliffTime; const runTime = Math.min(now - vest.cliffTime, totalPeriod); progress = totalPeriod > 0 ? (runTime / totalPeriod) * 100 : 100; }
+                    if (now >= vest.cliffTime) {
+                        const totalPeriod = vest.endTime - vest.cliffTime;
+                        const runTime = Math.min(now - vest.cliffTime, totalPeriod);
+                        progress = totalPeriod > 0 ? (runTime / totalPeriod) * 100 : 100;
+                    }
                     progress = Math.min(100, Math.max(0, progress));
                     if (progressBar) progressBar.style.width = `${progress.toFixed(1)}%`;
                     if (progressText) progressText.textContent = `释放进度：${progress.toFixed(1)}%`;
@@ -488,27 +474,49 @@
                     const total = parseFloat(ethers.utils.formatUnits(vest.totalAmount, vest.decimals));
                     const released = parseFloat(ethers.utils.formatUnits(vest.released, vest.decimals));
                     let unlockable = 0;
-                    if (now >= vest.cliffTime) { const elapsed = now - vest.cliffTime; const totalPeriod = vest.endTime - vest.cliffTime; const vested = totalPeriod > 0 ? (total * elapsed) / totalPeriod : total; unlockable = Math.max(0, vested - released); if (unlockable > total - released) unlockable = total - released; }
-                    if (availableEl) { availableEl.textContent = `可领取：${unlockable.toLocaleString('zh-CN', { maximumFractionDigits: 2 })} ${vest.symbol}`; }
+                    if (now >= vest.cliffTime) {
+                        const elapsed = now - vest.cliffTime;
+                        const totalPeriod = vest.endTime - vest.cliffTime;
+                        const vested = totalPeriod > 0 ? (total * elapsed) / totalPeriod : total;
+                        unlockable = Math.max(0, vested - released);
+                        if (unlockable > total - released) unlockable = total - released;
+                    }
+                    if (availableEl) {
+                        availableEl.textContent = `可领取：${unlockable.toLocaleString('zh-CN', { maximumFractionDigits: 2 })} ${vest.symbol}`;
+                    }
 
-                    const isFullyReleased = vest.released.gte(vest.totalAmount) || progress >= 100;
-                    const canClaim = !isCliff && !isFullyReleased && (vest.released.eq(0) || now >= vest.lastClaimTime + vest.releaseInterval);
+                    const isFullyReleased = vest.released.gte(vest.totalAmount);
+                    // 时间到期后不再受领取间隔限制，可直接领取
+                    const canClaim = !isCliff && !isFullyReleased && (now >= vest.endTime || vest.released.eq(0) || now >= vest.lastClaimTime + vest.releaseInterval);
 
                     if (statusEl) {
-                        if (isFullyReleased) { statusEl.className = 'lock-status status-ready'; statusEl.textContent = '✅ 已完全释放'; }
-                        else if (isCliff) { statusEl.className = 'lock-status status-cliff'; statusEl.textContent = '🔒 悬崖期锁定中'; }
-                        else { statusEl.className = 'lock-status status-waiting'; statusEl.textContent = '📈 释放中'; }
+                        if (isFullyReleased || progress >= 100) {
+                            statusEl.className = 'lock-status status-ready';
+                            statusEl.textContent = '✅ 已完全释放';
+                        } else if (isCliff) {
+                            statusEl.className = 'lock-status status-cliff';
+                            statusEl.textContent = '🔒 悬崖期锁定中';
+                        } else {
+                            statusEl.className = 'lock-status status-waiting';
+                            statusEl.textContent = '📈 释放中';
+                        }
                     }
 
                     if (btnEl) {
-                        if (isFullyReleased) { btnEl.disabled = true; btnEl.textContent = '✅ 已全部释放'; }
-                        else if (canClaim && !isClaiming) {
+                        if (isFullyReleased) {
+                            btnEl.disabled = true;
+                            btnEl.textContent = '✅ 已全部释放';
+                        } else if (canClaim) {
                             btnEl.disabled = false;
                             btnEl.textContent = '🔥 领取代币';
                             btnEl.onclick = () => claimVest(vest.id);
+                        } else if (isCliff) {
+                            btnEl.disabled = true;
+                            btnEl.textContent = `⏳ 释放倒计时 ${formatCountdown(vest.cliffTime - now)}`;
+                        } else {
+                            btnEl.disabled = true;
+                            btnEl.textContent = `⏳ 下次可领：${formatDateTime(vest.lastClaimTime + vest.releaseInterval)}`;
                         }
-                        else if (isCliff) { btnEl.disabled = true; btnEl.textContent = `⏳ 释放倒计时 ${formatCountdown(vest.cliffTime - now)}`; }
-                        else { btnEl.disabled = true; btnEl.textContent = `⏳ 下次可领：${formatDateTime(vest.lastClaimTime + vest.releaseInterval)}`; }
                     }
                 });
             }
@@ -622,12 +630,14 @@
                     let progress = 0; let isCliff = now < vest.cliffTime;
                     if (now >= vest.cliffTime) { const totalPeriod = vest.endTime - vest.cliffTime; const runTime = Math.min(now - vest.cliffTime, totalPeriod); progress = totalPeriod>0 ? (runTime/totalPeriod)*100 : 100; }
                     progress = Math.min(100, Math.max(0, progress));
-                    const isFullyReleased = vest.released.gte(vest.totalAmount) || progress >= 100;
+                    const isFullyReleased = vest.released.gte(vest.totalAmount);
                     let unlockable = 0;
                     if (now >= vest.cliffTime) { const elapsed = now - vest.cliffTime; const totalPeriod = vest.endTime - vest.cliffTime; const vested = totalPeriod>0 ? (total * elapsed) / totalPeriod : total; unlockable = Math.max(0, vested - released); if (unlockable > total - released) unlockable = total - released; }
-                    const statusText = isFullyReleased ? '✅ 已完全释放' : (isCliff ? '🔒 悬崖期锁定中' : '📈 释放中');
-                    const statusClass = isFullyReleased ? 'status-ready' : (isCliff ? 'status-cliff' : 'status-waiting');
                     const cliffRemaining = vest.cliffTime - now;
+                    let statusText = '', statusClass = '';
+                    if (isFullyReleased || progress >= 100) { statusText = '✅ 已完全释放'; statusClass = 'status-ready'; }
+                    else if (isCliff) { statusText = '🔒 悬崖期锁定中'; statusClass = 'status-cliff'; }
+                    else { statusText = '📈 释放中'; statusClass = 'status-waiting'; }
                     let btnText = '';
                     if (isFullyReleased) btnText = '✅ 已全部释放';
                     else if (isCliff) btnText = `⏳ 释放倒计时 ${formatCountdown(cliffRemaining)}`;
@@ -637,9 +647,8 @@
                 updateAllCards();
             }
 
-            // ========== 安全的领取函数（全局锁 + finally 释放） ==========
             window.claimLock = async function(lockId) {
-                if (isClaiming) return; // 优先拦截
+                if (isClaiming) return;
                 if (!contract || !signer) { showToast('请先连接钱包','error'); return; }
                 const btn = document.getElementById('btnLock'+lockId);
                 if (btn) { btn.classList.add('loading'); btn.disabled = true; }
@@ -659,9 +668,8 @@
                     else if (err.message) msg = '领取失败: ' + err.message;
                     showToast(msg,'error');
                 } finally {
-                    isClaiming = false; // 强制释放锁
+                    isClaiming = false;
                     if (btn) { btn.classList.remove('loading'); btn.disabled = false; }
-                    // 重新刷新UI以确保按钮状态正确
                     updateAllCards();
                 }
             };
