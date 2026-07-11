@@ -134,6 +134,25 @@
             margin: 0 4px;
             transition: transform 0.2s;
         }
+        .stat-refresh-btn {
+            background: none;
+            border: 1px solid var(--border-gold);
+            color: var(--gold);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-left: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .stat-refresh-btn:hover {
+            background: rgba(201,160,80,0.15);
+            box-shadow: 0 0 12px var(--shadow-gold);
+        }
 
         .section-title {
             font-family: var(--font-military); font-size: 1.4rem; letter-spacing: 3px; color: var(--text-bright);
@@ -243,7 +262,7 @@
             <p class="hero-desc">链上智能合约锁定 · 到期自动释放 · 铁血纪律守护资产安全</p>
             <div class="stat-card" style="margin-top:16px;">
                 <div class="stat-card-inner">
-                    <div class="stat-label">📊 合约总锁仓</div>
+                    <div class="stat-label">📊 合约总锁仓 <button class="stat-refresh-btn" onclick="refreshTotalLocked()" title="刷新总锁仓">↻</button></div>
                     <div class="stat-value" id="totalLocked">--</div>
                     <div class="stat-sub" id="totalLockedSub">加载中...</div>
                 </div>
@@ -295,8 +314,9 @@
             let provider = null, signer = null, contract = null, userAddress = null;
             let lockStore = [], vestStore = [];
             let timerInterval = null;
+            let isTimerRunning = false;
             let totalRefreshCounter = 0;
-            const TOTAL_REFRESH_INTERVAL = 15; // 每15秒刷新总锁仓数据
+            const TOTAL_REFRESH_INTERVAL = 15;
 
             const $ = id => document.getElementById(id);
             const totalLockedEl = $('totalLocked'), totalLockedSubEl = $('totalLockedSub');
@@ -304,7 +324,6 @@
             const btnConnect = $('btnConnect'), btnConnectText = $('btnConnectText');
             const toastContainer = $('toastContainer');
 
-            // 数字滚动动画辅助函数
             function animateNumberUpdate(element, newText) {
                 element.classList.add('bump');
                 setTimeout(() => element.classList.remove('bump'), 300);
@@ -396,12 +415,35 @@
                 }
             }
 
-            function clearTimer() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
-            function startTimer() { clearTimer(); timerInterval = setInterval(updateAllCards, 1000); }
+            function clearTimer() {
+                if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+                isTimerRunning = false;
+            }
 
-            // 刷新总锁仓数据（供定时器调用）
+            function startTimer() {
+                if (isTimerRunning) return;
+                clearTimer();
+                timerInterval = setInterval(updateAllCards, 1000);
+                isTimerRunning = true;
+            }
+
+            window.refreshTotalLocked = async function() {
+                if (!userAddress && !provider) {
+                    // 未连接钱包，使用公共RPC刷新
+                    const rpcProvider = new ethers.providers.JsonRpcProvider(RPC_URLS[0]);
+                    try {
+                        await loadTotalLocked(rpcProvider);
+                    } catch (e) {
+                        totalLockedEl.textContent = '加载失败';
+                        totalLockedSubEl.textContent = '请稍后重试';
+                    }
+                } else {
+                    await refreshTotalLocked();
+                }
+            };
+
             async function refreshTotalLocked() {
-                if (!userAddress) return; // 若未连接钱包，则不刷新（但总锁仓在连接后已在 loadAllData 中加载）
+                if (!userAddress) return;
                 const rpcProvider = new ethers.providers.JsonRpcProvider(RPC_URLS[0]);
                 try {
                     await loadTotalLocked(rpcProvider);
@@ -416,14 +458,12 @@
 
             function updateAllCards() {
                 const now = Math.floor(Date.now() / 1000);
-                // 总锁仓定时刷新
                 totalRefreshCounter++;
                 if (totalRefreshCounter >= TOTAL_REFRESH_INTERVAL) {
                     totalRefreshCounter = 0;
                     refreshTotalLocked();
                 }
 
-                // 一次性锁仓
                 lockStore.forEach(lock => {
                     const card = document.querySelector(`.lock-card[data-lock-id="${lock.id}"]`);
                     if (!card || lock.withdrawn) return;
@@ -453,7 +493,6 @@
                     }
                 });
 
-                // 线性释放
                 vestStore.forEach(vest => {
                     const card = document.querySelector(`.vest-card[data-vest-id="${vest.id}"]`);
                     if (!card) return;
@@ -492,30 +531,21 @@
                     const canClaim = !isCliff && !isFullyReleased && (vest.released.eq(0) || now >= vest.lastClaimTime + vest.releaseInterval);
 
                     if (statusEl) {
-                        if (isFullyReleased) {
-                            statusEl.className = 'lock-status status-ready';
-                            statusEl.textContent = '✅ 已完全释放';
-                        } else if (isCliff) {
-                            statusEl.className = 'lock-status status-cliff';
-                            statusEl.textContent = '🔒 悬崖期锁定中';
-                        } else {
-                            statusEl.className = 'lock-status status-waiting';
-                            statusEl.textContent = '📈 释放中';
-                        }
+                        if (isFullyReleased) { statusEl.className = 'lock-status status-ready'; statusEl.textContent = '✅ 已完全释放'; }
+                        else if (isCliff) { statusEl.className = 'lock-status status-cliff'; statusEl.textContent = '🔒 悬崖期锁定中'; }
+                        else { statusEl.className = 'lock-status status-waiting'; statusEl.textContent = '📈 释放中'; }
                     }
 
                     if (btnEl) {
-                        if (isFullyReleased) {
-                            btnEl.disabled = true;
-                            btnEl.textContent = '✅ 已全部释放';
-                        } else if (canClaim) {
+                        if (isFullyReleased) { btnEl.disabled = true; btnEl.textContent = '✅ 已全部释放'; }
+                        else if (canClaim) {
                             btnEl.disabled = false;
                             btnEl.textContent = '🔥 领取代币';
                             btnEl.onclick = () => claimVest(vest.id);
-                        } else if (isCliff) {
+                        }
+                        else if (isCliff) {
                             btnEl.disabled = true;
-                            const cliffRemaining = vest.cliffTime - now;
-                            btnEl.textContent = `⏳ 释放倒计时 ${formatCountdown(cliffRemaining)}`;
+                            btnEl.textContent = `⏳ 释放倒计时 ${formatCountdown(vest.cliffTime - now)}`;
                         } else {
                             btnEl.disabled = true;
                             btnEl.textContent = `⏳ 下次可领：${formatDateTime(vest.lastClaimTime + vest.releaseInterval)}`;
@@ -623,17 +653,12 @@
                         if (amount.gt(0)) {
                             const info = tokenInfoMap[addr] || { symbol: 'TOKEN', decimals: 18 };
                             const num = parseFloat(ethers.utils.formatUnits(amount, info.decimals));
-                            if (num > 0) {
-                                parts.push(num.toLocaleString('zh-CN', { maximumFractionDigits: 2 }));
-                            }
+                            if (num > 0) parts.push(num.toLocaleString('zh-CN', { maximumFractionDigits: 2 }));
                         }
                     }
                     const totalText = parts.length > 0 ? parts.join(' + ') : '0';
                     animateNumberUpdate(totalLockedEl, totalText);
-
-                    const lockNum = activeLockCount;
-                    const vestNum = activeVestCount;
-                    totalLockedSubEl.innerHTML = `一次性锁仓 <span class="stat-num">${lockNum}</span> 笔 · 线性锁仓释放 <span class="stat-num">${vestNum}</span> 笔`;
+                    totalLockedSubEl.innerHTML = `一次性锁仓 <span class="stat-num">${activeLockCount}</span> 笔 · 线性锁仓释放 <span class="stat-num">${activeVestCount}</span> 笔`;
                 } catch (e) {
                     console.error(e);
                     totalLockedEl.textContent = '加载失败';
@@ -756,7 +781,7 @@
                         <div class="vest-note">过悬崖期后可线性释放！</div>
                         <div class="lock-time">📅 悬崖期结束：${formatDateTime(vest.cliffTime)}</div>
                         <div class="lock-time">📅 预计释放完成日期：${formatDateTime(vest.endTime)}</div>
-                        <button class="btn-claim-vest" disabled>${btnText}</button>
+                        <button class="btn-claim-vest" id="btnVest${vest.id}" disabled>${btnText}</button>
                     </div>`;
                 }).join('');
                 updateAllCards();
@@ -772,9 +797,18 @@
                     await tx.wait();
                     showToast(`锁仓 #${lockId} 领取成功！🎉`,'success');
                     await loadAllData();
-                } catch (err) { showToast('领取失败: ' + (err.message||'未知错误'),'error'); }
+                } catch (err) {
+                    let msg = '领取失败';
+                    if (err.code === 4001) msg = '用户取消了交易';
+                    else if (err.message && err.message.includes('Not beneficiary')) msg = '您不是受益人';
+                    else if (err.message && err.message.includes('Not unlock yet')) msg = '尚未到解锁时间';
+                    else if (err.message && err.message.includes('Already withdrawn')) msg = '已被领取';
+                    else if (err.message) msg = '领取失败: ' + err.message;
+                    showToast(msg,'error');
+                }
                 if (btn) { btn.classList.remove('loading'); btn.disabled = false; }
             };
+
             window.claimVest = async function(vestId) {
                 if (!contract || !signer) { showToast('请先连接钱包','error'); return; }
                 const btn = document.getElementById('btnVest'+vestId);
@@ -785,7 +819,16 @@
                     await tx.wait();
                     showToast(`线性释放 #${vestId} 领取成功！🎉`,'success');
                     await loadAllData();
-                } catch (err) { showToast('领取失败: ' + (err.message||'未知错误'),'error'); }
+                } catch (err) {
+                    let msg = '领取失败';
+                    if (err.code === 4001) msg = '用户取消了交易';
+                    else if (err.message && err.message.includes('Not beneficiary')) msg = '您不是受益人';
+                    else if (err.message && err.message.includes('Wait for next cycle')) msg = '请等待下一个领取周期';
+                    else if (err.message && err.message.includes('No token to claim')) msg = '当前无可领取代币';
+                    else if (err.message && err.message.includes('Cliff not over')) msg = '悬崖期尚未结束';
+                    else if (err.message) msg = '领取失败: ' + err.message;
+                    showToast(msg,'error');
+                }
                 if (btn) { btn.disabled = false; btn.textContent = '🔥 领取代币'; }
             };
 
