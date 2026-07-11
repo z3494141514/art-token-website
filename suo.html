@@ -117,8 +117,23 @@
             padding: 24px 28px; text-align: center; width: 100%;
         }
         .stat-label { font-size: 0.8rem; letter-spacing: 3px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
-        .stat-value { font-size: 2.4rem; font-weight: bold; color: var(--gold); font-family: var(--font-military); letter-spacing: 2px; word-break: break-all; }
+        .stat-value {
+            font-size: 2.2rem; font-weight: bold; color: var(--gold);
+            font-family: var(--font-military); letter-spacing: 1px; word-break: break-all;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .stat-value.bump {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
         .stat-sub { font-size: 0.8rem; color: var(--text-dim); margin-top: 2px; }
+        .stat-num {
+            color: var(--gold);
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0 4px;
+            transition: transform 0.2s;
+        }
 
         .section-title {
             font-family: var(--font-military); font-size: 1.4rem; letter-spacing: 3px; color: var(--text-bright);
@@ -168,12 +183,18 @@
         .vest-progress-bar { height: 100%; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); border-radius: 3px; transition: width 0.3s ease; }
         .vest-note { font-size: 0.7rem; color: var(--gold-light); margin-top: 2px; letter-spacing: 1px; }
         .btn-claim-vest {
-            display: inline-flex; align-items: center; gap: 8px; padding: 8px 20px; border-radius: 50px;
-            font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease;
-            border: 1px solid var(--gold); background: transparent; color: var(--gold); letter-spacing: 1px; margin-top: 8px;
+            display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px; border-radius: 50px;
+            font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease;
+            border: 1px solid var(--gold); background: transparent; color: var(--gold);
+            letter-spacing: 2px; margin-top: 12px; width: 100%; justify-content: center;
+            position: relative; overflow: hidden;
         }
-        .btn-claim-vest:hover:not(:disabled) { background: rgba(201,160,80,0.15); box-shadow: 0 0 16px var(--shadow-gold); }
-        .btn-claim-vest:disabled { border-color: #3a3a40; color: #6a6a6a; cursor: not-allowed; }
+        .btn-claim-vest:hover:not(:disabled) { background: rgba(201,160,80,0.15); box-shadow: 0 0 28px var(--shadow-gold); transform: translateY(-2px); }
+        .btn-claim-vest:disabled { border-color: #3a3a40; color: #6a6a6a; cursor: not-allowed; background: transparent; }
+        .btn-claim-vest.loading { pointer-events: none; opacity: 0.7; }
+        .btn-claim-vest .spinner { display: none; width: 18px; height: 18px; border: 2px solid transparent; border-top-color: currentColor; border-radius: 50%; animation: spin 0.7s linear infinite; }
+        .btn-claim-vest.loading .spinner { display: inline-block; }
+        .btn-claim-vest.loading .btn-text { display: none; }
 
         .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .toast {
@@ -237,7 +258,7 @@
         </section>
 
         <section style="padding: 10px 0 40px;">
-            <div class="section-title">📅 线性释放</div>
+            <div class="section-title">📅 线性锁仓释放</div>
             <div id="vestList" class="lock-grid">
                 <div class="empty-state"><div class="icon">⏳</div><p>请连接钱包查看线性释放记录</p></div>
             </div>
@@ -274,12 +295,21 @@
             let provider = null, signer = null, contract = null, userAddress = null;
             let lockStore = [], vestStore = [];
             let timerInterval = null;
+            let totalRefreshCounter = 0;
+            const TOTAL_REFRESH_INTERVAL = 15; // 每15秒刷新总锁仓数据
 
             const $ = id => document.getElementById(id);
             const totalLockedEl = $('totalLocked'), totalLockedSubEl = $('totalLockedSub');
             const lockListEl = $('lockList'), vestListEl = $('vestList');
             const btnConnect = $('btnConnect'), btnConnectText = $('btnConnectText');
             const toastContainer = $('toastContainer');
+
+            // 数字滚动动画辅助函数
+            function animateNumberUpdate(element, newText) {
+                element.classList.add('bump');
+                setTimeout(() => element.classList.remove('bump'), 300);
+                element.textContent = newText;
+            }
 
             function formatDateTime(timestamp) {
                 const d = new Date(timestamp * 1000);
@@ -369,8 +399,30 @@
             function clearTimer() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
             function startTimer() { clearTimer(); timerInterval = setInterval(updateAllCards, 1000); }
 
+            // 刷新总锁仓数据（供定时器调用）
+            async function refreshTotalLocked() {
+                if (!userAddress) return; // 若未连接钱包，则不刷新（但总锁仓在连接后已在 loadAllData 中加载）
+                const rpcProvider = new ethers.providers.JsonRpcProvider(RPC_URLS[0]);
+                try {
+                    await loadTotalLocked(rpcProvider);
+                } catch (e) {
+                    console.warn('刷新总锁仓失败', e);
+                    try {
+                        const backup = new ethers.providers.JsonRpcProvider(RPC_URLS[1]);
+                        await loadTotalLocked(backup);
+                    } catch (e2) {}
+                }
+            }
+
             function updateAllCards() {
                 const now = Math.floor(Date.now() / 1000);
+                // 总锁仓定时刷新
+                totalRefreshCounter++;
+                if (totalRefreshCounter >= TOTAL_REFRESH_INTERVAL) {
+                    totalRefreshCounter = 0;
+                    refreshTotalLocked();
+                }
+
                 // 一次性锁仓
                 lockStore.forEach(lock => {
                     const card = document.querySelector(`.lock-card[data-lock-id="${lock.id}"]`);
@@ -530,8 +582,8 @@
                     const [lc, vc] = await Promise.all([lockContract.lockCount(), lockContract.vestCount()]);
                     const totalLockCount = lc.toNumber(), totalVestCount = vc.toNumber();
                     if (totalLockCount + totalVestCount === 0) {
-                        totalLockedEl.textContent = '暂无锁仓';
-                        totalLockedSubEl.textContent = '共 0 笔记录';
+                        animateNumberUpdate(totalLockedEl, '0');
+                        totalLockedSubEl.innerHTML = `一次性锁仓 <span class="stat-num">0</span> 笔 · 线性锁仓释放 <span class="stat-num">0</span> 笔`;
                         return;
                     }
                     const lockCalls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenLocks', Array.from({length: totalLockCount}, (_,i) => [i+1]));
@@ -571,14 +623,22 @@
                         if (amount.gt(0)) {
                             const info = tokenInfoMap[addr] || { symbol: 'TOKEN', decimals: 18 };
                             const num = parseFloat(ethers.utils.formatUnits(amount, info.decimals));
-                            if (num >= 1e6) parts.push(`${(num/1e6).toFixed(2)}M ${info.symbol}`);
-                            else if (num >= 1e3) parts.push(`${(num/1e3).toFixed(2)}K ${info.symbol}`);
-                            else parts.push(`${num.toFixed(2)} ${info.symbol}`);
+                            if (num > 0) {
+                                parts.push(num.toLocaleString('zh-CN', { maximumFractionDigits: 2 }));
+                            }
                         }
                     }
-                    totalLockedEl.textContent = parts.length ? parts.join(' + ') : '暂无锁仓';
-                    totalLockedSubEl.textContent = `有效锁仓 ${activeLockCount} 笔 · 线性释放 ${activeVestCount} 笔`;
-                } catch (e) { totalLockedEl.textContent='加载失败'; totalLockedSubEl.textContent='点击刷新重试'; }
+                    const totalText = parts.length > 0 ? parts.join(' + ') : '0';
+                    animateNumberUpdate(totalLockedEl, totalText);
+
+                    const lockNum = activeLockCount;
+                    const vestNum = activeVestCount;
+                    totalLockedSubEl.innerHTML = `一次性锁仓 <span class="stat-num">${lockNum}</span> 笔 · 线性锁仓释放 <span class="stat-num">${vestNum}</span> 笔`;
+                } catch (e) {
+                    console.error(e);
+                    totalLockedEl.textContent = '加载失败';
+                    totalLockedSubEl.textContent = '点击刷新重试';
+                }
             }
 
             async function loadLocks(provider) {
