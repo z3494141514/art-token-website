@@ -318,6 +318,9 @@
             let totalRefreshCounter = 0;
             const TOTAL_REFRESH_INTERVAL = 15;
 
+            // ========== 全局锁标记（防连点核心） ==========
+            let isClaiming = false;
+
             const $ = id => document.getElementById(id);
             const totalLockedEl = $('totalLocked'), totalLockedSubEl = $('totalLockedSub');
             const lockListEl = $('lockList'), vestListEl = $('vestList');
@@ -429,14 +432,8 @@
 
             window.refreshTotalLocked = async function() {
                 if (!userAddress && !provider) {
-                    // 未连接钱包，使用公共RPC刷新
                     const rpcProvider = new ethers.providers.JsonRpcProvider(RPC_URLS[0]);
-                    try {
-                        await loadTotalLocked(rpcProvider);
-                    } catch (e) {
-                        totalLockedEl.textContent = '加载失败';
-                        totalLockedSubEl.textContent = '请稍后重试';
-                    }
+                    try { await loadTotalLocked(rpcProvider); } catch (e) { totalLockedEl.textContent = '加载失败'; totalLockedSubEl.textContent = '请稍后重试'; }
                 } else {
                     await refreshTotalLocked();
                 }
@@ -445,14 +442,9 @@
             async function refreshTotalLocked() {
                 if (!userAddress) return;
                 const rpcProvider = new ethers.providers.JsonRpcProvider(RPC_URLS[0]);
-                try {
-                    await loadTotalLocked(rpcProvider);
-                } catch (e) {
+                try { await loadTotalLocked(rpcProvider); } catch (e) {
                     console.warn('刷新总锁仓失败', e);
-                    try {
-                        const backup = new ethers.providers.JsonRpcProvider(RPC_URLS[1]);
-                        await loadTotalLocked(backup);
-                    } catch (e2) {}
+                    try { await loadTotalLocked(new ethers.providers.JsonRpcProvider(RPC_URLS[1])); } catch (e2) {}
                 }
             }
 
@@ -627,27 +619,13 @@
                     const involvedTokens = new Set();
 
                     locks.forEach(l => {
-                        if (l && !l.withdrawn) {
-                            activeLockCount++;
-                            const a = l.token.toLowerCase();
-                            involvedTokens.add(a);
-                            if (!tokenAmounts[a]) tokenAmounts[a] = ethers.BigNumber.from(0);
-                            tokenAmounts[a] = tokenAmounts[a].add(l.amount);
-                        }
+                        if (l && !l.withdrawn) { activeLockCount++; const a = l.token.toLowerCase(); involvedTokens.add(a); if (!tokenAmounts[a]) tokenAmounts[a] = ethers.BigNumber.from(0); tokenAmounts[a] = tokenAmounts[a].add(l.amount); }
                     });
                     vests.forEach(v => {
-                        if (v && v.released.lt(v.totalAmount)) {
-                            activeVestCount++;
-                            const remaining = v.totalAmount.sub(v.released);
-                            const a = v.token.toLowerCase();
-                            involvedTokens.add(a);
-                            if (!tokenAmounts[a]) tokenAmounts[a] = ethers.BigNumber.from(0);
-                            tokenAmounts[a] = tokenAmounts[a].add(remaining);
-                        }
+                        if (v && v.released.lt(v.totalAmount)) { activeVestCount++; const remaining = v.totalAmount.sub(v.released); const a = v.token.toLowerCase(); involvedTokens.add(a); if (!tokenAmounts[a]) tokenAmounts[a] = ethers.BigNumber.from(0); tokenAmounts[a] = tokenAmounts[a].add(remaining); }
                     });
 
                     const tokenInfoMap = await fetchTokenInfos(provider, Array.from(involvedTokens));
-
                     const parts = [];
                     for (const [addr, amount] of Object.entries(tokenAmounts)) {
                         if (amount.gt(0)) {
@@ -656,14 +634,9 @@
                             if (num > 0) parts.push(num.toLocaleString('zh-CN', { maximumFractionDigits: 2 }));
                         }
                     }
-                    const totalText = parts.length > 0 ? parts.join(' + ') : '0';
-                    animateNumberUpdate(totalLockedEl, totalText);
+                    animateNumberUpdate(totalLockedEl, parts.length ? parts.join(' + ') : '0');
                     totalLockedSubEl.innerHTML = `一次性锁仓 <span class="stat-num">${activeLockCount}</span> 笔 · 线性锁仓释放 <span class="stat-num">${activeVestCount}</span> 笔`;
-                } catch (e) {
-                    console.error(e);
-                    totalLockedEl.textContent = '加载失败';
-                    totalLockedSubEl.textContent = '点击刷新重试';
-                }
+                } catch (e) { totalLockedEl.textContent = '加载失败'; totalLockedSubEl.textContent = '点击刷新重试'; }
             }
 
             async function loadLocks(provider) {
@@ -746,21 +719,11 @@
                     const released = parseFloat(ethers.utils.formatUnits(vest.released, vest.decimals));
                     let progress = 0;
                     let isCliff = now < vest.cliffTime;
-                    if (now >= vest.cliffTime) {
-                        const totalPeriod = vest.endTime - vest.cliffTime;
-                        const runTime = Math.min(now - vest.cliffTime, totalPeriod);
-                        progress = totalPeriod>0 ? (runTime/totalPeriod)*100 : 100;
-                    }
+                    if (now >= vest.cliffTime) { const totalPeriod = vest.endTime - vest.cliffTime; const runTime = Math.min(now - vest.cliffTime, totalPeriod); progress = totalPeriod>0 ? (runTime/totalPeriod)*100 : 100; }
                     progress = Math.min(100, Math.max(0, progress));
                     const isFullyReleased = vest.released.gte(vest.totalAmount) || progress >= 100;
                     let unlockable = 0;
-                    if (now >= vest.cliffTime) {
-                        const elapsed = now - vest.cliffTime;
-                        const totalPeriod = vest.endTime - vest.cliffTime;
-                        const vested = totalPeriod > 0 ? (total * elapsed) / totalPeriod : total;
-                        unlockable = Math.max(0, vested - released);
-                        if (unlockable > total - released) unlockable = total - released;
-                    }
+                    if (now >= vest.cliffTime) { const elapsed = now - vest.cliffTime; const totalPeriod = vest.endTime - vest.cliffTime; const vested = totalPeriod>0 ? (total * elapsed) / totalPeriod : total; unlockable = Math.max(0, vested - released); if (unlockable > total - released) unlockable = total - released; }
                     const statusText = isFullyReleased ? '✅ 已完全释放' : (isCliff ? '🔒 悬崖期锁定中' : '📈 释放中');
                     const statusClass = isFullyReleased ? 'status-ready' : (isCliff ? 'status-cliff' : 'status-waiting');
                     const cliffRemaining = vest.cliffTime - now;
@@ -787,10 +750,13 @@
                 updateAllCards();
             }
 
+            // ========== 领取函数（带内存锁） ==========
             window.claimLock = async function(lockId) {
+                if (isClaiming) return; // 全局锁
                 if (!contract || !signer) { showToast('请先连接钱包','error'); return; }
                 const btn = document.getElementById('btnLock'+lockId);
                 if (btn) { btn.classList.add('loading'); btn.disabled = true; }
+                isClaiming = true;
                 try {
                     const tx = await contract.withdrawLock(lockId);
                     showToast('交易已提交，等待确认...','');
@@ -807,12 +773,15 @@
                     showToast(msg,'error');
                 }
                 if (btn) { btn.classList.remove('loading'); btn.disabled = false; }
+                isClaiming = false;
             };
 
             window.claimVest = async function(vestId) {
+                if (isClaiming) return; // 全局锁
                 if (!contract || !signer) { showToast('请先连接钱包','error'); return; }
                 const btn = document.getElementById('btnVest'+vestId);
                 if (btn) { btn.disabled = true; btn.textContent = '⏳ 处理中...'; }
+                isClaiming = true;
                 try {
                     const tx = await contract.withdrawVest(vestId);
                     showToast('交易已提交，等待确认...','');
@@ -830,6 +799,7 @@
                     showToast(msg,'error');
                 }
                 if (btn) { btn.disabled = false; btn.textContent = '🔥 领取代币'; }
+                isClaiming = false;
             };
 
             (async function autoInit() {
