@@ -139,6 +139,20 @@
         }
         .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
+        .view-toggle {
+            display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+        }
+        .view-toggle button {
+            padding: 8px 18px; border-radius: 50px; font-weight: 600; font-size: 0.85rem;
+            cursor: pointer; transition: all 0.3s ease; border: 1px solid var(--border);
+            background: var(--bg-card); color: var(--text-dim); letter-spacing: 1px;
+        }
+        .view-toggle button.active {
+            border-color: var(--gold); color: var(--gold); background: rgba(201,160,80,0.1);
+            box-shadow: 0 0 12px var(--shadow-gold);
+        }
+        .view-toggle button:hover { border-color: var(--gold); color: var(--gold); }
+
         .lock-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
         @media (min-width: 640px) { .lock-grid { grid-template-columns: repeat(2, 1fr); } }
 
@@ -149,6 +163,7 @@
         .lock-card:hover { border-color: var(--border-gold); box-shadow: 0 4px 24px var(--shadow-gold); transform: translateY(-2px); }
         .lock-card.claimed { opacity: 0.55; border-color: var(--border); }
         .lock-card.claimed:hover { border-color: var(--border); box-shadow: none; transform: none; }
+        .lock-card.not-owner { border-color: rgba(192,57,43,0.3); }
         .lock-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
         .lock-id { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 2px; font-family: var(--font-military); }
         .lock-status { font-size: 0.75rem; padding: 4px 12px; border-radius: 50px; font-weight: 600; letter-spacing: 1px; }
@@ -176,8 +191,14 @@
         .btn-claim.loading .btn-text { display: none; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        .btn-claim-not-owner {
+            font-size: 0.75rem; color: #e74c3c; text-align: center; margin-top: 8px;
+            padding: 6px 12px; border: 1px dashed rgba(231,76,60,0.4); border-radius: 50px;
+        }
+
         .vest-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; transition: all 0.3s ease; }
         .vest-card:hover { border-color: var(--border-gold); box-shadow: 0 4px 24px var(--shadow-gold); transform: translateY(-2px); }
+        .vest-card.not-owner { border-color: rgba(192,57,43,0.3); }
         .vest-progress { width: 100%; height: 6px; background: #1a1a24; border-radius: 3px; margin: 10px 0; overflow: hidden; }
         .vest-progress-bar { height: 100%; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); border-radius: 3px; transition: width 0.3s ease; }
         .vest-note { font-size: 0.7rem; color: var(--gold-light); margin-top: 2px; letter-spacing: 1px; }
@@ -258,6 +279,10 @@
 
         <section style="padding: 10px 0 40px;">
             <div class="section-title">📅 线性锁仓释放</div>
+            <div class="view-toggle">
+                <button id="btnViewAll" class="active" onclick="switchVestView('all')">🌐 全网锁仓 (<span id="allVestCount">0</span>)</button>
+                <button id="btnViewPersonal" onclick="switchVestView('personal')">👤 个人锁仓 (<span id="personalVestCount">0</span>)</button>
+            </div>
             <div id="vestList" class="lock-grid">
                 <div class="empty-state"><div class="icon">⏳</div><p>请连接钱包查看线性释放记录</p></div>
             </div>
@@ -292,7 +317,8 @@
             ];
 
             let provider = null, signer = null, contract = null, userAddress = null;
-            let lockStore = [], vestStore = [];
+            let lockStore = [], vestStore = [], allVestStore = [];
+            let currentVestView = 'all';
             let timerInterval = null;
             let isTimerRunning = false;
             let totalRefreshCounter = 0;
@@ -304,6 +330,8 @@
             const lockListEl = $('lockList'), vestListEl = $('vestList');
             const btnConnect = $('btnConnect'), btnConnectText = $('btnConnectText');
             const toastContainer = $('toastContainer');
+            const btnViewAll = $('btnViewAll'), btnViewPersonal = $('btnViewPersonal');
+            const allVestCountEl = $('allVestCount'), personalVestCountEl = $('personalVestCount');
 
             function animateNumberUpdate(element, newText) {
                 element.classList.add('bump');
@@ -380,10 +408,11 @@
                 userAddress = null; signer = null; contract = null; provider = null;
                 updateWalletUI();
                 clearTimer();
-                lockStore = []; vestStore = [];
+                lockStore = []; vestStore = []; allVestStore = [];
                 lockListEl.innerHTML = `<div class="empty-state"><div class="icon">🔗</div><p>请连接钱包查看您的锁仓记录</p></div>`;
                 vestListEl.innerHTML = `<div class="empty-state"><div class="icon">⏳</div><p>请连接钱包查看线性释放记录</p></div>`;
                 totalLockedEl.textContent = '--'; totalLockedSubEl.textContent = '请连接钱包';
+                allVestCountEl.textContent = '0'; personalVestCountEl.textContent = '0';
             }
 
             function updateWalletUI() {
@@ -398,6 +427,14 @@
 
             function clearTimer() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } isTimerRunning = false; }
             function startTimer() { if (isTimerRunning) return; clearTimer(); timerInterval = setInterval(updateAllCards, 1000); isTimerRunning = true; }
+
+            window.switchVestView = function(view) {
+                currentVestView = view;
+                btnViewAll.classList.toggle('active', view === 'all');
+                btnViewPersonal.classList.toggle('active', view === 'personal');
+                renderVestCards();
+                updateAllCards();
+            };
 
             window.refreshTotalLocked = async function() {
                 if (!userAddress && !provider) {
@@ -451,13 +488,16 @@
                     }
                 });
 
-                vestStore.forEach(vest => {
+                // 根据当前视图更新 vest 卡片
+                const source = currentVestView === 'all' ? allVestStore : vestStore;
+                source.forEach(vest => {
                     const card = document.querySelector(`.vest-card[data-vest-id="${vest.id}"]`);
                     if (!card) return;
                     const progressBar = card.querySelector('.vest-progress-bar');
                     const progressText = card.querySelector('.vest-progress-text');
                     const statusEl = card.querySelector('.lock-status');
                     const btnEl = card.querySelector('.btn-claim-vest');
+                    const notOwnerEl = card.querySelector('.btn-claim-not-owner');
                     const availableEl = card.querySelector('.vest-available');
 
                     let progress = 0;
@@ -486,8 +526,7 @@
                     }
 
                     const isFullyReleased = vest.released.gte(vest.totalAmount);
-                    // 时间到期后不再受领取间隔限制，可直接领取
-                    const canClaim = !isCliff && !isFullyReleased && (now >= vest.endTime || vest.released.eq(0) || now >= vest.lastClaimTime + vest.releaseInterval);
+                    const isOwner = vest.isOwner;
 
                     if (statusEl) {
                         if (isFullyReleased || progress >= 100) {
@@ -502,20 +541,32 @@
                         }
                     }
 
-                    if (btnEl) {
-                        if (isFullyReleased) {
-                            btnEl.disabled = true;
-                            btnEl.textContent = '✅ 已全部释放';
-                        } else if (canClaim) {
-                            btnEl.disabled = false;
-                            btnEl.textContent = '🔥 领取代币';
-                            btnEl.onclick = () => claimVest(vest.id);
-                        } else if (isCliff) {
-                            btnEl.disabled = true;
-                            btnEl.textContent = `⏳ 释放倒计时 ${formatCountdown(vest.cliffTime - now)}`;
-                        } else {
-                            btnEl.disabled = true;
-                            btnEl.textContent = `⏳ 下次可领：${formatDateTime(vest.lastClaimTime + vest.releaseInterval)}`;
+                    // 非本人锁仓：显示提示
+                    if (!isOwner && currentVestView === 'all') {
+                        if (btnEl) btnEl.style.display = 'none';
+                        if (notOwnerEl) {
+                            notOwnerEl.style.display = 'block';
+                            notOwnerEl.textContent = '这不是您的锁仓无法领取哦！';
+                        }
+                    } else {
+                        if (notOwnerEl) notOwnerEl.style.display = 'none';
+                        if (btnEl) {
+                            btnEl.style.display = 'flex';
+                            const canClaim = !isCliff && !isFullyReleased && (now >= vest.endTime || vest.released.eq(0) || now >= vest.lastClaimTime + vest.releaseInterval);
+                            if (isFullyReleased) {
+                                btnEl.disabled = true;
+                                btnEl.textContent = '✅ 已全部释放';
+                            } else if (canClaim) {
+                                btnEl.disabled = false;
+                                btnEl.textContent = '🔥 领取代币';
+                                btnEl.onclick = () => claimVest(vest.id);
+                            } else if (isCliff) {
+                                btnEl.disabled = true;
+                                btnEl.textContent = `⏳ 释放倒计时 ${formatCountdown(vest.cliffTime - now)}`;
+                            } else {
+                                btnEl.disabled = true;
+                                btnEl.textContent = `⏳ 下次可领：${formatDateTime(vest.lastClaimTime + vest.releaseInterval)}`;
+                            }
                         }
                     }
                 });
@@ -608,29 +659,74 @@
                 try {
                     const lockContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
                     const vestCount = (await lockContract.vestCount()).toNumber();
-                    if (vestCount === 0) { vestListEl.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>暂无线性释放记录</p></div>`; return; }
+                    if (vestCount === 0) {
+                        vestListEl.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>暂无线性释放记录</p></div>`;
+                        allVestCountEl.textContent = '0'; personalVestCountEl.textContent = '0';
+                        return;
+                    }
                     const calls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenVests', Array.from({length: vestCount}, (_,i) => [i+1]));
                     const results = await multicall(provider, calls);
                     const vests = decodeResults(results, CONTRACT_ABI, 'tokenVests');
-                    vestStore = []; const tokenAddrs = new Set();
-                    vests.forEach((vest, idx) => { if (!vest || !vest.beneficiary || vest.beneficiary === ethers.constants.AddressZero) return; if (vest.beneficiary.toLowerCase() !== userAddress.toLowerCase()) return; tokenAddrs.add(vest.token.toLowerCase()); vestStore.push({ id: idx+1, token: vest.token, totalAmount: vest.totalAmount, cliffTime: vest.cliffTime.toNumber(), endTime: vest.endTime.toNumber(), releaseInterval: vest.releaseInterval.toNumber(), lastClaimTime: vest.lastClaimTime.toNumber(), released: vest.released }); });
+
+                    allVestStore = []; vestStore = [];
+                    const tokenAddrs = new Set();
+                    const personalTokenAddrs = new Set();
+
+                    vests.forEach((vest, idx) => {
+                        if (!vest || !vest.beneficiary || vest.beneficiary === ethers.constants.AddressZero) return;
+                        const isOwner = userAddress && vest.beneficiary.toLowerCase() === userAddress.toLowerCase();
+                        const vestData = {
+                            id: idx + 1,
+                            token: vest.token,
+                            totalAmount: vest.totalAmount,
+                            cliffTime: vest.cliffTime.toNumber(),
+                            endTime: vest.endTime.toNumber(),
+                            releaseInterval: vest.releaseInterval.toNumber(),
+                            lastClaimTime: vest.lastClaimTime.toNumber(),
+                            released: vest.released,
+                            isOwner: isOwner
+                        };
+                        allVestStore.push(vestData);
+                        tokenAddrs.add(vest.token.toLowerCase());
+                        if (isOwner) {
+                            vestStore.push(vestData);
+                            personalTokenAddrs.add(vest.token.toLowerCase());
+                        }
+                    });
+
+                    // 获取全网代币信息
                     const tokenInfoMap = await fetchTokenInfos(provider, Array.from(tokenAddrs));
-                    vestStore.forEach(v => { const info = tokenInfoMap[v.token.toLowerCase()] || {symbol:'TOKEN',decimals:18}; v.symbol=info.symbol; v.decimals=info.decimals; });
-                    vestStore.sort((a,b)=>a.id-b.id);
-                    if (!vestStore.length) { vestListEl.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>您暂无线性释放记录</p></div>`; return; }
-                    renderVestCards(); updateAllCards();
+                    allVestStore.forEach(v => { const info = tokenInfoMap[v.token.toLowerCase()] || {symbol:'TOKEN',decimals:18}; v.symbol = info.symbol; v.decimals = info.decimals; });
+                    vestStore.forEach(v => { const info = tokenInfoMap[v.token.toLowerCase()] || {symbol:'TOKEN',decimals:18}; v.symbol = info.symbol; v.decimals = info.decimals; });
+
+                    allVestStore.sort((a,b) => a.id - b.id);
+                    vestStore.sort((a,b) => a.id - b.id);
+
+                    allVestCountEl.textContent = allVestStore.length;
+                    personalVestCountEl.textContent = vestStore.length;
+
+                    renderVestCards();
+                    updateAllCards();
                 } catch (e) { vestListEl.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>加载失败，请刷新重试</p></div>`; }
             }
 
             function renderVestCards() {
-                const now = Math.floor(Date.now()/1000);
-                vestListEl.innerHTML = vestStore.map(vest => {
+                const now = Math.floor(Date.now() / 1000);
+                const source = currentVestView === 'all' ? allVestStore : vestStore;
+
+                if (source.length === 0) {
+                    vestListEl.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>暂无线性释放记录</p></div>`;
+                    return;
+                }
+
+                vestListEl.innerHTML = source.map(vest => {
                     const total = parseFloat(ethers.utils.formatUnits(vest.totalAmount, vest.decimals));
                     const released = parseFloat(ethers.utils.formatUnits(vest.released, vest.decimals));
                     let progress = 0; let isCliff = now < vest.cliffTime;
                     if (now >= vest.cliffTime) { const totalPeriod = vest.endTime - vest.cliffTime; const runTime = Math.min(now - vest.cliffTime, totalPeriod); progress = totalPeriod>0 ? (runTime/totalPeriod)*100 : 100; }
                     progress = Math.min(100, Math.max(0, progress));
                     const isFullyReleased = vest.released.gte(vest.totalAmount);
+                    const isOwner = vest.isOwner;
                     let unlockable = 0;
                     if (now >= vest.cliffTime) { const elapsed = now - vest.cliffTime; const totalPeriod = vest.endTime - vest.cliffTime; const vested = totalPeriod>0 ? (total * elapsed) / totalPeriod : total; unlockable = Math.max(0, vested - released); if (unlockable > total - released) unlockable = total - released; }
                     const cliffRemaining = vest.cliffTime - now;
@@ -638,11 +734,29 @@
                     if (isFullyReleased || progress >= 100) { statusText = '✅ 已完全释放'; statusClass = 'status-ready'; }
                     else if (isCliff) { statusText = '🔒 悬崖期锁定中'; statusClass = 'status-cliff'; }
                     else { statusText = '📈 释放中'; statusClass = 'status-waiting'; }
-                    let btnText = '';
-                    if (isFullyReleased) btnText = '✅ 已全部释放';
-                    else if (isCliff) btnText = `⏳ 释放倒计时 ${formatCountdown(cliffRemaining)}`;
-                    else btnText = '⏳ ...';
-                    return `<div class="vest-card" data-vest-id="${vest.id}"><div class="lock-card-header"><span class="lock-id">#铁军-${String(vest.id).padStart(4,'0')}</span><span class="lock-status ${statusClass}">${statusText}</span></div><div class="lock-amount" style="font-size:1.3rem;">${total.toLocaleString('zh-CN',{maximumFractionDigits:2})} <span class="lock-token">${vest.symbol}</span></div><div style="font-size:0.8rem;color:var(--text-dim);">已领取：${released.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${vest.symbol}</div><div class="vest-progress"><div class="vest-progress-bar" style="width:${progress.toFixed(1)}%;"></div></div><div class="vest-progress-text" style="font-size:0.7rem;color:var(--text-dim);">释放进度：${progress.toFixed(1)}%</div><div class="vest-available" style="font-size:0.8rem;color:var(--gold-light);margin-top:2px;">可领取：${unlockable.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${vest.symbol}</div><div class="vest-note">过悬崖期后可线性释放！</div><div class="lock-time">📅 悬崖期结束：${formatDateTime(vest.cliffTime)}</div><div class="lock-time">📅 预计释放完成日期：${formatDateTime(vest.endTime)}</div><button class="btn-claim-vest" id="btnVest${vest.id}" disabled>${btnText}</button></div>`;
+                    let btnHTML = '';
+                    let notOwnerHTML = '';
+                    if (!isOwner && currentVestView === 'all') {
+                        notOwnerHTML = '<div class="btn-claim-not-owner">这不是您的锁仓无法领取哦！</div>';
+                    } else {
+                        btnHTML = `<button class="btn-claim-vest" id="btnVest${vest.id}" disabled>⏳ ...</button>`;
+                    }
+                    return `<div class="vest-card ${!isOwner && currentVestView === 'all' ? 'not-owner' : ''}" data-vest-id="${vest.id}">
+                        <div class="lock-card-header">
+                            <span class="lock-id">#铁军-${String(vest.id).padStart(4,'0')}</span>
+                            <span class="lock-status ${statusClass}">${statusText}</span>
+                        </div>
+                        <div class="lock-amount" style="font-size:1.3rem;">${total.toLocaleString('zh-CN',{maximumFractionDigits:2})} <span class="lock-token">${vest.symbol}</span></div>
+                        <div style="font-size:0.8rem;color:var(--text-dim);">已领取：${released.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${vest.symbol}</div>
+                        <div class="vest-progress"><div class="vest-progress-bar" style="width:${progress.toFixed(1)}%;"></div></div>
+                        <div class="vest-progress-text" style="font-size:0.7rem;color:var(--text-dim);">释放进度：${progress.toFixed(1)}%</div>
+                        <div class="vest-available" style="font-size:0.8rem;color:var(--gold-light);margin-top:2px;">可领取：${unlockable.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${vest.symbol}</div>
+                        <div class="vest-note">过悬崖期后可线性释放！</div>
+                        <div class="lock-time">📅 悬崖期结束：${formatDateTime(vest.cliffTime)}</div>
+                        <div class="lock-time">📅 预计释放完成日期：${formatDateTime(vest.endTime)}</div>
+                        ${btnHTML}
+                        ${notOwnerHTML}
+                    </div>`;
                 }).join('');
                 updateAllCards();
             }
