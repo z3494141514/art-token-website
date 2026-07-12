@@ -7,15 +7,12 @@
     <meta name="description" content="铁军招募计划 - 链上锁仓代币领取平台">
     <meta name="theme-color" content="#0d0d14">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
-    <link rel="preconnect" href="https://bsc-testnet-rpc.publicnode.com" crossorigin>
     <style>
         :root {
             --bg-deep: #0a0a10; --bg-card: #12121c; --bg-card-hover: #181828;
             --gold: #c9a050; --gold-light: #d4b860; --gold-dark: #a07828;
-            --red: #9b1e1e; --red-light: #c0392b; --green-military: #2d5016;
-            --green-light: #3d6a1e; --text: #e0ddd5; --text-dim: #8a8780;
-            --text-bright: #f5f0e0; --border: #2a2830;
-            --border-gold: rgba(201, 160, 80, 0.4); --shadow-gold: rgba(201, 160, 80, 0.15);
+            --text: #e0ddd5; --text-dim: #8a8780; --text-bright: #f5f0e0;
+            --border: #2a2830; --border-gold: rgba(201, 160, 80, 0.4); --shadow-gold: rgba(201, 160, 80, 0.15);
             --radius: 12px; --radius-sm: 8px;
             --font-military: 'Georgia', 'Times New Roman', serif;
             --font-main: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -58,6 +55,7 @@
         .stat-num { color: var(--gold); font-size: 1.2rem; font-weight: 700; margin: 0 4px; transition: transform 0.2s; }
         .stat-refresh-btn { background: none; border: 1px solid var(--border-gold); color: var(--gold); border-radius: 50%; width: 28px; height: 28px; font-size: 1rem; cursor: pointer; margin-left: 8px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.3s; }
         .stat-refresh-btn:hover { background: rgba(201,160,80,0.15); box-shadow: 0 0 12px var(--shadow-gold); }
+        .stat-refresh-btn:active { transform: scale(0.9); }
         .section-title { font-family: var(--font-military); font-size: 1.4rem; letter-spacing: 3px; color: var(--text-bright); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
         .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
         .view-toggle { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
@@ -68,8 +66,10 @@
         @media (min-width: 640px) { .lock-grid { grid-template-columns: repeat(2, 1fr); } }
         .lock-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; transition: all 0.3s ease; position: relative; overflow: hidden; will-change: transform; }
         .lock-card:hover { border-color: var(--border-gold); box-shadow: 0 4px 24px var(--shadow-gold); transform: translateY(-2px); }
-        .lock-card.claimed { opacity: 0.55; border-color: var(--border); }
+        .lock-card.claimed { opacity: 0.55; border-color: var(--border); cursor: default; }
+        .lock-card.claimed:hover { transform: none; box-shadow: none; border-color: var(--border); }
         .lock-card.not-owner { border-color: rgba(192,57,43,0.3); }
+        .lock-card.not-owner:hover { transform: none; box-shadow: none; border-color: rgba(192,57,43,0.3); }
         .lock-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
         .lock-id { font-size: 0.9rem; color: var(--text-dim); letter-spacing: 1px; font-family: var(--font-main); font-weight: 500; word-break: break-all; }
         .lock-status { font-size: 0.75rem; padding: 4px 12px; border-radius: 50px; font-weight: 600; letter-spacing: 1px; }
@@ -78,12 +78,12 @@
         .status-claimed { background: rgba(138,135,128,0.15); color: var(--text-dim); border: 1px solid var(--border); }
         .status-cliff { background: rgba(192,57,43,0.25); color: #e74c3c; border: 1px solid rgba(231,76,60,0.4); }
         .lock-amount { font-size: 1.8rem; font-weight: bold; color: var(--gold); font-family: var(--font-military); display: flex; align-items: baseline; gap: 4px; flex-wrap: wrap; }
-        .lock-amount .amount-num { color: var(--gold-light); font-size: 2rem; font-weight: 700; }
+        .lock-amount .amount-num { color: var(--gold-light); font-size: 2rem; font-weight: 700; word-break: break-all; }
         .lock-amount .amount-unit { font-size: 1rem; color: var(--gold); margin-left: 2px; }
         .lock-token { font-size: 0.9rem; color: var(--gold); font-weight: 500; }
         .lock-time { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; }
         .lock-countdown { font-size: 1.1rem; font-weight: 600; color: var(--gold-light); letter-spacing: 1px; margin-top: 2px; font-variant-numeric: tabular-nums; will-change: contents; }
-        .btn-claim { display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px; border-radius: 50px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; border: none; background: linear-gradient(135deg, var(--gold-dark), var(--gold)); color: #1a1a10; letter-spacing: 2px; margin-top: 12px; width: 100%; justify-content: center; position: relative; overflow: hidden; }
+        .btn-claim { display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px; border-radius: 50px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; border: none; background: linear-gradient(135deg, var(--gold-dark), var(--gold)); color: #1a1a10; letter-spacing: 2px; margin-top: 12px; width: 100%; justify-content: center; position: relative; overflow: hidden; min-height: 44px; }
         .btn-claim:hover:not(:disabled) { box-shadow: 0 0 28px rgba(201,160,80,0.5); transform: translateY(-2px); filter: brightness(1.1); }
         .btn-claim:disabled { background: #3a3a40; color: #6a6a6a; cursor: not-allowed; }
         .btn-claim.loading { pointer-events: none; opacity: 0.7; }
@@ -95,10 +95,13 @@
         .vest-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; transition: all 0.3s ease; will-change: transform; }
         .vest-card:hover { border-color: var(--border-gold); box-shadow: 0 4px 24px var(--shadow-gold); transform: translateY(-2px); }
         .vest-card.not-owner { border-color: rgba(192,57,43,0.3); }
+        .vest-card.not-owner:hover { transform: none; box-shadow: none; border-color: rgba(192,57,43,0.3); }
+        .vest-card.completed { opacity: 0.55; cursor: default; }
+        .vest-card.completed:hover { transform: none; box-shadow: none; }
         .vest-progress { width: 100%; height: 6px; background: #1a1a24; border-radius: 3px; margin: 10px 0; overflow: hidden; }
         .vest-progress-bar { height: 100%; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); border-radius: 3px; transition: width 0.3s ease; will-change: width; }
         .vest-note { font-size: 0.7rem; color: var(--gold-light); margin-top: 2px; letter-spacing: 1px; }
-        .btn-claim-vest { display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px; border-radius: 50px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; border: 1px solid var(--gold); background: transparent; color: var(--gold); letter-spacing: 2px; margin-top: 12px; width: 100%; justify-content: center; position: relative; overflow: hidden; }
+        .btn-claim-vest { display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px; border-radius: 50px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; border: 1px solid var(--gold); background: transparent; color: var(--gold); letter-spacing: 2px; margin-top: 12px; width: 100%; justify-content: center; position: relative; overflow: hidden; min-height: 44px; }
         .btn-claim-vest:hover:not(:disabled) { background: rgba(201,160,80,0.15); box-shadow: 0 0 28px var(--shadow-gold); transform: translateY(-2px); }
         .btn-claim-vest:disabled { border-color: #3a3a40; color: #6a6a6a; cursor: not-allowed; background: transparent; }
         .btn-claim-vest.loading { pointer-events: none; opacity: 0.7; }
@@ -114,7 +117,17 @@
         .empty-state { text-align: center; padding: 50px 20px; color: var(--text-dim); }
         .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
         .empty-state p { letter-spacing: 2px; font-size: 0.9rem; }
-        @media (max-width: 480px) { .navbar { flex-direction: column; align-items: flex-start; } .btn-connect { width: 100%; justify-content: center; } .stat-value { font-size: 1.8rem; } .hero-title { letter-spacing: 2px; } }
+        @media (max-width: 480px) {
+            .navbar { flex-direction: column; align-items: flex-start; }
+            .btn-connect { width: 100%; justify-content: center; }
+            .stat-value { font-size: 1.8rem; }
+            .hero-title { letter-spacing: 2px; }
+            .lock-card, .vest-card { padding: 16px 18px; }
+            .lock-amount { font-size: 1.4rem; }
+            .lock-amount .amount-num { font-size: 1.6rem; }
+            .btn-claim, .btn-claim-vest { font-size: 0.8rem; padding: 8px 20px; min-height: 44px; }
+            footer { font-size: 0.65rem; padding: 16px 0; }
+        }
     </style>
 </head>
 <body>
@@ -163,24 +176,33 @@
 
     <script src="./ethers.umd.min.js"></script>
     <script>
-        if (typeof ethers === 'undefined') {
-            var fallbackScript = document.createElement('script');
-            fallbackScript.src = 'https://cdn.bootcdn.net/ajax/libs/ethers/5.7.2/ethers.umd.min.js';
-            document.head.appendChild(fallbackScript);
-        }
-    </script>
+        (function waitForEthers(callback) {
+            if (typeof ethers !== 'undefined') { callback(); return; }
+            var script = document.createElement('script');
+            script.src = 'https://cdn.bootcdn.net/ajax/libs/ethers/5.7.2/ethers.umd.min.js';
+            script.onload = callback;
+            script.onerror = function() {
+                document.getElementById('totalLocked').textContent = 'ethers 加载失败';
+                document.getElementById('totalLockedSub').textContent = '请检查网络后刷新';
+            };
+            document.head.appendChild(script);
+        })(function() {
+            const CONFIG = {
+                CONTRACT_ADDRESS: '0x3d4F23636A149930EAa69a4ACaba50fd8E1Eb1Ed',
+                CHAIN_ID: 97,
+                CHAIN_ID_HEX: '0x61',
+                RPC_URLS: [
+                    'https://bsc-testnet-rpc.publicnode.com',
+                    'https://bsc-testnet.nodereal.io/v1/64a9df0874fb4a93b9d0a3849de012d3',
+                    'https://data-seed-prebsc-1-s1.binance.org:8545/',
+                    'https://data-seed-prebsc-2-s1.binance.org:8545/'
+                ],
+                TOTAL_REFRESH_INTERVAL: 60,
+                CACHE_DURATION: 30000,
+                MULTICALL_BATCH_SIZE: 30
+            };
 
-    <script>
-        (function() {
-            const CONTRACT_ADDRESS = '0x3d4F23636A149930EAa69a4ACaba50fd8E1Eb1Ed';
-            const CHAIN_ID = 97; const CHAIN_ID_HEX = '0x61';
-            const RPC_URLS = [
-                'https://bsc-testnet-rpc.publicnode.com',
-                'https://bsc-testnet.nodereal.io/v1/64a9df0874fb4a93b9d0a3849de012d3',
-                'https://data-seed-prebsc-1-s1.binance.org:8545/',
-                'https://data-seed-prebsc-2-s1.binance.org:8545/'
-            ];
-            const MULTICALL = '0xca11bde05977b3631167028862be2a173976ca11';
+            const MULTICALL_ADDR = '0xca11bde05977b3631167028862be2a173976ca11';
             const MULTICALL_ABI = ["function aggregate3(tuple(address target, bool allowFailure, bytes callData)[] calls) view returns (tuple(bool success, bytes returnData)[])"];
             const CONTRACT_ABI = [
                 "function lockCount() view returns (uint256)","function vestCount() view returns (uint256)",
@@ -189,15 +211,12 @@
                 "function withdrawLock(uint256 lockId) external","function withdrawVest(uint256 vestId) external"
             ];
 
-            let cachedProvider = null;
-            let currentRpcIndex = 0;
+            let cachedProvider = null, currentRpcIndex = 0;
             let provider, signer, contract, userAddress;
             let isClaiming = false, isTimerRunning = false, pageVisible = true;
-            let lastTick = 0;
-            const TOTAL_REFRESH_INTERVAL = 60;
-            let totalRefreshCounter = 0;
+            let lastTick = 0, totalRefreshCounter = 0;
 
-            const cacheStore = { lockData: null, vestData: null, totalLockedData: null, timestamp: 0, cacheDuration: 15000 };
+            const cacheStore = { lockData: null, vestData: null, timestamp: 0 };
             const tokenCache = {};
             const invalidTokenCache = new Set();
 
@@ -207,7 +226,6 @@
                 currentView: { lock: 'all', vest: 'all' }
             };
 
-            // 视图渲染缓存：按类型+视图存储已渲染的卡片
             const renderedCards = { lock: {}, vest: {} };
 
             const $ = id => document.getElementById(id);
@@ -223,33 +241,56 @@
             function formatCountdown(s) { if(s<=0)return'剩余 00:00:00'; const d=Math.floor(s/86400),h=Math.floor((s%86400)/3600),m=Math.floor((s%3600)/60),ss=s%60,p=n=>String(n).padStart(2,'0'); let r=''; if(d>0)r+=`${d}天 `; r+=`${p(h)}:${p(m)}:${p(ss)}`; return`剩余 ${r}`; }
             function showToast(m, t='') { const to = document.createElement('div'); to.className = `toast ${t}`; to.textContent = m; to.addEventListener('click', ()=>to.remove()); setTimeout(() => { if(to.parentNode) to.remove(); }, 3000); toastContainer.appendChild(to); }
 
-            async function getProvider(forceRefresh = false) {
-                if (cachedProvider && !forceRefresh) {
+            async function getProvider(force = false) {
+                if (cachedProvider && !force) {
                     try { await cachedProvider.getNetwork(); return cachedProvider; } catch (e) { cachedProvider = null; }
                 }
-                for (let i = 0; i < RPC_URLS.length; i++) {
-                    const idx = (currentRpcIndex + i) % RPC_URLS.length;
-                    try { const p = new ethers.providers.JsonRpcProvider(RPC_URLS[idx]); await p.getNetwork(); cachedProvider = p; currentRpcIndex = idx; return p; } catch (e) {}
+                for (let i = 0; i < CONFIG.RPC_URLS.length; i++) {
+                    const idx = (currentRpcIndex + i) % CONFIG.RPC_URLS.length;
+                    try {
+                        const p = new ethers.providers.JsonRpcProvider(CONFIG.RPC_URLS[idx]);
+                        await p.getNetwork();
+                        cachedProvider = p;
+                        currentRpcIndex = idx;
+                        return p;
+                    } catch (e) {}
                 }
                 throw new Error('所有 RPC 节点不可用');
             }
 
-            function getCachedData(key) { if (cacheStore[key] && Date.now() - cacheStore.timestamp < cacheStore.cacheDuration) return cacheStore[key]; return null; }
+            function getCachedData(key) {
+                if (cacheStore[key] && Date.now() - cacheStore.timestamp < CONFIG.CACHE_DURATION) return cacheStore[key];
+                return null;
+            }
             function setCachedData(key, data) { cacheStore[key] = data; cacheStore.timestamp = Date.now(); }
-            function clearAllCache() { cacheStore.lockData = null; cacheStore.vestData = null; cacheStore.timestamp = 0; }
-            function getCachedTokenInfo(addr) { const key = addr.toLowerCase(); if (invalidTokenCache.has(key)) return { symbol: 'INVALID', decimals: 18 }; if (tokenCache[key]) return tokenCache[key]; try { const raw = localStorage.getItem('tokenCache_' + key); if (raw) { const parsed = JSON.parse(raw); tokenCache[key] = parsed; return parsed; } } catch (e) {} return null; }
-            function setCachedTokenInfo(addr, info) { const key = addr.toLowerCase(); tokenCache[key] = info; try { localStorage.setItem('tokenCache_' + key, JSON.stringify(info)); } catch (e) {} }
+            function clearCache() { cacheStore.lockData = null; cacheStore.vestData = null; cacheStore.timestamp = 0; }
+
+            function getTokenInfo(addr) {
+                const key = addr.toLowerCase();
+                if (invalidTokenCache.has(key)) return { symbol: 'INVALID', decimals: 18 };
+                if (tokenCache[key]) return tokenCache[key];
+                try { const raw = localStorage.getItem('tokenCache_' + key); if (raw) { const p = JSON.parse(raw); tokenCache[key] = p; return p; } } catch (e) {}
+                return null;
+            }
+            function setTokenInfo(addr, info) {
+                const key = addr.toLowerCase(); tokenCache[key] = info;
+                try { localStorage.setItem('tokenCache_' + key, JSON.stringify(info)); } catch (e) {}
+            }
             function markTokenInvalid(addr) { invalidTokenCache.add(addr.toLowerCase()); }
 
             document.addEventListener('visibilitychange', () => { pageVisible = !document.hidden; if (pageVisible) lastTick = 0; });
 
             let walletDebounceTimer = null;
-            function debouncedWalletAction(fn, delay = 500) { if (walletDebounceTimer) clearTimeout(walletDebounceTimer); walletDebounceTimer = setTimeout(fn, delay); }
+            function debouncedWalletAction(fn, delay = 1000) { if (walletDebounceTimer) clearTimeout(walletDebounceTimer); walletDebounceTimer = setTimeout(fn, delay); }
 
             btnConnect.addEventListener('click', () => userAddress ? disconnectWallet() : connectWallet(true));
-            btnRefreshTotal.addEventListener('click', () => refreshTotalLocked(true));
+            btnRefreshTotal.addEventListener('click', async () => {
+                btnRefreshTotal.style.transform = 'scale(0.9)';
+                setTimeout(() => btnRefreshTotal.style.transform = '', 150);
+                await refreshTotalLocked(true);
+                showToast('数据已刷新', 'success');
+            });
 
-            // 视图切换事件委托
             document.getElementById('lockViewToggle').addEventListener('click', e => {
                 const btn = e.target.closest('button[data-view]'); if(!btn) return;
                 dataStore.currentView.lock = btn.dataset.view;
@@ -263,16 +304,24 @@
                 switchVestView(btn.dataset.view);
             });
 
-            // 按需渲染 + 缓存
+            function clearSkeletons() {
+                lockListEl.querySelectorAll('.skeleton').forEach(s => s.remove());
+                vestListEl.querySelectorAll('.skeleton').forEach(s => s.remove());
+            }
+
             function renderLockView(view) {
                 const key = `lock_${view}`;
                 if (renderedCards.lock[key]) {
-                    // 已缓存，仅显隐
-                    Object.values(renderedCards.lock[key]).forEach(card => card.el.style.display = '');
+                    Object.values(renderedCards.lock[key]).forEach(c => c.el.style.display = '');
                     return;
                 }
                 const source = dataStore.lock[view] || [];
-                if (source.length === 0) return;
+                if (source.length === 0) {
+                    clearSkeletons();
+                    lockListEl.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>${view === 'personal' ? '您暂无锁仓记录' : '暂无锁仓记录'}</p></div>`;
+                    return;
+                }
+                clearSkeletons();
                 renderedCards.lock[key] = {};
                 const now = Math.floor(Date.now()/1000);
                 const isCompletedView = view.includes('Completed');
@@ -295,10 +344,7 @@
                     lockListEl.appendChild(cardEl);
                     renderedCards.lock[key][lock.id] = {
                         el: cardEl,
-                        els: {
-                            card: cardEl, status: cardEl.querySelector('.lock-status'), countdown: cardEl.querySelector('.lock-countdown'),
-                            btn: cardEl.querySelector('.btn-claim'), notOwner: cardEl.querySelector('.btn-claim-not-owner')
-                        }
+                        els: { card: cardEl, status: cardEl.querySelector('.lock-status'), countdown: cardEl.querySelector('.lock-countdown'), btn: cardEl.querySelector('.btn-claim'), notOwner: cardEl.querySelector('.btn-claim-not-owner') }
                     };
                 });
             }
@@ -306,11 +352,16 @@
             function renderVestView(view) {
                 const key = `vest_${view}`;
                 if (renderedCards.vest[key]) {
-                    Object.values(renderedCards.vest[key]).forEach(card => card.el.style.display = '');
+                    Object.values(renderedCards.vest[key]).forEach(c => c.el.style.display = '');
                     return;
                 }
                 const source = dataStore.vest[view] || [];
-                if (source.length === 0) return;
+                if (source.length === 0) {
+                    clearSkeletons();
+                    vestListEl.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>${view === 'personal' ? '您暂无线性释放记录' : '暂无线性释放记录'}</p></div>`;
+                    return;
+                }
+                clearSkeletons();
                 renderedCards.vest[key] = {};
                 const now = Math.floor(Date.now()/1000);
                 const isCompletedView = view.includes('Completed');
@@ -335,45 +386,35 @@
                         else { btnHTML='<button class="btn-claim-vest" style="display:none;"></button>'; notOwnerHTML='<div class="btn-claim-not-owner">这不是您的锁仓无法领取哦！</div>'; }
                     } else { btnHTML=`<button class="btn-claim-vest" id="btnVest${vest.id}" disabled>⏳ ...</button>`; }
                     const cardEl = document.createElement('div');
-                    cardEl.className = `vest-card ${!vest.isOwner&&view==='all'?'not-owner':''}`;
+                    cardEl.className = `vest-card ${!vest.isOwner&&view==='all'?'not-owner':''} ${isFullyReleased ? 'completed' : ''}`;
                     cardEl.setAttribute('data-vest-id', vest.id);
                     cardEl.innerHTML = `<div class="lock-card-header"><span class="lock-id">${addrDisplay}</span><span class="lock-status ${statusClass}">${statusText}</span></div><div class="lock-amount"><span class="amount-num">${total.toLocaleString('zh-CN',{maximumFractionDigits:2})}</span><span class="amount-unit">枚</span> <span class="lock-token">${vest.symbol}</span></div><div style="font-size:0.8rem;color:var(--text-dim);">已领取：${released.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${vest.symbol}</div><div class="vest-progress"><div class="vest-progress-bar" style="width:${progress.toFixed(1)}%;"></div></div><div class="vest-progress-text" style="font-size:0.7rem;color:var(--text-dim);">释放进度：${progress.toFixed(1)}%</div><div class="vest-available" style="font-size:0.8rem;color:var(--gold-light);margin-top:2px;">可领取：${unlockable.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${vest.symbol}</div><div class="vest-note">过悬崖期后可线性释放！</div><div class="lock-time">📅 悬崖期结束：${formatDateTime(vest.cliffTime)}</div><div class="lock-time">📅 预计释放完成日期：${formatDateTime(vest.endTime)}</div>${btnHTML}${notOwnerHTML}`;
                     vestListEl.appendChild(cardEl);
                     renderedCards.vest[key][vest.id] = {
                         el: cardEl,
-                        els: {
-                            card: cardEl, progressBar: cardEl.querySelector('.vest-progress-bar'), progressText: cardEl.querySelector('.vest-progress-text'),
-                            status: cardEl.querySelector('.lock-status'), btn: cardEl.querySelector('.btn-claim-vest'),
-                            notOwner: cardEl.querySelector('.btn-claim-not-owner'), available: cardEl.querySelector('.vest-available')
-                        }
+                        els: { card: cardEl, progressBar: cardEl.querySelector('.vest-progress-bar'), progressText: cardEl.querySelector('.vest-progress-text'), status: cardEl.querySelector('.lock-status'), btn: cardEl.querySelector('.btn-claim-vest'), notOwner: cardEl.querySelector('.btn-claim-not-owner'), available: cardEl.querySelector('.vest-available') }
                     };
                 });
             }
 
             function switchLockView(view) {
-                // 首次渲染当前视图
                 renderLockView(view);
-                // 隐藏所有非当前视图的卡片
-                Object.values(renderedCards.lock).forEach(group => {
-                    Object.values(group).forEach(card => card.el.style.display = 'none');
-                });
-                const currentGroup = renderedCards.lock[`lock_${view}`];
-                if (currentGroup) Object.values(currentGroup).forEach(card => card.el.style.display = '');
+                Object.values(renderedCards.lock).forEach(g => Object.values(g).forEach(c => c.el.style.display = 'none'));
+                const cur = renderedCards.lock[`lock_${view}`];
+                if (cur) Object.values(cur).forEach(c => c.el.style.display = '');
                 updateCountDisplays('lock');
             }
 
             function switchVestView(view) {
                 renderVestView(view);
-                Object.values(renderedCards.vest).forEach(group => {
-                    Object.values(group).forEach(card => card.el.style.display = 'none');
-                });
-                const currentGroup = renderedCards.vest[`vest_${view}`];
-                if (currentGroup) Object.values(currentGroup).forEach(card => card.el.style.display = '');
+                Object.values(renderedCards.vest).forEach(g => Object.values(g).forEach(c => c.el.style.display = 'none'));
+                const cur = renderedCards.vest[`vest_${view}`];
+                if (cur) Object.values(cur).forEach(c => c.el.style.display = '');
                 updateCountDisplays('vest');
             }
 
             async function connectWallet(isManual) {
-                if(!window.ethereum){ if(isManual) showToast('请安装 MetaMask 或使用 TP 钱包打开','error'); return; }
+                if(!window.ethereum){ if(isManual) showToast('请安装 MetaMask 或 TP 钱包','error'); return; }
                 try { const a = await window.ethereum.request({method:'eth_requestAccounts'}); await setupWallet(a[0]); if(isManual) showToast('钱包连接成功！🛡️','success'); }
                 catch(err){ if(isManual) showToast(err.code===4001?'用户拒绝了连接请求':'连接失败','error'); }
             }
@@ -381,13 +422,12 @@
             async function setupWallet(acc) {
                 userAddress = acc;
                 const cid = parseInt(await window.ethereum.request({method:'eth_chainId'}),16);
-                if(cid !== CHAIN_ID){ showToast('请切换到 BSC 测试网 (Chain 97)','error'); try{ await window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:CHAIN_ID_HEX}]}); }catch(e){ showToast('切换网络失败','error'); return; } }
+                if(cid !== CONFIG.CHAIN_ID){ showToast(`请切换到 BSC 主网 (Chain ${CONFIG.CHAIN_ID})`,'error'); try{ await window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:CONFIG.CHAIN_ID_HEX}]}); }catch(e){ showToast('切换网络失败','error'); return; } }
                 provider = new ethers.providers.Web3Provider(window.ethereum);
                 signer = provider.getSigner();
-                contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+                contract = new ethers.Contract(CONFIG.CONTRACT_ADDRESS, CONTRACT_ABI, signer);
                 updateWalletUI();
-                clearAllCache();
-                // 清空所有已渲染的卡片缓存
+                clearCache();
                 Object.keys(renderedCards.lock).forEach(k => delete renderedCards.lock[k]);
                 Object.keys(renderedCards.vest).forEach(k => delete renderedCards.vest[k]);
                 lockListEl.innerHTML = ''; vestListEl.innerHTML = '';
@@ -404,7 +444,7 @@
                 totalLockedEl.textContent = '--'; totalLockedSubEl.textContent = '请连接钱包';
                 Object.keys(renderedCards.lock).forEach(k => delete renderedCards.lock[k]);
                 Object.keys(renderedCards.vest).forEach(k => delete renderedCards.vest[k]);
-                clearAllCache();
+                clearCache();
                 updateCountDisplays('lock'); updateCountDisplays('vest');
             }
 
@@ -414,13 +454,14 @@
             function tick(now) { if (!isTimerRunning) return; if (pageVisible && (!lastTick || now - lastTick >= 1000)) { lastTick = now; updateAllCards(); } requestAnimationFrame(tick); }
 
             window.refreshTotalLocked = async function(force = false) {
-                try { if (force) clearAllCache(); const rp = await getProvider(force); await loadTotalLocked(rp); } catch(e){ totalLockedEl.textContent='加载失败'; totalLockedSubEl.textContent='请稍后重试'; }
+                if (force) clearCache();
+                try { const rp = await getProvider(force); await loadTotalLocked(rp); } catch(e){ totalLockedEl.textContent='加载失败'; totalLockedSubEl.textContent='请稍后重试'; }
             };
 
             function updateAllCards() {
                 const now = Math.floor(Date.now()/1000);
                 totalRefreshCounter++;
-                if(pageVisible && totalRefreshCounter >= TOTAL_REFRESH_INTERVAL){ totalRefreshCounter = 0; refreshTotalLocked(); }
+                if(pageVisible && totalRefreshCounter >= CONFIG.TOTAL_REFRESH_INTERVAL){ totalRefreshCounter = 0; refreshTotalLocked(); }
                 updateLockCards(now); updateVestCards(now);
             }
 
@@ -504,50 +545,56 @@
                 if(statusEl){ statusEl.className='lock-status status-waiting'; statusEl.textContent='⏳ 等待解锁'; }
             }
 
-            async function multicall(p,c){ const mc = new ethers.Contract(MULTICALL, MULTICALL_ABI, p); return await mc.aggregate3(c); }
-            function buildCalls(ca,abi,m,pl){ const iface = new ethers.utils.Interface(abi); return pl.map(ps=>({target:ca,allowFailure:true,callData:iface.encodeFunctionData(m,ps)})); }
-            function decodeResults(r,abi,m){ const iface = new ethers.utils.Interface(abi); return r.map(rr=>rr.success?iface.decodeFunctionResult(m,rr.returnData):null); }
-
-            async function loadAllData(forceRefresh = false) {
-                if (!forceRefresh) {
-                    const cached = getCachedData('lockData');
-                    if (cached && getCachedData('vestData')) { await applyCachedData(); return; }
+            async function loadAllData(force = false) {
+                if (!force) {
+                    const cachedLock = getCachedData('lockData'), cachedVest = getCachedData('vestData');
+                    if (cachedLock && cachedVest) { await applyCachedData(); return; }
                 }
                 try {
                     const rp = await getProvider();
-                    const lc = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, rp);
+                    const lc = new ethers.Contract(CONFIG.CONTRACT_ADDRESS, CONTRACT_ABI, rp);
                     const [lcB, vcB] = await Promise.all([lc.lockCount(), lc.vestCount()]);
                     const lockCount = lcB.toNumber(), vestCount = vcB.toNumber();
-                    const lockCalls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenLocks', Array.from({length: lockCount}, (_,i)=>[i+1]));
-                    const vestCalls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenVests', Array.from({length: vestCount}, (_,i)=>[i+1]));
+                    const lockCalls = buildCalls(CONFIG.CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenLocks', Array.from({length: lockCount}, (_,i)=>[i+1]));
+                    const vestCalls = buildCalls(CONFIG.CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenVests', Array.from({length: vestCount}, (_,i)=>[i+1]));
                     const allCalls = [...lockCalls, ...vestCalls];
-                    const results = await multicall(rp, allCalls);
-                    const lockResults = results.slice(0, lockCount);
-                    const vestResults = results.slice(lockCount);
-                    const locks = decodeResults(lockResults, CONTRACT_ABI, 'tokenLocks');
-                    const vests = decodeResults(vestResults, CONTRACT_ABI, 'tokenVests');
+                    const results = await multicallWithPagination(rp, allCalls);
+                    const locks = decodeResults(results.slice(0, lockCount), CONTRACT_ABI, 'tokenLocks');
+                    const vests = decodeResults(results.slice(lockCount), CONTRACT_ABI, 'tokenVests');
                     setCachedData('lockData', locks); setCachedData('vestData', vests);
                     await Promise.all([loadTotalLockedFromData(locks, vests, rp), processLocks(locks, rp), processVests(vests, rp)]);
-                } catch(e){
+                } catch(e) {
                     const backup = await getProvider(true);
-                    const lc = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, backup);
+                    const lc = new ethers.Contract(CONFIG.CONTRACT_ADDRESS, CONTRACT_ABI, backup);
                     const [lcB, vcB] = await Promise.all([lc.lockCount(), lc.vestCount()]);
                     const lockCount = lcB.toNumber(), vestCount = vcB.toNumber();
-                    const lockCalls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenLocks', Array.from({length: lockCount}, (_,i)=>[i+1]));
-                    const vestCalls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenVests', Array.from({length: vestCount}, (_,i)=>[i+1]));
+                    const lockCalls = buildCalls(CONFIG.CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenLocks', Array.from({length: lockCount}, (_,i)=>[i+1]));
+                    const vestCalls = buildCalls(CONFIG.CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenVests', Array.from({length: vestCount}, (_,i)=>[i+1]));
                     const allCalls = [...lockCalls, ...vestCalls];
-                    const results = await multicall(backup, allCalls);
-                    const lockResults = results.slice(0, lockCount);
-                    const vestResults = results.slice(lockCount);
-                    const locks = decodeResults(lockResults, CONTRACT_ABI, 'tokenLocks');
-                    const vests = decodeResults(vestResults, CONTRACT_ABI, 'tokenVests');
+                    const results = await multicallWithPagination(backup, allCalls);
+                    const locks = decodeResults(results.slice(0, lockCount), CONTRACT_ABI, 'tokenLocks');
+                    const vests = decodeResults(results.slice(lockCount), CONTRACT_ABI, 'tokenVests');
                     setCachedData('lockData', locks); setCachedData('vestData', vests);
                     await Promise.all([loadTotalLockedFromData(locks, vests, backup), processLocks(locks, backup), processVests(vests, backup)]);
                 }
             }
 
+            async function multicallWithPagination(provider, calls) {
+                if (calls.length <= CONFIG.MULTICALL_BATCH_SIZE) return await multicall(provider, calls);
+                let results = [];
+                for (let i = 0; i < calls.length; i += CONFIG.MULTICALL_BATCH_SIZE) {
+                    const batch = calls.slice(i, i + CONFIG.MULTICALL_BATCH_SIZE);
+                    results = results.concat(await multicall(provider, batch));
+                }
+                return results;
+            }
+
+            async function multicall(p, c) { return (new ethers.Contract(MULTICALL_ADDR, MULTICALL_ABI, p)).aggregate3(c); }
+            function buildCalls(ca,abi,m,pl){ const iface = new ethers.utils.Interface(abi); return pl.map(ps=>({target:ca,allowFailure:true,callData:iface.encodeFunctionData(m,ps)})); }
+            function decodeResults(r,abi,m){ const iface = new ethers.utils.Interface(abi); return r.map(rr=>rr.success?iface.decodeFunctionResult(m,rr.returnData):null); }
+
             async function applyCachedData() {
-                const locks = cacheStore.lockData; const vests = cacheStore.vestData;
+                const locks = cacheStore.lockData, vests = cacheStore.vestData;
                 if (locks && vests) { const rp = await getProvider(); await Promise.all([loadTotalLockedFromData(locks, vests, rp), processLocks(locks, rp), processVests(vests, rp)]); }
             }
 
@@ -566,18 +613,18 @@
 
             async function loadTotalLocked(p) {
                 try {
-                    const lc = new ethers.Contract(CONTRACT_ADDRESS,CONTRACT_ABI,p);
+                    const lc = new ethers.Contract(CONFIG.CONTRACT_ADDRESS,CONTRACT_ABI,p);
                     const[lcB,vcB] = await Promise.all([lc.lockCount(),lc.vestCount()]);
                     const tlc = lcB.toNumber(), tvc = vcB.toNumber();
-                    const lCalls = buildCalls(CONTRACT_ADDRESS,CONTRACT_ABI,'tokenLocks',Array.from({length:tlc},(_,i)=>[i+1]));
-                    const vCalls = buildCalls(CONTRACT_ADDRESS,CONTRACT_ABI,'tokenVests',Array.from({length:tvc},(_,i)=>[i+1]));
+                    const lCalls = buildCalls(CONFIG.CONTRACT_ADDRESS,CONTRACT_ABI,'tokenLocks',Array.from({length:tlc},(_,i)=>[i+1]));
+                    const vCalls = buildCalls(CONFIG.CONTRACT_ADDRESS,CONTRACT_ABI,'tokenVests',Array.from({length:tvc},(_,i)=>[i+1]));
                     const[lRes,vRes] = await Promise.all([multicall(p,lCalls),multicall(p,vCalls)]);
                     const locks = decodeResults(lRes,CONTRACT_ABI,'tokenLocks'), vests = decodeResults(vRes,CONTRACT_ABI,'tokenVests');
                     await loadTotalLockedFromData(locks, vests, p);
                 } catch(e){ totalLockedEl.textContent='加载失败'; totalLockedSubEl.textContent='点击刷新重试'; }
             }
 
-            async function processLocks(locks, p){
+            async function processLocks(locks, p) {
                 const allTokens = new Set();
                 const raw = [];
                 locks.forEach((l, idx) => {
@@ -594,13 +641,14 @@
                     if(l.withdrawn){ grouped.allCompleted.push(l); if(l.isOwner) grouped.personalCompleted.push(l); }
                     else { grouped.all.push(l); if(l.isOwner) grouped.personal.push(l); }
                 });
-                Object.keys(grouped).forEach(k => { dataStore.lock[k] = grouped[k].sort((a,b)=>a.id-b.id); });
+                // 按解锁时间升序
+                Object.keys(grouped).forEach(k => grouped[k].sort((a,b) => a.unlockTime - b.unlockTime));
+                Object.keys(grouped).forEach(k => dataStore.lock[k] = grouped[k]);
                 updateCountDisplays('lock');
-                // 首次加载只渲染默认视图
                 switchLockView(dataStore.currentView.lock);
             }
 
-            async function processVests(vests, p){
+            async function processVests(vests, p) {
                 const allTokens = new Set();
                 const raw = [];
                 vests.forEach((v, idx) => {
@@ -618,7 +666,9 @@
                     if(v.isCompleted){ grouped.allCompleted.push(v); if(v.isOwner) grouped.personalCompleted.push(v); }
                     else { grouped.all.push(v); if(v.isOwner) grouped.personal.push(v); }
                 });
-                Object.keys(grouped).forEach(k => { dataStore.vest[k] = grouped[k].sort((a,b)=>a.id-b.id); });
+                // 按悬崖结束时间升序
+                Object.keys(grouped).forEach(k => grouped[k].sort((a,b) => a.cliffTime - b.cliffTime));
+                Object.keys(grouped).forEach(k => dataStore.vest[k] = grouped[k]);
                 updateCountDisplays('vest');
                 switchVestView(dataStore.currentView.vest);
             }
@@ -626,7 +676,7 @@
             async function fetchTokenInfos(p, addrs) {
                 const unc = []; const rm = {};
                 for(const a of addrs) {
-                    const cached = getCachedTokenInfo(a);
+                    const cached = getTokenInfo(a);
                     if (cached) { rm[a] = cached; }
                     else if (!invalidTokenCache.has(a.toLowerCase())) { unc.push(a); }
                 }
@@ -639,8 +689,8 @@
                         let sym = 'TOKEN', dec = 18;
                         if(sr[i].success) { try { sym = sd.decodeFunctionResult('symbol', sr[i].returnData)[0]; } catch(e) { markTokenInvalid(unc[i]); } }
                         if(dr[i].success) { try { dec = dd.decodeFunctionResult('decimals', dr[i].returnData)[0]; } catch(e) { markTokenInvalid(unc[i]); } }
-                        const info = { symbol: sym, decimals: dec };
-                        rm[unc[i]] = info; setCachedTokenInfo(unc[i], info);
+                        rm[unc[i]] = { symbol: sym, decimals: dec };
+                        setTokenInfo(unc[i], rm[unc[i]]);
                     }
                 }
                 return rm;
@@ -661,19 +711,19 @@
                 }
             }
 
-            window.claimLock = async function(lockId) { if(isClaiming)return; if(!contract||!signer){showToast('请先连接钱包','error');return;} const btn=document.getElementById('btnLock'+lockId); if(btn){btn.classList.add('loading');btn.disabled=true;} isClaiming=true; try{const tx=await contract.withdrawLock(lockId);showToast('交易已提交，等待确认...','');await tx.wait();showToast(`锁仓 #${lockId} 领取成功！🎉`,'success');clearAllCache(); await loadAllData(true);}catch(err){let msg='领取失败';if(err.code===4001)msg='用户取消了交易';else if(err.message&&err.message.includes('Not beneficiary'))msg='您不是受益人';else if(err.message&&err.message.includes('Not unlock yet'))msg='尚未到解锁时间';else if(err.message&&err.message.includes('Already withdrawn'))msg='已被领取';else if(err.message)msg='领取失败: '+err.message;showToast(msg,'error');}finally{isClaiming=false;if(btn){btn.classList.remove('loading');btn.disabled=false;}updateAllCards();}};
-            window.claimVest = async function(vestId) { if(isClaiming)return; if(!contract||!signer){showToast('请先连接钱包','error');return;} const btn=document.getElementById('btnVest'+vestId); if(btn){btn.disabled=true;btn.textContent='⏳ 处理中...';} isClaiming=true; try{const tx=await contract.withdrawVest(vestId);showToast('交易已提交，等待确认...','');await tx.wait();showToast(`线性释放 #${vestId} 领取成功！🎉`,'success');clearAllCache(); await loadAllData(true);}catch(err){let msg='领取失败';if(err.code===4001)msg='用户取消了交易';else if(err.message&&err.message.includes('Not beneficiary'))msg='您不是受益人';else if(err.message&&err.message.includes('Wait for next cycle'))msg='请等待下一个领取周期';else if(err.message&&err.message.includes('No token to claim'))msg='当前无可领取代币';else if(err.message&&err.message.includes('Cliff not over'))msg='悬崖期尚未结束';else if(err.message)msg='领取失败: '+err.message;showToast(msg,'error');}finally{isClaiming=false;if(btn){btn.disabled=false;btn.textContent='🔥 领取代币';}updateAllCards();}};
+            window.claimLock = async function(lockId) { if(isClaiming)return; if(!contract||!signer){showToast('请先连接钱包','error');return;} const btn=document.getElementById('btnLock'+lockId); if(btn){btn.classList.add('loading');btn.disabled=true;} isClaiming=true; try{const tx=await contract.withdrawLock(lockId);showToast('交易已提交，等待确认...','');await tx.wait();showToast(`锁仓 #${lockId} 领取成功！🎉`,'success');clearCache(); await loadAllData(true);}catch(err){let msg='领取失败';if(err.code===4001)msg='用户取消了交易';else if(err.message&&err.message.includes('Not beneficiary'))msg='您不是受益人';else if(err.message&&err.message.includes('Not unlock yet'))msg='尚未到解锁时间';else if(err.message&&err.message.includes('Already withdrawn'))msg='已被领取';else if(err.message)msg='领取失败: '+err.message;showToast(msg,'error');}finally{isClaiming=false;if(btn){btn.classList.remove('loading');btn.disabled=false;}updateAllCards();}};
+            window.claimVest = async function(vestId) { if(isClaiming)return; if(!contract||!signer){showToast('请先连接钱包','error');return;} const btn=document.getElementById('btnVest'+vestId); if(btn){btn.disabled=true;btn.textContent='⏳ 处理中...';} isClaiming=true; try{const tx=await contract.withdrawVest(vestId);showToast('交易已提交，等待确认...','');await tx.wait();showToast(`线性释放 #${vestId} 领取成功！🎉`,'success');clearCache(); await loadAllData(true);}catch(err){let msg='领取失败';if(err.code===4001)msg='用户取消了交易';else if(err.message&&err.message.includes('Not beneficiary'))msg='您不是受益人';else if(err.message&&err.message.includes('Wait for next cycle'))msg='请等待下一个领取周期';else if(err.message&&err.message.includes('No token to claim'))msg='当前无可领取代币';else if(err.message&&err.message.includes('Cliff not over'))msg='悬崖期尚未结束';else if(err.message)msg='领取失败: '+err.message;showToast(msg,'error');}finally{isClaiming=false;if(btn){btn.disabled=false;btn.textContent='🔥 领取代币';}updateAllCards();}};
 
             if (window.ethereum) {
-                window.ethereum.on('accountsChanged', (accounts) => { debouncedWalletAction(() => { if (accounts.length === 0) disconnectWallet(); else if (accounts[0] !== userAddress) setupWallet(accounts[0]); }, 300); });
-                window.ethereum.on('chainChanged', (newChainId) => { debouncedWalletAction(() => { if (parseInt(newChainId, 16) === CHAIN_ID && userAddress) setupWallet(userAddress); else disconnectWallet(); }, 300); });
+                window.ethereum.on('accountsChanged', (accounts) => { debouncedWalletAction(() => { if (accounts.length === 0) disconnectWallet(); else if (accounts[0] !== userAddress) setupWallet(accounts[0]); }); });
+                window.ethereum.on('chainChanged', (newChainId) => { debouncedWalletAction(() => { if (parseInt(newChainId, 16) === CONFIG.CHAIN_ID && userAddress) setupWallet(userAddress); else disconnectWallet(); }); });
             }
 
             (async function autoInit() {
                 try { const rp = await getProvider(); await loadTotalLocked(rp); } catch(e) { totalLockedEl.textContent = '--'; totalLockedSubEl.textContent = 'RPC连接较慢'; }
                 if (window.ethereum) { try { const accs = await window.ethereum.request({ method: 'eth_accounts' }); if (accs.length > 0) await setupWallet(accs[0]); } catch (e) {} }
             })();
-        })();
+        });
     </script>
 </body>
 </html>
