@@ -82,10 +82,10 @@
         @keyframes statRotate { to { transform: rotate(360deg); } }
         .stat-card-inner { position: relative; z-index: 1; background: var(--bg-card); border-radius: var(--radius); padding: 24px 28px; text-align: center; width: 100%; }
         .stat-label { font-size: 0.8rem; letter-spacing: 3px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
-        .stat-value { font-size: 2.2rem; font-weight: bold; color: var(--gold); font-family: var(--font-military); letter-spacing: 1px; word-break: break-all; transition: transform 0.3s ease, opacity 0.3s ease; }
+        .stat-value { font-size: 2.2rem; font-weight: bold; color: var(--gold); font-family: var(--font-military); letter-spacing: 1px; word-break: break-all; transition: transform 0.3s ease, opacity 0.3s ease; text-shadow: 0 0 12px rgba(201, 160, 80, 0.3); }
         .stat-value.bump { transform: scale(1.05); opacity: 0.9; }
         .stat-sub { font-size: 0.8rem; color: var(--text-dim); margin-top: 2px; }
-        .stat-num { color: var(--gold); font-size: 1.2rem; font-weight: 700; margin: 0 4px; transition: transform 0.2s; }
+        .stat-num { color: var(--gold); font-size: 1.2rem; font-weight: 700; margin: 0 4px; transition: transform 0.2s; text-shadow: 0 0 6px rgba(201, 160, 80, 0.25); }
         .stat-refresh-btn {
             background: none; border: 1px solid var(--border-gold); color: var(--gold);
             border-radius: 50%; width: 28px; height: 28px; font-size: 1rem; cursor: pointer;
@@ -96,7 +96,6 @@
         .stat-refresh-btn.loading { pointer-events: none; }
         .stat-refresh-btn .refresh-icon { display: inline-block; transition: transform 0.6s ease; }
         .stat-refresh-btn.loading .refresh-icon { animation: spin 0.7s linear infinite; }
-        .stat-refresh-btn .spinner-refresh { display: none; width: 14px; height: 14px; border: 2px solid transparent; border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; position: absolute; }
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -111,10 +110,64 @@
         .lock-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
         @media (min-width: 640px) { .lock-grid { grid-template-columns: repeat(2, 1fr); } }
 
-        .lock-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; transition: all 0.3s ease; position: relative; overflow: hidden; }
-        .lock-card:hover { border-color: var(--border-gold); box-shadow: 0 4px 24px var(--shadow-gold); transform: translateY(-2px); }
-        .lock-card.claimed { opacity: 0.55; border-color: var(--border); }
-        .lock-card.not-owner { border-color: rgba(192,57,43,0.3); }
+        /* ========== 卡片质感升级 ========== */
+        .lock-card {
+            background: linear-gradient(175deg, #181825 0%, #12121c 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+            /* 左侧状态指示条占位 */
+            border-left: 4px solid var(--border-gold);
+        }
+
+        .lock-card:hover {
+            border-color: var(--gold);
+            border-left-color: var(--gold);
+            box-shadow:
+                0 0 20px var(--shadow-gold),
+                0 0 40px rgba(201, 160, 80, 0.1),
+                0 12px 28px rgba(0, 0, 0, 0.4);
+            transform: translateY(-4px);
+        }
+
+        .lock-card.claimed {
+            border-left-color: rgba(138, 135, 128, 0.6);
+            opacity: 0.65;
+        }
+        .lock-card.claimed:hover {
+            border-left-color: var(--text-dim);
+        }
+
+        .lock-card.not-owner {
+            border-left-color: rgba(192, 57, 43, 0.5);
+        }
+        .lock-card.not-owner:hover {
+            border-left-color: var(--red-light);
+        }
+
+        /* 微纹理 */
+        .lock-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            opacity: 0.02;
+            background-image: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 2px,
+                rgba(255, 255, 255, 0.5) 2px,
+                rgba(255, 255, 255, 0.5) 4px
+            );
+            z-index: 0;
+        }
+
+        .lock-card > * { position: relative; z-index: 1; }
+
         .lock-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
         .lock-id { font-size: 0.9rem; color: var(--text-dim); letter-spacing: 1px; font-family: var(--font-main); font-weight: 500; word-break: break-all; }
         .lock-status { font-size: 0.75rem; padding: 4px 12px; border-radius: 50px; font-weight: 600; letter-spacing: 1px; }
@@ -122,12 +175,29 @@
         .status-waiting { background: rgba(201,160,80,0.15); color: var(--gold); border: 1px solid var(--border-gold); }
         .status-claimed { background: rgba(138,135,128,0.15); color: var(--text-dim); border: 1px solid var(--border); }
         .status-cliff { background: rgba(192,57,43,0.25); color: #e74c3c; border: 1px solid rgba(231,76,60,0.4); }
-        .lock-amount { font-size: 1.8rem; font-weight: bold; color: var(--gold); font-family: var(--font-military); display: flex; align-items: baseline; gap: 4px; flex-wrap: wrap; }
-        .lock-amount .amount-num { color: var(--gold-light); font-size: 2rem; font-weight: 700; }
+
+        .lock-amount {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--gold);
+            font-family: var(--font-military);
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            flex-wrap: wrap;
+            text-shadow: 0 0 10px rgba(201, 160, 80, 0.3);
+        }
+        .lock-amount .amount-num {
+            color: var(--gold-light);
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
         .lock-amount .amount-unit { font-size: 1rem; color: var(--gold); margin-left: 2px; }
         .lock-token { font-size: 0.9rem; color: var(--gold); font-weight: 500; }
         .lock-time { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; }
         .lock-countdown { font-size: 1.1rem; font-weight: 600; color: var(--gold-light); letter-spacing: 1px; margin-top: 2px; font-variant-numeric: tabular-nums; }
+
         .btn-claim { display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px; border-radius: 50px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; border: none; background: linear-gradient(135deg, var(--gold-dark), var(--gold)); color: #1a1a10; letter-spacing: 2px; margin-top: 12px; width: 100%; justify-content: center; position: relative; overflow: hidden; }
         .btn-claim:hover:not(:disabled) { box-shadow: 0 0 28px rgba(201,160,80,0.5); transform: translateY(-2px); filter: brightness(1.1); }
         .btn-claim:disabled { background: #3a3a40; color: #6a6a6a; cursor: not-allowed; }
@@ -138,12 +208,54 @@
 
         .btn-claim-not-owner { font-size: 0.75rem; color: #e74c3c; text-align: center; margin-top: 8px; padding: 6px 12px; border: 1px dashed rgba(231,76,60,0.4); border-radius: 50px; }
 
-        .vest-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; transition: all 0.3s ease; }
-        .vest-card:hover { border-color: var(--border-gold); box-shadow: 0 4px 24px var(--shadow-gold); transform: translateY(-2px); }
-        .vest-card.not-owner { border-color: rgba(192,57,43,0.3); }
+        /* ========== 线性释放卡片 ========== */
+        .vest-card {
+            background: linear-gradient(175deg, #181825 0%, #12121c 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+            border-left: 4px solid var(--border-gold);
+        }
+        .vest-card:hover {
+            border-color: var(--gold);
+            border-left-color: var(--gold);
+            box-shadow:
+                0 0 20px var(--shadow-gold),
+                0 0 40px rgba(201, 160, 80, 0.1),
+                0 12px 28px rgba(0, 0, 0, 0.4);
+            transform: translateY(-4px);
+        }
+        .vest-card.not-owner {
+            border-left-color: rgba(192, 57, 43, 0.5);
+        }
+        .vest-card.not-owner:hover {
+            border-left-color: var(--red-light);
+        }
+        .vest-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            opacity: 0.02;
+            background-image: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 2px,
+                rgba(255, 255, 255, 0.5) 2px,
+                rgba(255, 255, 255, 0.5) 4px
+            );
+            z-index: 0;
+        }
+        .vest-card > * { position: relative; z-index: 1; }
+
         .vest-progress { width: 100%; height: 6px; background: #1a1a24; border-radius: 3px; margin: 10px 0; overflow: hidden; }
         .vest-progress-bar { height: 100%; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); border-radius: 3px; transition: width 0.3s ease; }
         .vest-note { font-size: 0.7rem; color: var(--gold-light); margin-top: 2px; letter-spacing: 1px; }
+
         .btn-claim-vest { display: inline-flex; align-items: center; gap: 8px; padding: 10px 28px; border-radius: 50px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; border: 1px solid var(--gold); background: transparent; color: var(--gold); letter-spacing: 2px; margin-top: 12px; width: 100%; justify-content: center; position: relative; overflow: hidden; }
         .btn-claim-vest:hover:not(:disabled) { background: rgba(201,160,80,0.15); box-shadow: 0 0 28px var(--shadow-gold); transform: translateY(-2px); }
         .btn-claim-vest:disabled { border-color: #3a3a40; color: #6a6a6a; cursor: not-allowed; background: transparent; }
@@ -152,10 +264,12 @@
         .btn-claim-vest.loading .spinner { display: inline-block; }
         .btn-claim-vest.loading .btn-text { display: none; }
 
+        /* Toast */
         .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .toast { background: var(--bg-card); border: 1px solid var(--border-gold); color: var(--text-bright); padding: 14px 22px; border-radius: var(--radius-sm); font-size: 0.9rem; box-shadow: 0 8px 30px rgba(0,0,0,0.5); pointer-events: auto; cursor: pointer; animation: toastIn 0.35s ease, toastOut 0.35s ease 2.5s forwards; max-width: 320px; letter-spacing: 1px; }
         .toast.success { border-color: rgba(92,184,92,0.5); background: rgba(45,80,22,0.5); }
         .toast.error { border-color: rgba(192,57,43,0.5); background: rgba(155,30,30,0.4); }
+        .toast.info { border-color: rgba(138, 135, 128, 0.5); background: rgba(26, 26, 30, 0.8); color: var(--text-dim); }
         @keyframes toastIn { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
         @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(60px); } }
 
@@ -185,7 +299,7 @@
             <div class="hero-badge">⚔️ 铁军招募计划 ⚔️</div>
             <h1 class="hero-title">铁军<span class="accent">锁仓</span>领取</h1>
             <p class="hero-desc">链上智能合约锁定 · 到期自动释放 · 铁血纪律守护资产安全</p>
-            <div class="stat-card" style="margin-top:16px;"><div class="stat-card-inner"><div class="stat-label">📊 合约总锁仓 <button class="stat-refresh-btn" id="btnRefreshTotal" title="刷新总锁仓"><span class="refresh-icon">↻</span><span class="spinner-refresh"></span></button></div><div class="stat-value" id="totalLocked">--</div><div class="stat-sub" id="totalLockedSub">加载中...</div></div></div>
+            <div class="stat-card" style="margin-top:16px;"><div class="stat-card-inner"><div class="stat-label">📊 合约总锁仓 <button class="stat-refresh-btn" id="btnRefreshTotal" title="刷新总锁仓"><span class="refresh-icon">↻</span></button></div><div class="stat-value" id="totalLocked">--</div><div class="stat-sub" id="totalLockedSub">加载中...</div></div></div>
         </section>
 
         <section style="padding: 10px 0 30px;">
@@ -348,7 +462,7 @@
                 vestListEl.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><p>请连接钱包查看线性释放记录</p></div>';
                 totalLockedEl.textContent = '--'; totalLockedSubEl.textContent = '请连接钱包';
                 updateCountDisplays('lock'); updateCountDisplays('vest');
-                showToast('钱包已断开连接', '');
+                showToast('👋 钱包已断开', 'info');
             }
 
             function updateWalletUI() { if(userAddress){ btnConnect.classList.add('connected'); btnConnectText.textContent = formatAddress(userAddress); } else { btnConnect.classList.remove('connected'); btnConnectText.textContent = '连接钱包'; } }
@@ -373,7 +487,6 @@
                 renderVestCards(); updateAllCards();
             });
 
-            // 刷新按钮点击事件
             btnRefreshTotal.addEventListener('click', async () => {
                 if (btnRefreshTotal.classList.contains('loading')) return;
                 btnRefreshTotal.classList.add('loading');
@@ -387,7 +500,6 @@
                 }
             });
 
-            // 保留全局函数以兼容可能的 onclick 调用
             window.refreshTotalLocked = async function() {
                 if (btnRefreshTotal.classList.contains('loading')) return;
                 btnRefreshTotal.classList.add('loading');
