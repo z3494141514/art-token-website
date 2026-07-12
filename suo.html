@@ -45,7 +45,6 @@
             position: relative;
         }
 
-        /* 动态光晕背景 */
         body::after {
             content: '';
             position: fixed;
@@ -72,7 +71,6 @@
 
         .container { max-width: 960px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
 
-        /* 导航栏：磨砂玻璃 */
         .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid rgba(201,160,80,0.3); flex-wrap: wrap; gap: 12px; background: rgba(18,18,28,0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: var(--radius); margin-top: 10px; padding: 12px 20px; }
         .navbar-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-bright); }
         .navbar-logo { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #1a1a2e, #2a2030); border: 2px solid var(--gold-dark); display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 0 18px var(--shadow-gold); flex-shrink: 0; }
@@ -92,7 +90,6 @@
         .hero-title .accent { color: var(--gold); }
         .hero-desc { color: var(--text-dim); font-size: 0.95rem; max-width: 500px; margin: 0 auto 20px; letter-spacing: 1px; }
 
-        /* 统计卡片：金属拉丝质感 */
         .stat-card { background: linear-gradient(175deg, rgba(30,30,40,0.8) 0%, rgba(18,18,28,0.9) 100%); border: 1px solid rgba(201,160,80,0.4); border-radius: var(--radius); padding: 28px 32px; display: inline-flex; flex-direction: column; align-items: center; gap: 6px; position: relative; overflow: hidden; transition: all 0.4s ease; min-width: 220px; backdrop-filter: blur(5px); }
         .stat-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent, rgba(201,160,80,0.1), transparent, transparent, transparent, rgba(201,160,80,0.1), transparent); animation: statRotate 8s linear infinite; opacity: 0.5; z-index: 0; }
         @keyframes statRotate { to { transform: rotate(360deg); } }
@@ -126,7 +123,7 @@
         .lock-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
         @media (min-width: 640px) { .lock-grid { grid-template-columns: repeat(2, 1fr); } }
 
-        /* ========== 3D镭射质感卡片（保持不变） ========== */
+        /* ========== 3D镭射质感卡片 ========== */
         .lock-card {
             background:
                 linear-gradient(135deg,
@@ -154,7 +151,9 @@
             transform: perspective(800px) rotateY(0deg) rotateX(0deg) translateY(0);
             transform-style: preserve-3d;
             will-change: transform, box-shadow;
+            -webkit-tap-highlight-color: transparent;
         }
+
         .lock-card::before {
             content: '';
             position: absolute;
@@ -174,6 +173,7 @@
             background-position: -120% 0;
             transition: background-position 0.9s ease-out;
         }
+
         .lock-card::after {
             content: '';
             position: absolute;
@@ -190,7 +190,10 @@
             );
             border-radius: var(--radius);
         }
+
         .lock-card > * { position: relative; z-index: 3; }
+
+        /* hover: PC端悬停 */
         .lock-card:hover {
             transform: perspective(600px) rotateY(-4deg) rotateX(3deg) translateY(-8px);
             border-color: var(--gold-light);
@@ -204,7 +207,9 @@
         .lock-card:hover::before {
             background-position: 120% 0;
         }
-        .lock-card:active {
+
+        /* active: 移动端触摸（通过JS动态添加此类） */
+        .lock-card.touch-active {
             transform: perspective(600px) rotateY(-4deg) rotateX(3deg) translateY(-4px) scale(0.98);
             border-color: var(--gold-light);
             border-left-color: var(--gold);
@@ -215,7 +220,7 @@
                 0 0 0 1px rgba(201,160,80,0.2);
             transition: all 0.15s ease-out;
         }
-        .lock-card:active::before {
+        .lock-card.touch-active::before {
             background-position: 120% 0;
         }
 
@@ -230,7 +235,7 @@
             border-left-color: var(--text-dim);
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
-        .lock-card.claimed:active {
+        .lock-card.claimed.touch-active {
             transform: translateY(-1px) scale(0.98);
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
@@ -242,7 +247,7 @@
         .lock-card.not-owner:hover {
             border-left-color: var(--red-light);
         }
-        .lock-card.not-owner:active {
+        .lock-card.not-owner.touch-active {
             border-left-color: var(--red-light);
         }
 
@@ -289,7 +294,7 @@
 
         .btn-claim-not-owner { font-size: 0.75rem; color: #e74c3c; text-align: center; margin-top: 8px; padding: 6px 12px; border: 1px dashed rgba(231,76,60,0.4); border-radius: 50px; }
 
-        /* 印章保持不变 */
+        /* 印章 */
         .card-seal {
             position: absolute;
             top: 12px;
@@ -327,7 +332,7 @@
             background: rgba(140,25,25,0.5);
         }
 
-        /* ========== 线性释放卡片（同理） ========== */
+        /* ========== 线性释放卡片 ========== */
         .vest-card {
             background:
                 linear-gradient(135deg,
@@ -339,17 +344,23 @@
                     rgba(201,160,80,0.16) 100%
                 ),
                 linear-gradient(175deg, #1a1a28 0%, #12121c 100%);
+            background-size: 100% 100%, 100% 100%;
+            background-position: 0 0, 0 0;
             border: 1px solid rgba(201,160,80,0.35);
             border-radius: var(--radius);
             padding: 20px 24px;
             transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1.2);
             position: relative;
             overflow: visible;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 10px rgba(201,160,80,0.08), inset 0 1px 0 rgba(255,255,255,0.03);
+            box-shadow:
+                0 4px 20px rgba(0,0,0,0.4),
+                0 0 10px rgba(201,160,80,0.08),
+                inset 0 1px 0 rgba(255,255,255,0.03);
             border-left: 5px solid var(--gold-dark);
             transform: perspective(800px) rotateY(0deg) rotateX(0deg) translateY(0);
             transform-style: preserve-3d;
             will-change: transform, box-shadow;
+            -webkit-tap-highlight-color: transparent;
         }
         .vest-card::before {
             content: '';
@@ -358,7 +369,14 @@
             pointer-events: none;
             z-index: 2;
             border-radius: var(--radius);
-            background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.03) 38%, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0.03) 42%, transparent 50%);
+            background: linear-gradient(
+                105deg,
+                transparent 30%,
+                rgba(255,255,255,0.03) 38%,
+                rgba(255,255,255,0.08) 40%,
+                rgba(255,255,255,0.03) 42%,
+                transparent 50%
+            );
             background-size: 250% 100%;
             background-position: -120% 0;
             transition: background-position 0.9s ease-out;
@@ -370,37 +388,70 @@
             pointer-events: none;
             opacity: 0.025;
             z-index: 1;
-            background-image: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.6) 2px, rgba(255,255,255,0.6) 4px);
+            background-image: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 2px,
+                rgba(255,255,255,0.6) 2px,
+                rgba(255,255,255,0.6) 4px
+            );
             border-radius: var(--radius);
         }
         .vest-card > * { position: relative; z-index: 3; }
+
         .vest-card:hover {
             transform: perspective(600px) rotateY(4deg) rotateX(2deg) translateY(-8px);
             border-color: var(--gold-light);
             border-left-color: var(--gold);
-            box-shadow: 0 0 25px rgba(201,160,80,0.35), 0 0 50px rgba(201,160,80,0.15), 0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,160,80,0.2);
+            box-shadow:
+                0 0 25px rgba(201,160,80,0.35),
+                0 0 50px rgba(201,160,80,0.15),
+                0 20px 40px rgba(0,0,0,0.5),
+                0 0 0 1px rgba(201,160,80,0.2);
         }
-        .vest-card:hover::before { background-position: 120% 0; }
-        .vest-card:active {
+        .vest-card:hover::before {
+            background-position: 120% 0;
+        }
+
+        .vest-card.touch-active {
             transform: perspective(600px) rotateY(4deg) rotateX(2deg) translateY(-4px) scale(0.98);
             border-color: var(--gold-light);
             border-left-color: var(--gold);
-            box-shadow: 0 0 25px rgba(201,160,80,0.35), 0 0 50px rgba(201,160,80,0.15), 0 12px 28px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,160,80,0.2);
+            box-shadow:
+                0 0 25px rgba(201,160,80,0.35),
+                0 0 50px rgba(201,160,80,0.15),
+                0 12px 28px rgba(0,0,0,0.5),
+                0 0 0 1px rgba(201,160,80,0.2);
             transition: all 0.15s ease-out;
         }
-        .vest-card:active::before { background-position: 120% 0; }
+        .vest-card.touch-active::before {
+            background-position: 120% 0;
+        }
 
-        .vest-card.not-owner { border-left-color: rgba(200,50,50,0.5); }
-        .vest-card.not-owner:hover { border-left-color: var(--red-light); }
-        .vest-card.not-owner:active { border-left-color: var(--red-light); }
+        .vest-card.not-owner {
+            border-left-color: rgba(200,50,50,0.5);
+        }
+        .vest-card.not-owner:hover {
+            border-left-color: var(--red-light);
+        }
+        .vest-card.not-owner.touch-active {
+            border-left-color: var(--red-light);
+        }
         .vest-card.claimed {
             border-left-color: rgba(138,135,128,0.5);
             opacity: 0.6;
             filter: saturate(0.3);
             transform: none;
         }
-        .vest-card.claimed:hover { transform: translateY(-2px); border-left-color: var(--text-dim); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .vest-card.claimed:active { transform: translateY(-1px) scale(0.98); box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .vest-card.claimed:hover {
+            transform: translateY(-2px);
+            border-left-color: var(--text-dim);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .vest-card.claimed.touch-active {
+            transform: translateY(-1px) scale(0.98);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
         .vest-card.claimed::before { display: none; }
 
         .vest-progress { width: 100%; height: 6px; background: #1a1a24; border-radius: 3px; margin: 10px 0; overflow: hidden; }
@@ -415,7 +466,7 @@
         .btn-claim-vest.loading .spinner { display: inline-block; }
         .btn-claim-vest.loading .btn-text { display: none; }
 
-        /* Toast 玻璃质感 */
+        /* Toast */
         .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .toast { background: rgba(18,18,28,0.8); border: 1px solid rgba(201,160,80,0.5); color: var(--text-bright); padding: 14px 22px; border-radius: var(--radius-sm); font-size: 0.9rem; box-shadow: 0 8px 30px rgba(0,0,0,0.5); pointer-events: auto; cursor: pointer; animation: toastIn 0.35s ease, toastOut 0.35s ease 2.5s forwards; max-width: 320px; letter-spacing: 1px; backdrop-filter: blur(10px); }
         .toast.success { border-color: rgba(92,184,92,0.5); background: rgba(45,80,22,0.6); }
@@ -573,6 +624,20 @@
             })();
 
             function showToast(m, t='') { const to = document.createElement('div'); to.className = `toast ${t}`; to.textContent = m; to.addEventListener('click', ()=>to.remove()); setTimeout(() => { if(to.parentNode) to.remove(); }, 3000); toastContainer.appendChild(to); }
+
+            // ========== 移动端触摸3D效果绑定 ==========
+            function bindTouchEffect(card) {
+                card.addEventListener('touchstart', function(e) {
+                    if (card.classList.contains('claimed')) return;
+                    card.classList.add('touch-active');
+                }, { passive: true });
+                card.addEventListener('touchend', function(e) {
+                    card.classList.remove('touch-active');
+                });
+                card.addEventListener('touchcancel', function(e) {
+                    card.classList.remove('touch-active');
+                });
+            }
 
             async function getFastestProvider() {
                 return new Promise((resolve, reject) => {
@@ -810,7 +875,7 @@
                     const sealHTML = `<div class="card-seal ${lock.isOwner ? 'seal-self' : 'seal-other'}">${lock.isOwner ? '本人' : '他人'}</div>`;
                     return `<div class="lock-card ${(isCompletedView||lock.withdrawn)?'claimed':''} ${!lock.isOwner&&view==='all'?'not-owner':''}" data-lock-id="${lock.id}">${sealHTML}<div class="lock-card-header"><span class="lock-id">${addrDisplay}</span><span class="lock-status ${statusClass}">${sHTML}</span></div><div class="lock-amount"><span class="amount-num">${da}</span><span class="amount-unit">枚</span> <span class="lock-token">${escapeHtml(lock.symbol)}</span></div><div class="lock-time">📅 解锁时间：${ud}</div><div class="lock-countdown"></div>${btnHTML}${notOwnerHTML}</div>`;
                 }).join('');
-                source.forEach(lock => { const card = document.querySelector(`.lock-card[data-lock-id="${lock.id}"]`); if (card) { lock._els = { card, status: card.querySelector('.lock-status'), countdown: card.querySelector('.lock-countdown'), btn: card.querySelector('.btn-claim'), notOwner: card.querySelector('.btn-claim-not-owner') }; } });
+                source.forEach(lock => { const card = document.querySelector(`.lock-card[data-lock-id="${lock.id}"]`); if (card) { lock._els = { card, status: card.querySelector('.lock-status'), countdown: card.querySelector('.lock-countdown'), btn: card.querySelector('.btn-claim'), notOwner: card.querySelector('.btn-claim-not-owner') }; bindTouchEffect(card); } });
                 updateAllCards();
             }
 
@@ -858,7 +923,7 @@
                     const sealHTML = `<div class="card-seal ${vest.isOwner ? 'seal-self' : 'seal-other'}">${vest.isOwner ? '本人' : '他人'}</div>`;
                     return `<div class="vest-card ${(isCompletedView||isFullyReleased)?'claimed':''} ${!vest.isOwner&&view==='all'?'not-owner':''}" data-vest-id="${vest.id}">${sealHTML}<div class="lock-card-header"><span class="lock-id">${addrDisplay}</span><span class="lock-status ${statusClass}">${statusText}</span></div><div class="lock-amount"><span class="amount-num">${total.toLocaleString('zh-CN',{maximumFractionDigits:2})}</span><span class="amount-unit">枚</span> <span class="lock-token">${escapeHtml(vest.symbol)}</span></div><div style="font-size:0.8rem;color:var(--text-dim);">已领取：${released.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${escapeHtml(vest.symbol)}</div><div class="vest-progress"><div class="vest-progress-bar" style="width:${progress.toFixed(1)}%;"></div></div><div class="vest-progress-text" style="font-size:0.7rem;color:var(--text-dim);">释放进度：${progress.toFixed(1)}%</div><div class="vest-available" style="font-size:0.8rem;color:var(--gold-light);margin-top:2px;">可领取：${unlockable.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${escapeHtml(vest.symbol)}</div><div class="vest-note">过悬崖期后可线性释放！</div><div class="lock-time">📅 悬崖期结束：${formatDateTime(vest.cliffTime)}</div><div class="lock-time">📅 预计释放完成日期：${formatDateTime(vest.endTime)}</div>${btnHTML}${notOwnerHTML}</div>`;
                 }).join('');
-                source.forEach(vest => { const card = document.querySelector(`.vest-card[data-vest-id="${vest.id}"]`); if (card) { vest._els = { card, progressBar: card.querySelector('.vest-progress-bar'), progressText: card.querySelector('.vest-progress-text'), status: card.querySelector('.lock-status'), btn: card.querySelector('.btn-claim-vest'), notOwner: card.querySelector('.btn-claim-not-owner'), available: card.querySelector('.vest-available') }; } });
+                source.forEach(vest => { const card = document.querySelector(`.vest-card[data-vest-id="${vest.id}"]`); if (card) { vest._els = { card, progressBar: card.querySelector('.vest-progress-bar'), progressText: card.querySelector('.vest-progress-text'), status: card.querySelector('.lock-status'), btn: card.querySelector('.btn-claim-vest'), notOwner: card.querySelector('.btn-claim-not-owner'), available: card.querySelector('.vest-available') }; bindTouchEffect(card); } });
                 updateAllCards();
             }
 
