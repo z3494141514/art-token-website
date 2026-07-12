@@ -221,12 +221,12 @@
         (function() {
             const CONTRACT_ADDRESS = '0x3d4F23636A149930EAa69a4ACaba50fd8E1Eb1Ed';
             const CHAIN_ID = 97; const CHAIN_ID_HEX = '0x61';
+            // 已移除问题节点
             const RPC_URLS = [
                 'https://bsc-testnet-rpc.publicnode.com',
                 'https://bsc-testnet.nodereal.io/v1/64a9df0874fb4a93b9d0a3849de012d3',
                 'https://data-seed-prebsc-1-s1.binance.org:8545/',
-                'https://data-seed-prebsc-2-s1.binance.org:8545/',
-                'https://bsc-testnet.binance.org/'
+                'https://data-seed-prebsc-2-s1.binance.org:8545/'
             ];
             const MULTICALL = '0xca11bde05977b3631167028862be2a173976ca11';
             const MULTICALL_ABI = ["function aggregate3(tuple(address target, bool allowFailure, bytes callData)[] calls) view returns (tuple(bool success, bytes returnData)[])"];
@@ -240,7 +240,7 @@
             let provider, signer, contract, userAddress;
             let isClaiming = false, isTimerRunning = false;
             let lastTick = 0;
-            const TOTAL_REFRESH_INTERVAL = 60; // 60秒刷新总锁仓
+            const TOTAL_REFRESH_INTERVAL = 60;
             let totalRefreshCounter = 0;
 
             const dataStore = {
@@ -340,7 +340,6 @@
                 updateVestCards(now);
             }
 
-            // ----- 数据驱动更新：使用存储的 DOM 引用 -----
             function updateLockCards(now) {
                 const view = dataStore.currentView.lock;
                 const source = dataStore.lock[view] || [];
@@ -427,7 +426,6 @@
             function buildCalls(ca,abi,m,pl){ const iface = new ethers.utils.Interface(abi); return pl.map(ps=>({target:ca,allowFailure:true,callData:iface.encodeFunctionData(m,ps)})); }
             function decodeResults(r,abi,m){ const iface = new ethers.utils.Interface(abi); return r.map(rr=>rr.success?iface.decodeFunctionResult(m,rr.returnData):null); }
 
-            // 合并锁仓与线性释放的 Multicall 请求
             async function loadAllData(){
                 const rp = await getFastestProvider();
                 try {
@@ -443,7 +441,7 @@
                     const locks = decodeResults(lockResults, CONTRACT_ABI, 'tokenLocks');
                     const vests = decodeResults(vestResults, CONTRACT_ABI, 'tokenVests');
                     await Promise.all([
-                        loadTotalLocked(rp),  // 总锁仓独立计算
+                        loadTotalLocked(rp),
                         processLocks(locks, rp),
                         processVests(vests, rp)
                     ]);
@@ -513,7 +511,6 @@
                         ${btnHTML}${notOwnerHTML}
                     </div>`;
                 }).join('');
-                // 缓存 DOM 元素引用
                 source.forEach(lock => {
                     const card = document.querySelector(`.lock-card[data-lock-id="${lock.id}"]`);
                     if (card) {
@@ -592,7 +589,6 @@
                         ${btnHTML}${notOwnerHTML}
                     </div>`;
                 }).join('');
-                // 缓存 DOM 元素引用
                 source.forEach(vest => {
                     const card = document.querySelector(`.vest-card[data-vest-id="${vest.id}"]`);
                     if (card) {
