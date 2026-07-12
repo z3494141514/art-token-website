@@ -95,8 +95,32 @@
         @keyframes statRotate { to { transform: rotate(360deg); } }
         .stat-card-inner { position: relative; z-index: 1; background: transparent; border-radius: var(--radius); padding: 24px 28px; text-align: center; width: 100%; }
         .stat-label { font-size: 0.8rem; letter-spacing: 3px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
-        .stat-value { font-size: 2.2rem; font-weight: bold; color: var(--gold); font-family: var(--font-military); letter-spacing: 1px; word-break: break-all; transition: transform 0.3s ease, opacity 0.3s ease; text-shadow: 0 0 15px rgba(201, 160, 80, 0.5); }
-        .stat-value.bump { transform: scale(1.05); opacity: 0.9; }
+
+        /* 合约总锁仓数字：3D浮雕 + 呼吸光晕 */
+        .stat-value {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--gold-light);
+            font-family: var(--font-military);
+            letter-spacing: 2px;
+            word-break: break-all;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            text-shadow:
+                0 1px 0 rgba(0,0,0,0.9),
+                0 2px 0 rgba(0,0,0,0.7),
+                0 3px 2px rgba(0,0,0,0.5),
+                0 5px 8px rgba(0,0,0,0.4),
+                0 0 15px rgba(201,160,80,0.7),
+                0 0 30px rgba(201,160,80,0.5),
+                0 0 50px rgba(201,160,80,0.3);
+            animation: statGlow 3s ease-in-out infinite alternate;
+        }
+        @keyframes statGlow {
+            0% { text-shadow: 0 1px 0 rgba(0,0,0,0.9), 0 2px 0 rgba(0,0,0,0.7), 0 3px 2px rgba(0,0,0,0.5), 0 5px 8px rgba(0,0,0,0.4), 0 0 15px rgba(201,160,80,0.7), 0 0 30px rgba(201,160,80,0.5), 0 0 50px rgba(201,160,80,0.3); }
+            100% { text-shadow: 0 1px 0 rgba(0,0,0,0.9), 0 2px 0 rgba(0,0,0,0.7), 0 3px 2px rgba(0,0,0,0.5), 0 5px 8px rgba(0,0,0,0.4), 0 0 25px rgba(255,220,150,0.9), 0 0 45px rgba(201,160,80,0.7), 0 0 65px rgba(201,160,80,0.4); }
+        }
+        .stat-value.bump { transform: scale(1.08); opacity: 1; }
+
         .stat-sub { font-size: 0.8rem; color: var(--text-dim); margin-top: 2px; }
         .stat-num { color: var(--gold); font-size: 1.2rem; font-weight: 700; margin: 0 4px; transition: transform 0.2s; text-shadow: 0 0 8px rgba(201, 160, 80, 0.4); }
         .stat-refresh-btn {
@@ -112,13 +136,94 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .section-title { font-family: var(--font-military); font-size: 1.4rem; letter-spacing: 3px; color: var(--text-bright); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        /* 标题3D效果 */
+        .section-title {
+            font-family: var(--font-military);
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+            color: var(--text-bright);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-shadow:
+                0 1px 0 rgba(0,0,0,0.8),
+                0 2px 0 rgba(0,0,0,0.5),
+                0 3px 4px rgba(0,0,0,0.4),
+                0 0 12px rgba(201,160,80,0.5),
+                0 0 25px rgba(201,160,80,0.3);
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+        @keyframes titleGlow {
+            0% { text-shadow: 0 1px 0 rgba(0,0,0,0.8), 0 2px 0 rgba(0,0,0,0.5), 0 3px 4px rgba(0,0,0,0.4), 0 0 12px rgba(201,160,80,0.5), 0 0 25px rgba(201,160,80,0.3); }
+            100% { text-shadow: 0 1px 0 rgba(0,0,0,0.8), 0 2px 0 rgba(0,0,0,0.5), 0 3px 4px rgba(0,0,0,0.4), 0 0 20px rgba(255,220,150,0.8), 0 0 35px rgba(201,160,80,0.5); }
+        }
         .section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(201,160,80,0.5), transparent); }
 
+        /* 选项卡3D凸起效果 */
         .view-toggle { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-        .view-toggle button { padding: 8px 16px; border-radius: 50px; font-weight: 600; font-size: 0.82rem; cursor: pointer; transition: all 0.3s ease; border: 1px solid rgba(201,160,80,0.3); background: rgba(18,18,28,0.6); color: var(--text-dim); letter-spacing: 1px; backdrop-filter: blur(5px); }
-        .view-toggle button.active { border-color: var(--gold); color: var(--gold); background: rgba(201,160,80,0.2); box-shadow: 0 0 15px rgba(201,160,80,0.3); }
-        .view-toggle button:hover { border-color: var(--gold); color: var(--gold); }
+        .view-toggle button {
+            padding: 10px 18px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: 1px solid rgba(201,160,80,0.35);
+            background: linear-gradient(180deg, rgba(30,30,42,0.9) 0%, rgba(18,18,28,0.95) 100%);
+            color: var(--text-dim);
+            letter-spacing: 1px;
+            backdrop-filter: blur(5px);
+            box-shadow:
+                0 2px 0 rgba(0,0,0,0.4),
+                0 4px 8px rgba(0,0,0,0.3),
+                0 1px 0 rgba(255,255,255,0.04) inset;
+            transform: translateY(0);
+            position: relative;
+            overflow: hidden;
+        }
+        .view-toggle button::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 50%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%);
+            border-radius: 50px 50px 0 0;
+            pointer-events: none;
+        }
+        .view-toggle button:hover {
+            border-color: var(--gold);
+            color: var(--gold-light);
+            transform: translateY(-2px);
+            box-shadow:
+                0 4px 0 rgba(0,0,0,0.4),
+                0 8px 16px rgba(0,0,0,0.4),
+                0 1px 0 rgba(255,255,255,0.06) inset,
+                0 0 15px rgba(201,160,80,0.2);
+        }
+        .view-toggle button:active {
+            transform: translateY(1px);
+            box-shadow:
+                0 1px 0 rgba(0,0,0,0.3),
+                0 2px 4px rgba(0,0,0,0.3) inset,
+                0 0 10px rgba(201,160,80,0.15);
+            transition: all 0.1s ease;
+        }
+        .view-toggle button.active {
+            border-color: var(--gold);
+            color: #1a1a10;
+            background: linear-gradient(180deg, var(--gold) 0%, var(--gold-dark) 100%);
+            font-weight: 700;
+            transform: translateY(1px);
+            box-shadow:
+                0 1px 0 rgba(0,0,0,0.2),
+                0 2px 6px rgba(0,0,0,0.4) inset,
+                0 0 20px rgba(201,160,80,0.5),
+                0 0 35px rgba(201,160,80,0.25);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        .view-toggle button.active::after {
+            background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 100%);
+        }
 
         .lock-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
         @media (min-width: 640px) { .lock-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -193,7 +298,6 @@
 
         .lock-card > * { position: relative; z-index: 3; }
 
-        /* hover: PC端悬停 */
         .lock-card:hover {
             transform: perspective(600px) rotateY(-4deg) rotateX(3deg) translateY(-8px);
             border-color: var(--gold-light);
@@ -208,7 +312,6 @@
             background-position: 120% 0;
         }
 
-        /* active: 移动端触摸（通过JS动态添加此类） */
         .lock-card.touch-active {
             transform: perspective(600px) rotateY(-4deg) rotateX(3deg) translateY(-4px) scale(0.98);
             border-color: var(--gold-light);
@@ -485,8 +588,10 @@
         @media (max-width: 480px) {
             .navbar { flex-direction: column; align-items: flex-start; }
             .btn-connect { width: 100%; justify-content: center; }
-            .stat-value { font-size: 1.8rem; }
+            .stat-value { font-size: 2.2rem; }
             .hero-title { letter-spacing: 2px; }
+            .section-title { font-size: 1.2rem; }
+            .view-toggle button { padding: 8px 14px; font-size: 0.75rem; }
         }
     </style>
 </head>
@@ -625,7 +730,6 @@
 
             function showToast(m, t='') { const to = document.createElement('div'); to.className = `toast ${t}`; to.textContent = m; to.addEventListener('click', ()=>to.remove()); setTimeout(() => { if(to.parentNode) to.remove(); }, 3000); toastContainer.appendChild(to); }
 
-            // ========== 移动端触摸3D效果绑定 ==========
             function bindTouchEffect(card) {
                 card.addEventListener('touchstart', function(e) {
                     if (card.classList.contains('claimed')) return;
