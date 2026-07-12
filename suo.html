@@ -375,7 +375,7 @@
         .lock-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
         @media (min-width: 640px) { .lock-grid { grid-template-columns: repeat(2, 1fr); } }
 
-        /* ========== 3D镭射质感卡片（背景加深） ========== */
+        /* ========== 一次性锁仓卡片（静态UI，无交互动画） ========== */
         .lock-card {
             background:
                 linear-gradient(135deg,
@@ -392,7 +392,6 @@
             border: 1px solid rgba(201,160,80,0.3);
             border-radius: var(--radius);
             padding: 20px 24px;
-            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1.2);
             position: relative;
             overflow: visible;
             box-shadow:
@@ -400,32 +399,9 @@
                 0 0 10px rgba(201,160,80,0.06),
                 inset 0 1px 0 rgba(255,255,255,0.02);
             border-left: 5px solid var(--gold-dark);
-            transform: perspective(800px) rotateY(0deg) rotateX(0deg) translateY(0);
-            transform-style: preserve-3d;
-            will-change: transform, box-shadow;
-            -webkit-tap-highlight-color: transparent;
         }
 
-        .lock-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 2;
-            border-radius: var(--radius);
-            background: linear-gradient(
-                105deg,
-                transparent 30%,
-                rgba(255,255,255,0.02) 38%,
-                rgba(255,255,255,0.05) 40%,
-                rgba(255,255,255,0.02) 42%,
-                transparent 50%
-            );
-            background-size: 250% 100%;
-            background-position: -120% 0;
-            transition: background-position 0.9s ease-out;
-        }
-
+        /* 微纹理 */
         .lock-card::after {
             content: '';
             position: absolute;
@@ -445,60 +421,14 @@
 
         .lock-card > * { position: relative; z-index: 3; }
 
-        .lock-card:hover {
-            transform: perspective(600px) rotateY(-4deg) rotateX(3deg) translateY(-8px);
-            border-color: var(--gold-light);
-            border-left-color: var(--gold);
-            box-shadow:
-                0 0 25px rgba(201,160,80,0.35),
-                0 0 50px rgba(201,160,80,0.15),
-                0 20px 40px rgba(0,0,0,0.6),
-                0 0 0 1px rgba(201,160,80,0.2);
-        }
-        .lock-card:hover::before {
-            background-position: 120% 0;
-        }
-
-        .lock-card.touch-active {
-            transform: perspective(600px) rotateY(-4deg) rotateX(3deg) translateY(-4px) scale(0.98);
-            border-color: var(--gold-light);
-            border-left-color: var(--gold);
-            box-shadow:
-                0 0 25px rgba(201,160,80,0.35),
-                0 0 50px rgba(201,160,80,0.15),
-                0 12px 28px rgba(0,0,0,0.6),
-                0 0 0 1px rgba(201,160,80,0.2);
-            transition: all 0.15s ease-out;
-        }
-        .lock-card.touch-active::before {
-            background-position: 120% 0;
-        }
-
         .lock-card.claimed {
             border-left-color: rgba(138,135,128,0.5);
             opacity: 0.6;
             filter: saturate(0.3);
-            transform: none;
         }
-        .lock-card.claimed:hover {
-            transform: translateY(-2px);
-            border-left-color: var(--text-dim);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-        }
-        .lock-card.claimed.touch-active {
-            transform: translateY(-1px) scale(0.98);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-        }
-        .lock-card.claimed::before { display: none; }
 
         .lock-card.not-owner {
             border-left-color: rgba(200,50,50,0.5);
-        }
-        .lock-card.not-owner:hover {
-            border-left-color: var(--red-light);
-        }
-        .lock-card.not-owner.touch-active {
-            border-left-color: var(--red-light);
         }
 
         .lock-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
@@ -558,7 +488,7 @@
             font-weight: 700;
             font-size: 0.8rem;
             letter-spacing: 2px;
-            transform: rotate(-12deg) translateZ(20px);
+            transform: rotate(-12deg);
             border: 2px solid;
             background: rgba(0,0,0,0.5);
             box-shadow: 0 2px 8px rgba(0,0,0,0.6), inset 0 1px 3px rgba(255,255,255,0.2);
@@ -567,7 +497,6 @@
             z-index: 10;
             pointer-events: none;
             backdrop-filter: blur(3px);
-            transition: transform 0.3s ease;
         }
         .seal-self {
             color: #5cb85c;
@@ -582,7 +511,7 @@
             background: rgba(140,25,25,0.5);
         }
 
-        /* ========== 线性释放卡片（背景同步加深） ========== */
+        /* ========== 线性释放卡片（静态UI，无交互动画） ========== */
         .vest-card {
             background:
                 linear-gradient(135deg,
@@ -599,7 +528,6 @@
             border: 1px solid rgba(201,160,80,0.3);
             border-radius: var(--radius);
             padding: 20px 24px;
-            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1.2);
             position: relative;
             overflow: visible;
             box-shadow:
@@ -607,29 +535,6 @@
                 0 0 10px rgba(201,160,80,0.06),
                 inset 0 1px 0 rgba(255,255,255,0.02);
             border-left: 5px solid var(--gold-dark);
-            transform: perspective(800px) rotateY(0deg) rotateX(0deg) translateY(0);
-            transform-style: preserve-3d;
-            will-change: transform, box-shadow;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .vest-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 2;
-            border-radius: var(--radius);
-            background: linear-gradient(
-                105deg,
-                transparent 30%,
-                rgba(255,255,255,0.02) 38%,
-                rgba(255,255,255,0.05) 40%,
-                rgba(255,255,255,0.02) 42%,
-                transparent 50%
-            );
-            background-size: 250% 100%;
-            background-position: -120% 0;
-            transition: background-position 0.9s ease-out;
         }
         .vest-card::after {
             content: '';
@@ -649,60 +554,14 @@
         }
         .vest-card > * { position: relative; z-index: 3; }
 
-        .vest-card:hover {
-            transform: perspective(600px) rotateY(4deg) rotateX(2deg) translateY(-8px);
-            border-color: var(--gold-light);
-            border-left-color: var(--gold);
-            box-shadow:
-                0 0 25px rgba(201,160,80,0.35),
-                0 0 50px rgba(201,160,80,0.15),
-                0 20px 40px rgba(0,0,0,0.6),
-                0 0 0 1px rgba(201,160,80,0.2);
-        }
-        .vest-card:hover::before {
-            background-position: 120% 0;
-        }
-
-        .vest-card.touch-active {
-            transform: perspective(600px) rotateY(4deg) rotateX(2deg) translateY(-4px) scale(0.98);
-            border-color: var(--gold-light);
-            border-left-color: var(--gold);
-            box-shadow:
-                0 0 25px rgba(201,160,80,0.35),
-                0 0 50px rgba(201,160,80,0.15),
-                0 12px 28px rgba(0,0,0,0.6),
-                0 0 0 1px rgba(201,160,80,0.2);
-            transition: all 0.15s ease-out;
-        }
-        .vest-card.touch-active::before {
-            background-position: 120% 0;
-        }
-
         .vest-card.not-owner {
             border-left-color: rgba(200,50,50,0.5);
-        }
-        .vest-card.not-owner:hover {
-            border-left-color: var(--red-light);
-        }
-        .vest-card.not-owner.touch-active {
-            border-left-color: var(--red-light);
         }
         .vest-card.claimed {
             border-left-color: rgba(138,135,128,0.5);
             opacity: 0.6;
             filter: saturate(0.3);
-            transform: none;
         }
-        .vest-card.claimed:hover {
-            transform: translateY(-2px);
-            border-left-color: var(--text-dim);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-        }
-        .vest-card.claimed.touch-active {
-            transform: translateY(-1px) scale(0.98);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-        }
-        .vest-card.claimed::before { display: none; }
 
         .vest-progress { width: 100%; height: 6px; background: #1a1a24; border-radius: 3px; margin: 10px 0; overflow: hidden; }
         .vest-progress-bar { height: 100%; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); border-radius: 3px; transition: width 0.3s ease; }
@@ -879,19 +738,6 @@
             })();
 
             function showToast(m, t='') { const to = document.createElement('div'); to.className = `toast ${t}`; to.textContent = m; to.addEventListener('click', ()=>to.remove()); setTimeout(() => { if(to.parentNode) to.remove(); }, 3000); toastContainer.appendChild(to); }
-
-            function bindTouchEffect(card) {
-                card.addEventListener('touchstart', function(e) {
-                    if (card.classList.contains('claimed')) return;
-                    card.classList.add('touch-active');
-                }, { passive: true });
-                card.addEventListener('touchend', function(e) {
-                    card.classList.remove('touch-active');
-                });
-                card.addEventListener('touchcancel', function(e) {
-                    card.classList.remove('touch-active');
-                });
-            }
 
             function updateIronCount() {
                 const addrSet = new Set();
@@ -1142,7 +988,7 @@
                     const sealHTML = `<div class="card-seal ${lock.isOwner ? 'seal-self' : 'seal-other'}">${lock.isOwner ? '本人' : '他人'}</div>`;
                     return `<div class="lock-card ${(isCompletedView||lock.withdrawn)?'claimed':''} ${!lock.isOwner&&view==='all'?'not-owner':''}" data-lock-id="${lock.id}">${sealHTML}<div class="lock-card-header"><span class="lock-id">${addrDisplay}</span><span class="lock-status ${statusClass}">${sHTML}</span></div><div class="lock-amount"><span class="amount-num">${da}</span><span class="amount-unit">枚</span> <span class="lock-token">${escapeHtml(lock.symbol)}</span></div><div class="lock-time">📅 解锁时间：${ud}</div><div class="lock-countdown"></div>${btnHTML}${notOwnerHTML}</div>`;
                 }).join('');
-                source.forEach(lock => { const card = document.querySelector(`.lock-card[data-lock-id="${lock.id}"]`); if (card) { lock._els = { card, status: card.querySelector('.lock-status'), countdown: card.querySelector('.lock-countdown'), btn: card.querySelector('.btn-claim'), notOwner: card.querySelector('.btn-claim-not-owner') }; bindTouchEffect(card); } });
+                source.forEach(lock => { const card = document.querySelector(`.lock-card[data-lock-id="${lock.id}"]`); if (card) { lock._els = { card, status: card.querySelector('.lock-status'), countdown: card.querySelector('.lock-countdown'), btn: card.querySelector('.btn-claim'), notOwner: card.querySelector('.btn-claim-not-owner') }; } });
                 updateAllCards();
             }
 
@@ -1190,7 +1036,7 @@
                     const sealHTML = `<div class="card-seal ${vest.isOwner ? 'seal-self' : 'seal-other'}">${vest.isOwner ? '本人' : '他人'}</div>`;
                     return `<div class="vest-card ${(isCompletedView||isFullyReleased)?'claimed':''} ${!vest.isOwner&&view==='all'?'not-owner':''}" data-vest-id="${vest.id}">${sealHTML}<div class="lock-card-header"><span class="lock-id">${addrDisplay}</span><span class="lock-status ${statusClass}">${statusText}</span></div><div class="lock-amount"><span class="amount-num">${total.toLocaleString('zh-CN',{maximumFractionDigits:2})}</span><span class="amount-unit">枚</span> <span class="lock-token">${escapeHtml(vest.symbol)}</span></div><div style="font-size:0.8rem;color:var(--text-dim);">已领取：${released.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${escapeHtml(vest.symbol)}</div><div class="vest-progress"><div class="vest-progress-bar" style="width:${progress.toFixed(1)}%;"></div></div><div class="vest-progress-text" style="font-size:0.7rem;color:var(--text-dim);">释放进度：${progress.toFixed(1)}%</div><div class="vest-available" style="font-size:0.8rem;color:var(--gold-light);margin-top:2px;">可领取：${unlockable.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${escapeHtml(vest.symbol)}</div><div class="vest-note">过悬崖期后可线性释放！</div><div class="lock-time">📅 悬崖期结束：${formatDateTime(vest.cliffTime)}</div><div class="lock-time">📅 预计释放完成日期：${formatDateTime(vest.endTime)}</div>${btnHTML}${notOwnerHTML}</div>`;
                 }).join('');
-                source.forEach(vest => { const card = document.querySelector(`.vest-card[data-vest-id="${vest.id}"]`); if (card) { vest._els = { card, progressBar: card.querySelector('.vest-progress-bar'), progressText: card.querySelector('.vest-progress-text'), status: card.querySelector('.lock-status'), btn: card.querySelector('.btn-claim-vest'), notOwner: card.querySelector('.btn-claim-not-owner'), available: card.querySelector('.vest-available') }; bindTouchEffect(card); } });
+                source.forEach(vest => { const card = document.querySelector(`.vest-card[data-vest-id="${vest.id}"]`); if (card) { vest._els = { card, progressBar: card.querySelector('.vest-progress-bar'), progressText: card.querySelector('.vest-progress-text'), status: card.querySelector('.lock-status'), btn: card.querySelector('.btn-claim-vest'), notOwner: card.querySelector('.btn-claim-not-owner'), available: card.querySelector('.vest-available') }; } });
                 updateAllCards();
             }
 
