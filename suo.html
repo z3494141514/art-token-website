@@ -118,9 +118,8 @@
             padding: 20px 24px;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
-            overflow: hidden;
+            overflow: visible; /* 让印章可以稍微超出 */
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.02);
-            /* 左侧状态指示条占位 */
             border-left: 4px solid var(--border-gold);
         }
 
@@ -208,6 +207,43 @@
 
         .btn-claim-not-owner { font-size: 0.75rem; color: #e74c3c; text-align: center; margin-top: 8px; padding: 6px 12px; border: 1px dashed rgba(231,76,60,0.4); border-radius: 50px; }
 
+        /* ========== 印章样式 ========== */
+        .card-seal {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            transform: rotate(-12deg);
+            border: 2px solid;
+            background: rgba(0,0,0,0.4);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px 3px rgba(255,255,255,0.2);
+            text-transform: uppercase;
+            font-family: var(--font-military);
+            z-index: 5;
+            pointer-events: none;
+            backdrop-filter: blur(2px);
+        }
+        .seal-self {
+            color: #5cb85c;
+            border-color: #5cb85c;
+            text-shadow: 0 0 6px rgba(92,184,92,0.6);
+            background: rgba(45, 80, 22, 0.4);
+        }
+        .seal-other {
+            color: #e74c3c;
+            border-color: #e74c3c;
+            text-shadow: 0 0 6px rgba(231,76,60,0.6);
+            background: rgba(155, 30, 30, 0.4);
+        }
+
         /* ========== 线性释放卡片 ========== */
         .vest-card {
             background: linear-gradient(175deg, #181825 0%, #12121c 100%);
@@ -216,7 +252,7 @@
             padding: 20px 24px;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
-            overflow: hidden;
+            overflow: visible;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.02);
             border-left: 4px solid var(--border-gold);
         }
@@ -654,7 +690,9 @@
                     if(isCompletedView || lock.withdrawn){ btnHTML='<button class="btn-claim" disabled>已领取</button>'; }
                     else if(!lock.isOwner && view==='all'){ notOwnerHTML='<div class="btn-claim-not-owner">这不是您的锁仓无法领取哦！</div>'; }
                     else { btnHTML = (now >= lock.unlockTime ? `<button class="btn-claim" id="btnLock${lock.id}"><span class="spinner"></span><span class="btn-text">🔥 立即领取</span></button>` : '<button class="btn-claim" disabled>剩余 <span class="lock-countdown"></span></button>'); }
-                    return `<div class="lock-card ${(isCompletedView||lock.withdrawn)?'claimed':''} ${!lock.isOwner&&view==='all'?'not-owner':''}" data-lock-id="${lock.id}"><div class="lock-card-header"><span class="lock-id">${addrDisplay}</span><span class="lock-status ${statusClass}">${sHTML}</span></div><div class="lock-amount"><span class="amount-num">${da}</span><span class="amount-unit">枚</span> <span class="lock-token">${escapeHtml(lock.symbol)}</span></div><div class="lock-time">📅 解锁时间：${ud}</div><div class="lock-countdown"></div>${btnHTML}${notOwnerHTML}</div>`;
+                    // 印章：仅未领取状态显示，根据是否本人显示不同颜色和文字
+                    const sealHTML = (!isCompletedView && !lock.withdrawn) ? `<div class="card-seal ${lock.isOwner ? 'seal-self' : 'seal-other'}">${lock.isOwner ? '本人' : '他人'}</div>` : '';
+                    return `<div class="lock-card ${(isCompletedView||lock.withdrawn)?'claimed':''} ${!lock.isOwner&&view==='all'?'not-owner':''}" data-lock-id="${lock.id}">${sealHTML}<div class="lock-card-header"><span class="lock-id">${addrDisplay}</span><span class="lock-status ${statusClass}">${sHTML}</span></div><div class="lock-amount"><span class="amount-num">${da}</span><span class="amount-unit">枚</span> <span class="lock-token">${escapeHtml(lock.symbol)}</span></div><div class="lock-time">📅 解锁时间：${ud}</div><div class="lock-countdown"></div>${btnHTML}${notOwnerHTML}</div>`;
                 }).join('');
                 source.forEach(lock => { const card = document.querySelector(`.lock-card[data-lock-id="${lock.id}"]`); if (card) { lock._els = { card, status: card.querySelector('.lock-status'), countdown: card.querySelector('.lock-countdown'), btn: card.querySelector('.btn-claim'), notOwner: card.querySelector('.btn-claim-not-owner') }; } });
                 updateAllCards();
@@ -701,7 +739,9 @@
                     if(isCompletedView || isFullyReleased){ btnHTML='<button class="btn-claim-vest" disabled>已全部释放</button>'; }
                     else if(!vest.isOwner && view==='all'){ if(isCliff){ btnHTML=`<button class="btn-claim-vest" disabled>⏳ 释放倒计时 ${formatCountdown(vest.cliffTime-now)}</button>`; notOwnerHTML='<div class="btn-claim-not-owner" style="display:none;">这不是您的锁仓无法领取哦！</div>'; } else { btnHTML='<button class="btn-claim-vest" style="display:none;"></button>'; notOwnerHTML='<div class="btn-claim-not-owner">这不是您的锁仓无法领取哦！</div>'; } }
                     else { btnHTML=`<button class="btn-claim-vest" id="btnVest${vest.id}" disabled>⏳ ...</button>`; }
-                    return `<div class="vest-card ${!vest.isOwner&&view==='all'?'not-owner':''}" data-vest-id="${vest.id}"><div class="lock-card-header"><span class="lock-id">${addrDisplay}</span><span class="lock-status ${statusClass}">${statusText}</span></div><div class="lock-amount"><span class="amount-num">${total.toLocaleString('zh-CN',{maximumFractionDigits:2})}</span><span class="amount-unit">枚</span> <span class="lock-token">${escapeHtml(vest.symbol)}</span></div><div style="font-size:0.8rem;color:var(--text-dim);">已领取：${released.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${escapeHtml(vest.symbol)}</div><div class="vest-progress"><div class="vest-progress-bar" style="width:${progress.toFixed(1)}%;"></div></div><div class="vest-progress-text" style="font-size:0.7rem;color:var(--text-dim);">释放进度：${progress.toFixed(1)}%</div><div class="vest-available" style="font-size:0.8rem;color:var(--gold-light);margin-top:2px;">可领取：${unlockable.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${escapeHtml(vest.symbol)}</div><div class="vest-note">过悬崖期后可线性释放！</div><div class="lock-time">📅 悬崖期结束：${formatDateTime(vest.cliffTime)}</div><div class="lock-time">📅 预计释放完成日期：${formatDateTime(vest.endTime)}</div>${btnHTML}${notOwnerHTML}</div>`;
+                    // 印章：仅未完全释放状态显示
+                    const sealHTML = (!isCompletedView && !isFullyReleased) ? `<div class="card-seal ${vest.isOwner ? 'seal-self' : 'seal-other'}">${vest.isOwner ? '本人' : '他人'}</div>` : '';
+                    return `<div class="vest-card ${!vest.isOwner&&view==='all'?'not-owner':''}" data-vest-id="${vest.id}">${sealHTML}<div class="lock-card-header"><span class="lock-id">${addrDisplay}</span><span class="lock-status ${statusClass}">${statusText}</span></div><div class="lock-amount"><span class="amount-num">${total.toLocaleString('zh-CN',{maximumFractionDigits:2})}</span><span class="amount-unit">枚</span> <span class="lock-token">${escapeHtml(vest.symbol)}</span></div><div style="font-size:0.8rem;color:var(--text-dim);">已领取：${released.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${escapeHtml(vest.symbol)}</div><div class="vest-progress"><div class="vest-progress-bar" style="width:${progress.toFixed(1)}%;"></div></div><div class="vest-progress-text" style="font-size:0.7rem;color:var(--text-dim);">释放进度：${progress.toFixed(1)}%</div><div class="vest-available" style="font-size:0.8rem;color:var(--gold-light);margin-top:2px;">可领取：${unlockable.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${escapeHtml(vest.symbol)}</div><div class="vest-note">过悬崖期后可线性释放！</div><div class="lock-time">📅 悬崖期结束：${formatDateTime(vest.cliffTime)}</div><div class="lock-time">📅 预计释放完成日期：${formatDateTime(vest.endTime)}</div>${btnHTML}${notOwnerHTML}</div>`;
                 }).join('');
                 source.forEach(vest => { const card = document.querySelector(`.vest-card[data-vest-id="${vest.id}"]`); if (card) { vest._els = { card, progressBar: card.querySelector('.vest-progress-bar'), progressText: card.querySelector('.vest-progress-text'), status: card.querySelector('.lock-status'), btn: card.querySelector('.btn-claim-vest'), notOwner: card.querySelector('.btn-claim-not-owner'), available: card.querySelector('.vest-available') }; } });
                 updateAllCards();
