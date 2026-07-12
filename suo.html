@@ -71,7 +71,6 @@
 
         .container { max-width: 960px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
 
-        /* ========== 导航栏增强 ========== */
         .navbar {
             display: flex;
             align-items: center;
@@ -112,7 +111,6 @@
         }
         .navbar-subtitle { font-size: 0.7rem; letter-spacing: 3px; color: var(--text-dim); text-transform: uppercase; }
 
-        /* 钱包按钮增强 */
         .btn-connect {
             display: inline-flex;
             align-items: center;
@@ -173,10 +171,8 @@
             50% { box-shadow: 0 0 0 10px rgba(92,184,92,0); }
         }
 
-        /* ========== 英雄区域 ========== */
         .hero-section { text-align: center; padding: 40px 0 30px; position: relative; overflow: hidden; }
 
-        /* 铁军招募计划徽章：放大增强 */
         .hero-badge {
             display: inline-block;
             padding: 12px 30px;
@@ -205,7 +201,6 @@
             transform: translateY(-2px);
         }
 
-        /* 铁军数量时钟样式 */
         .iron-count {
             margin: 12px auto 20px;
             font-size: 1.1rem;
@@ -252,15 +247,6 @@
             height: 50%;
             background: rgba(201,160,80,0.3);
             transform: translateY(-50%);
-        }
-
-        /* 描述文字：静态 */
-        .hero-desc {
-            color: var(--text-dim);
-            font-size: 0.95rem;
-            max-width: 500px;
-            margin: 0 auto 20px;
-            letter-spacing: 1px;
         }
 
         .stat-card { background: linear-gradient(175deg, rgba(30,30,40,0.8) 0%, rgba(18,18,28,0.9) 100%); border: 1px solid rgba(201,160,80,0.4); border-radius: var(--radius); padding: 28px 32px; display: inline-flex; flex-direction: column; align-items: center; gap: 6px; position: relative; overflow: hidden; transition: all 0.4s ease; min-width: 220px; backdrop-filter: blur(5px); }
@@ -389,30 +375,30 @@
         .lock-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
         @media (min-width: 640px) { .lock-grid { grid-template-columns: repeat(2, 1fr); } }
 
-        /* ========== 3D镭射质感卡片 ========== */
+        /* ========== 3D镭射质感卡片（背景加深） ========== */
         .lock-card {
             background:
                 linear-gradient(135deg,
-                    rgba(201,160,80,0.18) 0%,
-                    rgba(190,140,100,0.12) 15%,
-                    rgba(170,150,180,0.10) 35%,
-                    rgba(140,160,190,0.10) 55%,
-                    rgba(180,140,110,0.12) 75%,
-                    rgba(201,160,80,0.16) 100%
+                    rgba(180,140,70,0.15) 0%,
+                    rgba(160,120,80,0.10) 15%,
+                    rgba(150,130,160,0.08) 35%,
+                    rgba(120,140,170,0.08) 55%,
+                    rgba(160,120,90,0.10) 75%,
+                    rgba(180,140,70,0.13) 100%
                 ),
-                linear-gradient(175deg, #1a1a28 0%, #12121c 100%);
+                linear-gradient(175deg, #12121a 0%, #08080e 100%);
             background-size: 100% 100%, 100% 100%;
             background-position: 0 0, 0 0;
-            border: 1px solid rgba(201,160,80,0.35);
+            border: 1px solid rgba(201,160,80,0.3);
             border-radius: var(--radius);
             padding: 20px 24px;
             transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1.2);
             position: relative;
             overflow: visible;
             box-shadow:
-                0 4px 20px rgba(0,0,0,0.4),
-                0 0 10px rgba(201,160,80,0.08),
-                inset 0 1px 0 rgba(255,255,255,0.03);
+                0 4px 20px rgba(0,0,0,0.5),
+                0 0 10px rgba(201,160,80,0.06),
+                inset 0 1px 0 rgba(255,255,255,0.02);
             border-left: 5px solid var(--gold-dark);
             transform: perspective(800px) rotateY(0deg) rotateX(0deg) translateY(0);
             transform-style: preserve-3d;
@@ -430,9 +416,9 @@
             background: linear-gradient(
                 105deg,
                 transparent 30%,
-                rgba(255,255,255,0.03) 38%,
-                rgba(255,255,255,0.08) 40%,
-                rgba(255,255,255,0.03) 42%,
+                rgba(255,255,255,0.02) 38%,
+                rgba(255,255,255,0.05) 40%,
+                rgba(255,255,255,0.02) 42%,
                 transparent 50%
             );
             background-size: 250% 100%;
@@ -445,14 +431,14 @@
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
-            opacity: 0.025;
+            opacity: 0.02;
             z-index: 1;
             background-image: repeating-linear-gradient(
                 45deg,
                 transparent,
                 transparent 2px,
-                rgba(255,255,255,0.6) 2px,
-                rgba(255,255,255,0.6) 4px
+                rgba(255,255,255,0.4) 2px,
+                rgba(255,255,255,0.4) 4px
             );
             border-radius: var(--radius);
         }
@@ -466,7 +452,7 @@
             box-shadow:
                 0 0 25px rgba(201,160,80,0.35),
                 0 0 50px rgba(201,160,80,0.15),
-                0 20px 40px rgba(0,0,0,0.5),
+                0 20px 40px rgba(0,0,0,0.6),
                 0 0 0 1px rgba(201,160,80,0.2);
         }
         .lock-card:hover::before {
@@ -480,7 +466,7 @@
             box-shadow:
                 0 0 25px rgba(201,160,80,0.35),
                 0 0 50px rgba(201,160,80,0.15),
-                0 12px 28px rgba(0,0,0,0.5),
+                0 12px 28px rgba(0,0,0,0.6),
                 0 0 0 1px rgba(201,160,80,0.2);
             transition: all 0.15s ease-out;
         }
@@ -497,11 +483,11 @@
         .lock-card.claimed:hover {
             transform: translateY(-2px);
             border-left-color: var(--text-dim);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
         .lock-card.claimed.touch-active {
             transform: translateY(-1px) scale(0.98);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
         }
         .lock-card.claimed::before { display: none; }
 
@@ -596,30 +582,30 @@
             background: rgba(140,25,25,0.5);
         }
 
-        /* ========== 线性释放卡片 ========== */
+        /* ========== 线性释放卡片（背景同步加深） ========== */
         .vest-card {
             background:
                 linear-gradient(135deg,
-                    rgba(201,160,80,0.18) 0%,
-                    rgba(190,140,100,0.12) 15%,
-                    rgba(170,150,180,0.10) 35%,
-                    rgba(140,160,190,0.10) 55%,
-                    rgba(180,140,110,0.12) 75%,
-                    rgba(201,160,80,0.16) 100%
+                    rgba(180,140,70,0.15) 0%,
+                    rgba(160,120,80,0.10) 15%,
+                    rgba(150,130,160,0.08) 35%,
+                    rgba(120,140,170,0.08) 55%,
+                    rgba(160,120,90,0.10) 75%,
+                    rgba(180,140,70,0.13) 100%
                 ),
-                linear-gradient(175deg, #1a1a28 0%, #12121c 100%);
+                linear-gradient(175deg, #12121a 0%, #08080e 100%);
             background-size: 100% 100%, 100% 100%;
             background-position: 0 0, 0 0;
-            border: 1px solid rgba(201,160,80,0.35);
+            border: 1px solid rgba(201,160,80,0.3);
             border-radius: var(--radius);
             padding: 20px 24px;
             transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1.2);
             position: relative;
             overflow: visible;
             box-shadow:
-                0 4px 20px rgba(0,0,0,0.4),
-                0 0 10px rgba(201,160,80,0.08),
-                inset 0 1px 0 rgba(255,255,255,0.03);
+                0 4px 20px rgba(0,0,0,0.5),
+                0 0 10px rgba(201,160,80,0.06),
+                inset 0 1px 0 rgba(255,255,255,0.02);
             border-left: 5px solid var(--gold-dark);
             transform: perspective(800px) rotateY(0deg) rotateX(0deg) translateY(0);
             transform-style: preserve-3d;
@@ -636,9 +622,9 @@
             background: linear-gradient(
                 105deg,
                 transparent 30%,
-                rgba(255,255,255,0.03) 38%,
-                rgba(255,255,255,0.08) 40%,
-                rgba(255,255,255,0.03) 42%,
+                rgba(255,255,255,0.02) 38%,
+                rgba(255,255,255,0.05) 40%,
+                rgba(255,255,255,0.02) 42%,
                 transparent 50%
             );
             background-size: 250% 100%;
@@ -650,14 +636,14 @@
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
-            opacity: 0.025;
+            opacity: 0.02;
             z-index: 1;
             background-image: repeating-linear-gradient(
                 45deg,
                 transparent,
                 transparent 2px,
-                rgba(255,255,255,0.6) 2px,
-                rgba(255,255,255,0.6) 4px
+                rgba(255,255,255,0.4) 2px,
+                rgba(255,255,255,0.4) 4px
             );
             border-radius: var(--radius);
         }
@@ -670,7 +656,7 @@
             box-shadow:
                 0 0 25px rgba(201,160,80,0.35),
                 0 0 50px rgba(201,160,80,0.15),
-                0 20px 40px rgba(0,0,0,0.5),
+                0 20px 40px rgba(0,0,0,0.6),
                 0 0 0 1px rgba(201,160,80,0.2);
         }
         .vest-card:hover::before {
@@ -684,7 +670,7 @@
             box-shadow:
                 0 0 25px rgba(201,160,80,0.35),
                 0 0 50px rgba(201,160,80,0.15),
-                0 12px 28px rgba(0,0,0,0.5),
+                0 12px 28px rgba(0,0,0,0.6),
                 0 0 0 1px rgba(201,160,80,0.2);
             transition: all 0.15s ease-out;
         }
@@ -710,11 +696,11 @@
         .vest-card.claimed:hover {
             transform: translateY(-2px);
             border-left-color: var(--text-dim);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
         .vest-card.claimed.touch-active {
             transform: translateY(-1px) scale(0.98);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
         }
         .vest-card.claimed::before { display: none; }
 
@@ -769,7 +755,6 @@
                 <span class="iron-count-num" id="ironCountNum">0</span>
                 <span class="iron-count-label">名</span>
             </div>
-            <p class="hero-desc">链上智能合约锁定 · 到期自动释放 · 铁血纪律守护资产安全</p>
             <div class="stat-card" style="margin-top:16px;"><div class="stat-card-inner"><div class="stat-label">📊 合约总锁仓 <button class="stat-refresh-btn" id="btnRefreshTotal" title="刷新总锁仓"><span class="refresh-icon">↻</span></button></div><div class="stat-value" id="totalLocked">--</div><div class="stat-sub" id="totalLockedSub">加载中...</div></div></div>
         </section>
 
