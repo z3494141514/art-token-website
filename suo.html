@@ -71,14 +71,12 @@
 
         .container { max-width: 960px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
 
-        /* 导航栏立体质感强化 */
         .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid rgba(201,160,80,0.4); flex-wrap: wrap; gap: 12px; background: rgba(18,18,28,0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: var(--radius); margin-top: 10px; padding: 12px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,160,80,0.2) inset; }
         .navbar-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-bright); }
         .navbar-logo { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #1a1a2e, #2a2030); border: 2px solid var(--gold-dark); display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 0 18px var(--shadow-gold); flex-shrink: 0; }
         .navbar-title { font-family: var(--font-military); font-size: 1.3rem; font-weight: bold; letter-spacing: 2px; color: var(--gold); text-shadow: 0 2px 4px rgba(0,0,0,0.6); }
         .navbar-subtitle { font-size: 0.7rem; letter-spacing: 3px; color: var(--text-dim); text-transform: uppercase; }
 
-        /* 连接按钮立体感强化 */
         .btn-connect { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; border: 1px solid rgba(201,160,80,0.6); background: linear-gradient(180deg, rgba(30,30,42,0.9) 0%, rgba(18,18,28,0.95) 100%); color: var(--gold); white-space: nowrap; position: relative; overflow: hidden; backdrop-filter: blur(5px); box-shadow: 0 2px 0 rgba(0,0,0,0.4), 0 4px 10px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04) inset; }
         .btn-connect:hover { background: rgba(201,160,80,0.2); border-color: var(--gold); box-shadow: 0 0 20px var(--shadow-gold); transform: translateY(-1px); }
         .btn-connect.connected { border-color: var(--green-light); color: #5cb85c; background: rgba(45,80,22,0.3); }
@@ -88,10 +86,9 @@
 
         .hero-section { text-align: center; padding: 40px 0 30px; position: relative; overflow: hidden; }
 
-        /* 铁军招募计划徽章立体感 */
         .hero-badge { display: inline-block; padding: 6px 18px; border-radius: 50px; border: 1px solid rgba(201,160,80,0.6); font-size: 0.8rem; letter-spacing: 3px; color: var(--gold); background: linear-gradient(180deg, rgba(35,30,25,0.8) 0%, rgba(20,18,15,0.9) 100%); margin-bottom: 16px; text-transform: uppercase; backdrop-filter: blur(5px); box-shadow: 0 2px 6px rgba(0,0,0,0.5), 0 0 10px rgba(201,160,80,0.2) inset; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
 
-        /* 铁军锁仓领取标题：3D立体 + 光束扫过 */
+        /* 标题：立体 + 文字范围内扫光 */
         .hero-title {
             font-family: var(--font-military);
             font-size: clamp(2rem,5vw,3.2rem);
@@ -102,59 +99,43 @@
             text-shadow: 0 1px 0 rgba(0,0,0,0.9), 0 2px 0 rgba(0,0,0,0.7), 0 3px 2px rgba(0,0,0,0.5), 0 5px 8px rgba(0,0,0,0.4), 0 0 20px rgba(201,160,80,0.6), 0 0 35px rgba(201,160,80,0.3);
             position: relative;
             display: inline-block;
+            overflow: hidden; /* 裁剪多余光束 */
         }
         .hero-title .accent { color: var(--gold); }
 
-        /* 标题光束扫过伪元素 */
         .hero-title::after {
             content: '';
             position: absolute;
-            top: 0; left: -100%;
-            width: 60%;
+            top: 0;
+            left: -30%;
+            width: 30%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transform: skewX(-20deg);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
             animation: titleSweep 5s ease-in-out infinite;
             pointer-events: none;
         }
+
         @keyframes titleSweep {
-            0% { left: -100%; }
-            50% { left: 120%; }
-            100% { left: 120%; }
+            0% { left: -30%; }
+            20% { left: 100%; }
+            100% { left: 100%; }
         }
 
-        /* 描述文字波浪动画：从左到右伸缩 */
+        /* 描述文字：移除动画，静态展示 */
         .hero-desc {
             color: var(--text-dim);
             font-size: 0.95rem;
             max-width: 500px;
             margin: 0 auto 20px;
             letter-spacing: 1px;
-            transform-origin: left center;
-            animation: waveStretch 10s ease-in-out infinite;
-        }
-        @keyframes waveStretch {
-            0% { transform: scaleX(1); }
-            10% { transform: scaleX(1.02); }
-            20% { transform: scaleX(1); }
-            30% { transform: scaleX(1.04); }
-            40% { transform: scaleX(1); }
-            50% { transform: scaleX(1.05); }
-            60% { transform: scaleX(1); }
-            70% { transform: scaleX(1.03); }
-            80% { transform: scaleX(1); }
-            90% { transform: scaleX(1.01); }
-            100% { transform: scaleX(1); }
         }
 
         .stat-card { background: linear-gradient(175deg, rgba(30,30,40,0.8) 0%, rgba(18,18,28,0.9) 100%); border: 1px solid rgba(201,160,80,0.4); border-radius: var(--radius); padding: 28px 32px; display: inline-flex; flex-direction: column; align-items: center; gap: 6px; position: relative; overflow: hidden; transition: all 0.4s ease; min-width: 220px; backdrop-filter: blur(5px); }
         .stat-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent, rgba(201,160,80,0.1), transparent, transparent, transparent, rgba(201,160,80,0.1), transparent); animation: statRotate 8s linear infinite; opacity: 0.5; z-index: 0; }
         @keyframes statRotate { to { transform: rotate(360deg); } }
         .stat-card-inner { position: relative; z-index: 1; background: transparent; border-radius: var(--radius); padding: 24px 28px; text-align: center; width: 100%; }
-        /* 合约总锁仓文字放大 */
         .stat-label { font-size: 0.9rem; letter-spacing: 3px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
 
-        /* 合约总锁仓数字：3D浮雕 + 呼吸光晕 */
         .stat-value {
             font-size: 3rem;
             font-weight: bold;
@@ -194,7 +175,6 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* 标题3D效果：静态浮雕 */
         .section-title {
             font-family: var(--font-military);
             font-size: 1.5rem;
@@ -213,7 +193,6 @@
         }
         .section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(201,160,80,0.5), transparent); }
 
-        /* 选项卡3D凸起效果 */
         .view-toggle { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
         .view-toggle button {
             padding: 10px 18px;
