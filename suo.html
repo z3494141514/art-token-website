@@ -199,15 +199,8 @@
         <footer style="text-align:center;padding:24px 0;border-top:1px solid var(--border);color:var(--text-dim);font-size:0.75rem;letter-spacing:2px;">© 2026 铁军招募计划 · Powered by Smart Contract · BSC Testnet</footer>
     </div>
 
-    <!-- ethers.js：本地优先，否则 CDN -->
-    <script>
-        var localEthers = true;   // 改为 true 使用本地文件
-        if (localEthers) {
-            document.write('<script src="./ethers.umd.min.js"><\/script>');
-        } else {
-            document.write('<script src="https://cdn.bootcdn.net/ajax/libs/ethers/5.7.2/ethers.umd.min.js"><\/script>');
-        }
-    </script>
+    <!-- ethers.js 使用 CDN 加载 -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 
     <script>
         (function() {
