@@ -71,22 +71,139 @@
 
         .container { max-width: 960px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
 
-        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid rgba(201,160,80,0.4); flex-wrap: wrap; gap: 12px; background: rgba(18,18,28,0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: var(--radius); margin-top: 10px; padding: 12px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,160,80,0.2) inset; }
+        /* ========== 导航栏增强 ========== */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(201,160,80,0.5);
+            flex-wrap: wrap;
+            gap: 12px;
+            background: rgba(18,18,28,0.75);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: var(--radius);
+            margin-top: 10px;
+            padding: 14px 24px;
+            box-shadow:
+                0 4px 20px rgba(0,0,0,0.6),
+                0 0 0 1px rgba(201,160,80,0.25) inset,
+                0 0 15px rgba(201,160,80,0.1);
+        }
         .navbar-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-bright); }
-        .navbar-logo { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #1a1a2e, #2a2030); border: 2px solid var(--gold-dark); display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 0 18px var(--shadow-gold); flex-shrink: 0; }
-        .navbar-title { font-family: var(--font-military); font-size: 1.3rem; font-weight: bold; letter-spacing: 2px; color: var(--gold); text-shadow: 0 2px 4px rgba(0,0,0,0.6); }
+        .navbar-logo {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a1a2e, #2a2030);
+            border: 2px solid var(--gold-dark);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 0 20px var(--shadow-gold), 0 0 5px rgba(201,160,80,0.4);
+            flex-shrink: 0;
+        }
+        .navbar-title {
+            font-family: var(--font-military);
+            font-size: 1.4rem;
+            font-weight: bold;
+            letter-spacing: 3px;
+            color: var(--gold-light);
+            text-shadow: 0 2px 6px rgba(0,0,0,0.7), 0 0 12px rgba(201,160,80,0.4);
+        }
         .navbar-subtitle { font-size: 0.7rem; letter-spacing: 3px; color: var(--text-dim); text-transform: uppercase; }
 
-        .btn-connect { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; border: 1px solid rgba(201,160,80,0.6); background: linear-gradient(180deg, rgba(30,30,42,0.9) 0%, rgba(18,18,28,0.95) 100%); color: var(--gold); white-space: nowrap; position: relative; overflow: hidden; backdrop-filter: blur(5px); box-shadow: 0 2px 0 rgba(0,0,0,0.4), 0 4px 10px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04) inset; }
-        .btn-connect:hover { background: rgba(201,160,80,0.2); border-color: var(--gold); box-shadow: 0 0 20px var(--shadow-gold); transform: translateY(-1px); }
-        .btn-connect.connected { border-color: var(--green-light); color: #5cb85c; background: rgba(45,80,22,0.3); }
-        .btn-connect .dot { width: 8px; height: 8px; border-radius: 50%; background: #c0392b; animation: dotPulse 2s ease-in-out infinite; }
+        /* 钱包按钮增强 */
+        .btn-connect {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 26px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(201,160,80,0.7);
+            background: linear-gradient(180deg, rgba(35,35,48,0.9) 0%, rgba(20,20,32,0.95) 100%);
+            color: var(--gold-light);
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow:
+                0 3px 0 rgba(0,0,0,0.5),
+                0 6px 15px rgba(0,0,0,0.5),
+                0 0 0 1px rgba(255,255,255,0.06) inset,
+                0 0 18px rgba(201,160,80,0.2);
+        }
+        .btn-connect::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.6s ease;
+        }
+        .btn-connect:hover::before {
+            left: 100%;
+        }
+        .btn-connect:hover {
+            background: rgba(201,160,80,0.2);
+            border-color: var(--gold-light);
+            box-shadow:
+                0 0 25px rgba(201,160,80,0.4),
+                0 0 10px rgba(201,160,80,0.2),
+                0 3px 0 rgba(0,0,0,0.5);
+            transform: translateY(-2px);
+        }
+        .btn-connect.connected {
+            border-color: var(--green-light);
+            color: #5cb85c;
+            background: rgba(45,80,22,0.3);
+        }
+        .btn-connect .dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #c0392b;
+            animation: dotPulse 2s ease-in-out infinite;
+        }
         .btn-connect.connected .dot { background: #5cb85c; }
-        @keyframes dotPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(92,184,92,0.6); } 50% { box-shadow: 0 0 0 10px rgba(92,184,92,0); } }
+        @keyframes dotPulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(92,184,92,0.6); }
+            50% { box-shadow: 0 0 0 10px rgba(92,184,92,0); }
+        }
 
+        /* ========== 英雄区域 ========== */
         .hero-section { text-align: center; padding: 40px 0 30px; position: relative; overflow: hidden; }
 
-        .hero-badge { display: inline-block; padding: 6px 18px; border-radius: 50px; border: 1px solid rgba(201,160,80,0.6); font-size: 0.8rem; letter-spacing: 3px; color: var(--gold); background: linear-gradient(180deg, rgba(35,30,25,0.8) 0%, rgba(20,18,15,0.9) 100%); margin-bottom: 16px; text-transform: uppercase; backdrop-filter: blur(5px); box-shadow: 0 2px 6px rgba(0,0,0,0.5), 0 0 10px rgba(201,160,80,0.2) inset; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
+        /* 铁军招募计划徽章：放大增强 */
+        .hero-badge {
+            display: inline-block;
+            padding: 12px 30px;
+            border-radius: 50px;
+            border: 2px solid rgba(201,160,80,0.7);
+            font-size: 1rem;
+            letter-spacing: 4px;
+            color: var(--gold-light);
+            background: linear-gradient(180deg, rgba(40,35,28,0.9) 0%, rgba(22,20,16,0.95) 100%);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            backdrop-filter: blur(8px);
+            box-shadow:
+                0 3px 8px rgba(0,0,0,0.6),
+                0 0 12px rgba(201,160,80,0.3) inset,
+                0 0 25px rgba(201,160,80,0.2);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.7);
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        .hero-badge:hover {
+            box-shadow:
+                0 4px 12px rgba(0,0,0,0.7),
+                0 0 20px rgba(201,160,80,0.4) inset,
+                0 0 35px rgba(201,160,80,0.3);
+            transform: translateY(-2px);
+        }
 
         /* 铁军数量时钟样式 */
         .iron-count {
@@ -100,9 +217,7 @@
             gap: 10px;
             flex-wrap: wrap;
         }
-        .iron-count-label {
-            opacity: 0.8;
-        }
+        .iron-count-label { opacity: 0.8; }
         .iron-count-num {
             display: inline-flex;
             gap: 4px;
@@ -128,7 +243,6 @@
             text-shadow: 0 0 10px rgba(201,160,80,0.7);
             position: relative;
         }
-        /* 数字之间分隔线 */
         .iron-digit:not(:last-child)::after {
             content: '';
             position: absolute;
@@ -140,38 +254,7 @@
             transform: translateY(-50%);
         }
 
-        .hero-title {
-            font-family: var(--font-military);
-            font-size: clamp(2rem,5vw,3.2rem);
-            font-weight: bold;
-            letter-spacing: 4px;
-            color: var(--text-bright);
-            margin-bottom: 8px;
-            text-shadow: 0 1px 0 rgba(0,0,0,0.9), 0 2px 0 rgba(0,0,0,0.7), 0 3px 2px rgba(0,0,0,0.5), 0 5px 8px rgba(0,0,0,0.4), 0 0 20px rgba(201,160,80,0.6), 0 0 35px rgba(201,160,80,0.3);
-            position: relative;
-            display: inline-block;
-            overflow: hidden;
-        }
-        .hero-title .accent { color: var(--gold); }
-
-        .hero-title::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -30%;
-            width: 30%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-            animation: titleSweep 5s ease-in-out infinite;
-            pointer-events: none;
-        }
-
-        @keyframes titleSweep {
-            0% { left: -30%; }
-            20% { left: 100%; }
-            100% { left: 100%; }
-        }
-
+        /* 描述文字：静态 */
         .hero-desc {
             color: var(--text-dim);
             font-size: 0.95rem;
@@ -667,7 +750,6 @@
             .navbar { flex-direction: column; align-items: flex-start; }
             .btn-connect { width: 100%; justify-content: center; }
             .stat-value { font-size: 2.2rem; }
-            .hero-title { letter-spacing: 2px; }
             .section-title { font-size: 1.2rem; }
             .view-toggle button { padding: 8px 14px; font-size: 0.75rem; }
         }
@@ -682,13 +764,11 @@
         </nav>
         <section class="hero-section">
             <div class="hero-badge">⚔️ 铁军招募计划 ⚔️</div>
-            <!-- 新增铁军数量展示 -->
             <div class="iron-count">
                 <span class="iron-count-label">目前已加入铁军</span>
                 <span class="iron-count-num" id="ironCountNum">0</span>
                 <span class="iron-count-label">名</span>
             </div>
-            <h1 class="hero-title">铁军<span class="accent">锁仓</span>领取</h1>
             <p class="hero-desc">链上智能合约锁定 · 到期自动释放 · 铁血纪律守护资产安全</p>
             <div class="stat-card" style="margin-top:16px;"><div class="stat-card-inner"><div class="stat-label">📊 合约总锁仓 <button class="stat-refresh-btn" id="btnRefreshTotal" title="刷新总锁仓"><span class="refresh-icon">↻</span></button></div><div class="stat-value" id="totalLocked">--</div><div class="stat-sub" id="totalLockedSub">加载中...</div></div></div>
         </section>
@@ -828,7 +908,6 @@
                 });
             }
 
-            // 计算唯一受益人数量
             function updateIronCount() {
                 const addrSet = new Set();
                 const allLocks = [...dataStore.lock.all, ...dataStore.lock.allCompleted];
@@ -836,7 +915,6 @@
                 allLocks.forEach(lock => { if (lock.beneficiary) addrSet.add(lock.beneficiary.toLowerCase()); });
                 allVests.forEach(vest => { if (vest.beneficiary) addrSet.add(vest.beneficiary.toLowerCase()); });
                 const count = addrSet.size;
-                // 将数字拆分成单个字符，生成 digit 元素
                 const digits = String(count).split('');
                 ironCountNumEl.innerHTML = digits.map(d => `<span class="iron-digit">${d}</span>`).join('');
             }
@@ -905,7 +983,6 @@
                 renderVestCards(); updateAllCards();
             });
 
-            // 刷新按钮改为完整加载数据（包括铁军数量更新）
             btnRefreshTotal.addEventListener('click', async () => {
                 if (btnRefreshTotal.classList.contains('loading')) return;
                 btnRefreshTotal.classList.add('loading');
@@ -1026,7 +1103,7 @@
                     const locks = decodeResults(lockResults, CONTRACT_ABI, 'tokenLocks');
                     const vests = decodeResults(vestResults, CONTRACT_ABI, 'tokenVests');
                     await Promise.all([loadTotalLocked(rp), processLocks(locks, rp), processVests(vests, rp)]);
-                    updateIronCount(); // 数据更新后刷新铁军人数
+                    updateIronCount();
                 } catch(e){
                     const backup = new ethers.providers.JsonRpcProvider(RPC_URLS[1]);
                     const lc = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, backup);
@@ -1207,14 +1284,11 @@
             };
 
             (async function autoInit() {
-                // 优先加载全部数据，确保铁军数量显示
                 getFastestProvider().then(rp => loadAllData()).catch(() => {
                     totalLockedEl.textContent = '--';
                     totalLockedSubEl.textContent = 'RPC连接较慢';
                 });
-                if (window.ethereum) {
-                    try { const accs = await window.ethereum.request({ method: 'eth_accounts' }); if (accs.length > 0) await setupWallet(accs[0]); } catch (e) {}
-                }
+                if (window.ethereum) { try { const accs = await window.ethereum.request({ method: 'eth_accounts' }); if (accs.length > 0) await setupWallet(accs[0]); } catch (e) {} }
             })();
         })();
     </script>
