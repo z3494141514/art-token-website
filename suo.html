@@ -110,42 +110,57 @@
         .lock-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
         @media (min-width: 640px) { .lock-grid { grid-template-columns: repeat(2, 1fr); } }
 
-        /* ========== 卡片质感升级 ========== */
+        /* ========== 3D镭射质感卡片 ========== */
         .lock-card {
-            background: linear-gradient(175deg, #181825 0%, #12121c 100%);
-            border: 1px solid var(--border);
+            /* 镭射多层渐变：暗底+金/玫瑰金/紫/银多色光变 */
+            background:
+                linear-gradient(135deg,
+                    rgba(201,160,80,0.18) 0%,
+                    rgba(190,140,100,0.12) 15%,
+                    rgba(170,150,180,0.10) 35%,
+                    rgba(140,160,190,0.10) 55%,
+                    rgba(180,140,110,0.12) 75%,
+                    rgba(201,160,80,0.16) 100%
+                ),
+                linear-gradient(175deg, #1a1a28 0%, #12121c 100%);
+            background-size: 100% 100%, 100% 100%;
+            background-position: 0 0, 0 0;
+            border: 1px solid rgba(201,160,80,0.35);
             border-radius: var(--radius);
             padding: 20px 24px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1.2);
             position: relative;
             overflow: visible;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.02);
-            border-left: 4px solid var(--border-gold);
-        }
-
-        .lock-card:hover {
-            border-color: var(--gold);
-            border-left-color: var(--gold);
             box-shadow:
-                0 0 20px var(--shadow-gold),
-                0 0 40px rgba(201, 160, 80, 0.1),
-                0 12px 28px rgba(0, 0, 0, 0.4);
-            transform: translateY(-4px);
+                0 4px 20px rgba(0,0,0,0.4),
+                0 0 10px rgba(201,160,80,0.08),
+                inset 0 1px 0 rgba(255,255,255,0.03);
+            border-left: 5px solid var(--gold-dark);
+            /* 轻微悬浮 */
+            transform: perspective(800px) rotateY(0deg) rotateX(0deg) translateY(0);
+            transform-style: preserve-3d;
+            will-change: transform, box-shadow;
         }
 
-        .lock-card.claimed {
-            border-left-color: rgba(138, 135, 128, 0.6);
-            opacity: 0.65;
-        }
-        .lock-card.claimed:hover {
-            border-left-color: var(--text-dim);
-        }
-
-        .lock-card.not-owner {
-            border-left-color: rgba(192, 57, 43, 0.5);
-        }
-        .lock-card.not-owner:hover {
-            border-left-color: var(--red-light);
+        /* 光泽扫过伪元素 */
+        .lock-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            border-radius: var(--radius);
+            background: linear-gradient(
+                105deg,
+                transparent 30%,
+                rgba(255,255,255,0.03) 38%,
+                rgba(255,255,255,0.08) 40%,
+                rgba(255,255,255,0.03) 42%,
+                transparent 50%
+            );
+            background-size: 250% 100%;
+            background-position: -120% 0;
+            transition: background-position 0.9s ease-out;
         }
 
         /* 微纹理 */
@@ -154,18 +169,56 @@
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
-            opacity: 0.02;
+            opacity: 0.025;
+            z-index: 1;
             background-image: repeating-linear-gradient(
                 45deg,
                 transparent,
                 transparent 2px,
-                rgba(255, 255, 255, 0.5) 2px,
-                rgba(255, 255, 255, 0.5) 4px
+                rgba(255,255,255,0.6) 2px,
+                rgba(255,255,255,0.6) 4px
             );
-            z-index: 0;
+            border-radius: var(--radius);
         }
 
-        .lock-card > * { position: relative; z-index: 1; }
+        .lock-card > * { position: relative; z-index: 3; }
+
+        /* hover: 3D倾斜 + 光泽扫过 + 边框发光 */
+        .lock-card:hover {
+            transform: perspective(600px) rotateY(-4deg) rotateX(3deg) translateY(-8px);
+            border-color: var(--gold-light);
+            border-left-color: var(--gold);
+            box-shadow:
+                0 0 25px rgba(201,160,80,0.35),
+                0 0 50px rgba(201,160,80,0.15),
+                0 20px 40px rgba(0,0,0,0.5),
+                0 0 0 1px rgba(201,160,80,0.2);
+        }
+        .lock-card:hover::before {
+            background-position: 120% 0;
+        }
+
+        /* 已领取状态 */
+        .lock-card.claimed {
+            border-left-color: rgba(138,135,128,0.5);
+            opacity: 0.6;
+            filter: saturate(0.3);
+            transform: none;
+        }
+        .lock-card.claimed:hover {
+            transform: translateY(-2px);
+            border-left-color: var(--text-dim);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .lock-card.claimed::before { display: none; }
+
+        /* 他人锁仓 */
+        .lock-card.not-owner {
+            border-left-color: rgba(200,50,50,0.5);
+        }
+        .lock-card.not-owner:hover {
+            border-left-color: var(--red-light);
+        }
 
         .lock-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
         .lock-id { font-size: 0.9rem; color: var(--text-dim); letter-spacing: 1px; font-family: var(--font-main); font-weight: 500; word-break: break-all; }
@@ -175,6 +228,7 @@
         .status-claimed { background: rgba(138,135,128,0.15); color: var(--text-dim); border: 1px solid var(--border); }
         .status-cliff { background: rgba(192,57,43,0.25); color: #e74c3c; border: 1px solid rgba(231,76,60,0.4); }
 
+        /* 金额数字：烫金浮雕 */
         .lock-amount {
             font-size: 1.8rem;
             font-weight: bold;
@@ -184,7 +238,10 @@
             align-items: baseline;
             gap: 4px;
             flex-wrap: wrap;
-            text-shadow: 0 0 10px rgba(201, 160, 80, 0.3);
+            text-shadow:
+                0 1px 3px rgba(0,0,0,0.6),
+                0 0 12px rgba(201,160,80,0.5),
+                0 0 3px rgba(255,220,150,0.4);
         }
         .lock-amount .amount-num {
             color: var(--gold-light);
@@ -207,7 +264,7 @@
 
         .btn-claim-not-owner { font-size: 0.75rem; color: #e74c3c; text-align: center; margin-top: 8px; padding: 6px 12px; border: 1px dashed rgba(231,76,60,0.4); border-radius: 50px; }
 
-        /* ========== 印章样式（左上角） ========== */
+        /* ========== 印章样式（左上角，浮于3D卡片之上） ========== */
         .card-seal {
             position: absolute;
             top: 12px;
@@ -221,80 +278,128 @@
             font-weight: 700;
             font-size: 0.8rem;
             letter-spacing: 2px;
-            transform: rotate(-12deg);
+            transform: rotate(-12deg) translateZ(20px);
             border: 2px solid;
-            background: rgba(0,0,0,0.4);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px 3px rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.5);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.6), inset 0 1px 3px rgba(255,255,255,0.2);
             text-transform: uppercase;
             font-family: var(--font-military);
-            z-index: 5;
+            z-index: 10;
             pointer-events: none;
-            backdrop-filter: blur(2px);
+            backdrop-filter: blur(3px);
+            transition: transform 0.3s ease;
         }
         .seal-self {
             color: #5cb85c;
             border-color: #5cb85c;
-            text-shadow: 0 0 6px rgba(92,184,92,0.6);
-            background: rgba(45, 80, 22, 0.4);
+            text-shadow: 0 0 8px rgba(92,184,92,0.7);
+            background: rgba(35,70,20,0.5);
         }
         .seal-other {
             color: #e74c3c;
             border-color: #e74c3c;
-            text-shadow: 0 0 6px rgba(231,76,60,0.6);
-            background: rgba(155, 30, 30, 0.4);
+            text-shadow: 0 0 8px rgba(231,76,60,0.7);
+            background: rgba(140,25,25,0.5);
         }
 
-        /* ========== 线性释放卡片 ========== */
+        /* ========== 线性释放卡片（同样3D镭射质感） ========== */
         .vest-card {
-            background: linear-gradient(175deg, #181825 0%, #12121c 100%);
-            border: 1px solid var(--border);
+            background:
+                linear-gradient(135deg,
+                    rgba(201,160,80,0.18) 0%,
+                    rgba(190,140,100,0.12) 15%,
+                    rgba(170,150,180,0.10) 35%,
+                    rgba(140,160,190,0.10) 55%,
+                    rgba(180,140,110,0.12) 75%,
+                    rgba(201,160,80,0.16) 100%
+                ),
+                linear-gradient(175deg, #1a1a28 0%, #12121c 100%);
+            background-size: 100% 100%, 100% 100%;
+            background-position: 0 0, 0 0;
+            border: 1px solid rgba(201,160,80,0.35);
             border-radius: var(--radius);
             padding: 20px 24px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1.2);
             position: relative;
             overflow: visible;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.02);
-            border-left: 4px solid var(--border-gold);
-        }
-        .vest-card:hover {
-            border-color: var(--gold);
-            border-left-color: var(--gold);
             box-shadow:
-                0 0 20px var(--shadow-gold),
-                0 0 40px rgba(201, 160, 80, 0.1),
-                0 12px 28px rgba(0, 0, 0, 0.4);
-            transform: translateY(-4px);
+                0 4px 20px rgba(0,0,0,0.4),
+                0 0 10px rgba(201,160,80,0.08),
+                inset 0 1px 0 rgba(255,255,255,0.03);
+            border-left: 5px solid var(--gold-dark);
+            transform: perspective(800px) rotateY(0deg) rotateX(0deg) translateY(0);
+            transform-style: preserve-3d;
+            will-change: transform, box-shadow;
         }
-        .vest-card.not-owner {
-            border-left-color: rgba(192, 57, 43, 0.5);
+        .vest-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            border-radius: var(--radius);
+            background: linear-gradient(
+                105deg,
+                transparent 30%,
+                rgba(255,255,255,0.03) 38%,
+                rgba(255,255,255,0.08) 40%,
+                rgba(255,255,255,0.03) 42%,
+                transparent 50%
+            );
+            background-size: 250% 100%;
+            background-position: -120% 0;
+            transition: background-position 0.9s ease-out;
         }
-        .vest-card.not-owner:hover {
-            border-left-color: var(--red-light);
-        }
-        .vest-card.claimed {
-            border-left-color: rgba(138, 135, 128, 0.6);
-            opacity: 0.65;
-        }
-        .vest-card.claimed:hover {
-            border-left-color: var(--text-dim);
-        }
-
         .vest-card::after {
             content: '';
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
-            opacity: 0.02;
+            opacity: 0.025;
+            z-index: 1;
             background-image: repeating-linear-gradient(
                 45deg,
                 transparent,
                 transparent 2px,
-                rgba(255, 255, 255, 0.5) 2px,
-                rgba(255, 255, 255, 0.5) 4px
+                rgba(255,255,255,0.6) 2px,
+                rgba(255,255,255,0.6) 4px
             );
-            z-index: 0;
+            border-radius: var(--radius);
         }
-        .vest-card > * { position: relative; z-index: 1; }
+        .vest-card > * { position: relative; z-index: 3; }
+
+        .vest-card:hover {
+            transform: perspective(600px) rotateY(4deg) rotateX(2deg) translateY(-8px);
+            border-color: var(--gold-light);
+            border-left-color: var(--gold);
+            box-shadow:
+                0 0 25px rgba(201,160,80,0.35),
+                0 0 50px rgba(201,160,80,0.15),
+                0 20px 40px rgba(0,0,0,0.5),
+                0 0 0 1px rgba(201,160,80,0.2);
+        }
+        .vest-card:hover::before {
+            background-position: 120% 0;
+        }
+
+        .vest-card.not-owner {
+            border-left-color: rgba(200,50,50,0.5);
+        }
+        .vest-card.not-owner:hover {
+            border-left-color: var(--red-light);
+        }
+        .vest-card.claimed {
+            border-left-color: rgba(138,135,128,0.5);
+            opacity: 0.6;
+            filter: saturate(0.3);
+            transform: none;
+        }
+        .vest-card.claimed:hover {
+            transform: translateY(-2px);
+            border-left-color: var(--text-dim);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .vest-card.claimed::before { display: none; }
 
         .vest-progress { width: 100%; height: 6px; background: #1a1a24; border-radius: 3px; margin: 10px 0; overflow: hidden; }
         .vest-progress-bar { height: 100%; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); border-radius: 3px; transition: width 0.3s ease; }
@@ -700,7 +805,6 @@
                     if(isCompletedView || lock.withdrawn){ btnHTML='<button class="btn-claim" disabled>已领取</button>'; }
                     else if(!lock.isOwner && view==='all'){ notOwnerHTML='<div class="btn-claim-not-owner">这不是您的锁仓无法领取哦！</div>'; }
                     else { btnHTML = (now >= lock.unlockTime ? `<button class="btn-claim" id="btnLock${lock.id}"><span class="spinner"></span><span class="btn-text">🔥 立即领取</span></button>` : '<button class="btn-claim" disabled>剩余 <span class="lock-countdown"></span></button>'); }
-                    // 所有卡片均显示印章
                     const sealHTML = `<div class="card-seal ${lock.isOwner ? 'seal-self' : 'seal-other'}">${lock.isOwner ? '本人' : '他人'}</div>`;
                     return `<div class="lock-card ${(isCompletedView||lock.withdrawn)?'claimed':''} ${!lock.isOwner&&view==='all'?'not-owner':''}" data-lock-id="${lock.id}">${sealHTML}<div class="lock-card-header"><span class="lock-id">${addrDisplay}</span><span class="lock-status ${statusClass}">${sHTML}</span></div><div class="lock-amount"><span class="amount-num">${da}</span><span class="amount-unit">枚</span> <span class="lock-token">${escapeHtml(lock.symbol)}</span></div><div class="lock-time">📅 解锁时间：${ud}</div><div class="lock-countdown"></div>${btnHTML}${notOwnerHTML}</div>`;
                 }).join('');
@@ -749,7 +853,6 @@
                     if(isCompletedView || isFullyReleased){ btnHTML='<button class="btn-claim-vest" disabled>已全部释放</button>'; }
                     else if(!vest.isOwner && view==='all'){ if(isCliff){ btnHTML=`<button class="btn-claim-vest" disabled>⏳ 释放倒计时 ${formatCountdown(vest.cliffTime-now)}</button>`; notOwnerHTML='<div class="btn-claim-not-owner" style="display:none;">这不是您的锁仓无法领取哦！</div>'; } else { btnHTML='<button class="btn-claim-vest" style="display:none;"></button>'; notOwnerHTML='<div class="btn-claim-not-owner">这不是您的锁仓无法领取哦！</div>'; } }
                     else { btnHTML=`<button class="btn-claim-vest" id="btnVest${vest.id}" disabled>⏳ ...</button>`; }
-                    // 所有卡片均显示印章，并根据是否已完成决定是否添加 claimed 类
                     const sealHTML = `<div class="card-seal ${vest.isOwner ? 'seal-self' : 'seal-other'}">${vest.isOwner ? '本人' : '他人'}</div>`;
                     return `<div class="vest-card ${(isCompletedView||isFullyReleased)?'claimed':''} ${!vest.isOwner&&view==='all'?'not-owner':''}" data-vest-id="${vest.id}">${sealHTML}<div class="lock-card-header"><span class="lock-id">${addrDisplay}</span><span class="lock-status ${statusClass}">${statusText}</span></div><div class="lock-amount"><span class="amount-num">${total.toLocaleString('zh-CN',{maximumFractionDigits:2})}</span><span class="amount-unit">枚</span> <span class="lock-token">${escapeHtml(vest.symbol)}</span></div><div style="font-size:0.8rem;color:var(--text-dim);">已领取：${released.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${escapeHtml(vest.symbol)}</div><div class="vest-progress"><div class="vest-progress-bar" style="width:${progress.toFixed(1)}%;"></div></div><div class="vest-progress-text" style="font-size:0.7rem;color:var(--text-dim);">释放进度：${progress.toFixed(1)}%</div><div class="vest-available" style="font-size:0.8rem;color:var(--gold-light);margin-top:2px;">可领取：${unlockable.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${escapeHtml(vest.symbol)}</div><div class="vest-note">过悬崖期后可线性释放！</div><div class="lock-time">📅 悬崖期结束：${formatDateTime(vest.cliffTime)}</div><div class="lock-time">📅 预计释放完成日期：${formatDateTime(vest.endTime)}</div>${btnHTML}${notOwnerHTML}</div>`;
                 }).join('');
