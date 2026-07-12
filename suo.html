@@ -153,6 +153,9 @@
         .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
         .empty-state p { letter-spacing: 2px; font-size: 0.9rem; }
 
+        .skeleton { background: linear-gradient(90deg, var(--border) 25%, var(--bg-card) 50%, var(--border) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--radius); }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
         @media (max-width: 480px) {
             .navbar { flex-direction: column; align-items: flex-start; }
             .btn-connect { width: 100%; justify-content: center; }
@@ -183,7 +186,10 @@
                 <button data-view="allCompleted">✅ 全网已完成 (<span id="allLockCompletedCount">0</span>)</button>
                 <button data-view="personalCompleted">✅ 个人已完成 (<span id="personalLockCompletedCount">0</span>)</button>
             </div>
-            <div id="lockList" class="lock-grid"><div class="empty-state"><div class="icon">🔗</div><p>请连接钱包查看您的锁仓记录</p></div></div>
+            <div id="lockList" class="lock-grid">
+                <div class="lock-card skeleton" style="height:200px;"></div>
+                <div class="lock-card skeleton" style="height:200px;"></div>
+            </div>
         </section>
 
         <section style="padding: 10px 0 40px;">
@@ -194,14 +200,16 @@
                 <button data-view="allCompleted">✅ 全网已完成 (<span id="allCompletedCount">0</span>)</button>
                 <button data-view="personalCompleted">✅ 个人已完成 (<span id="personalCompletedCount">0</span>)</button>
             </div>
-            <div id="vestList" class="lock-grid"><div class="empty-state"><div class="icon">⏳</div><p>请连接钱包查看线性释放记录</p></div></div>
+            <div id="vestList" class="lock-grid">
+                <div class="vest-card skeleton" style="height:220px;"></div>
+                <div class="vest-card skeleton" style="height:220px;"></div>
+            </div>
         </section>
         <footer style="text-align:center;padding:24px 0;border-top:1px solid var(--border);color:var(--text-dim);font-size:0.75rem;letter-spacing:2px;">© 2026 铁军招募计划 · Powered by Smart Contract · BSC Testnet</footer>
     </div>
 
-    <!-- ethers.js：本地优先，否则 CDN -->
     <script>
-        var localEthers = true;   // 改为 true 使用本地文件
+        var localEthers = true;
         if (localEthers) {
             document.write('<script src="./ethers.umd.min.js"><\/script>');
         } else {
@@ -214,10 +222,12 @@
             const CONTRACT_ADDRESS = '0x3d4F23636A149930EAa69a4ACaba50fd8E1Eb1Ed';
             const CHAIN_ID = 97; const CHAIN_ID_HEX = '0x61';
             const RPC_URLS = [
-    'https://bsc-testnet-rpc.publicnode.com',
-    'https://bsc-testnet.nodereal.io/v1/64a9df0874fb4a93b9d0a3849de012d3',
-    'https://data-seed-prebsc-1-s1.binance.org:8545/'
-];
+                'https://bsc-testnet-rpc.publicnode.com',
+                'https://bsc-testnet.nodereal.io/v1/64a9df0874fb4a93b9d0a3849de012d3',
+                'https://data-seed-prebsc-1-s1.binance.org:8545/',
+                'https://data-seed-prebsc-2-s1.binance.org:8545/',
+                'https://bsc-testnet.binance.org/'
+            ];
             const MULTICALL = '0xca11bde05977b3631167028862be2a173976ca11';
             const MULTICALL_ABI = ["function aggregate3(tuple(address target, bool allowFailure, bytes callData)[] calls) view returns (tuple(bool success, bytes returnData)[])"];
             const CONTRACT_ABI = [
@@ -228,8 +238,10 @@
             ];
 
             let provider, signer, contract, userAddress;
-            let isClaiming = false, timerInterval, isTimerRunning = false, totalRefreshCounter = 0;
-            const TOTAL_REFRESH_INTERVAL = 15;
+            let isClaiming = false, isTimerRunning = false;
+            let lastTick = 0;
+            const TOTAL_REFRESH_INTERVAL = 60; // 60秒刷新总锁仓
+            let totalRefreshCounter = 0;
 
             const dataStore = {
                 lock: { all: [], personal: [], allCompleted: [], personalCompleted: [] },
@@ -252,13 +264,14 @@
             function showToast(m, t='') { const to = document.createElement('div'); to.className = `toast ${t}`; to.textContent = m; to.addEventListener('click', ()=>to.remove()); setTimeout(() => { if(to.parentNode) to.remove(); }, 3000); toastContainer.appendChild(to); }
 
             async function getFastestProvider() {
-                const promises = RPC_URLS.map(url => {
-                    const p = new ethers.providers.JsonRpcProvider(url);
-                    return p.getNetwork().then(() => p).catch(() => null);
+                return new Promise((resolve, reject) => {
+                    let settled = false;
+                    RPC_URLS.forEach(url => {
+                        const p = new ethers.providers.JsonRpcProvider(url);
+                        p.getNetwork().then(() => { if (!settled) { settled = true; resolve(p); } }).catch(() => {});
+                    });
+                    setTimeout(() => { if (!settled) reject(new Error('所有 RPC 节点不可用')); }, 3000);
                 });
-                const results = await Promise.all(promises);
-                for (const p of results) { if (p) return p; }
-                throw new Error('所有 RPC 节点不可用');
             }
 
             window.toggleWallet = () => userAddress ? disconnectWallet() : connectWallet(true);
@@ -292,8 +305,16 @@
             }
 
             function updateWalletUI() { if(userAddress){ btnConnect.classList.add('connected'); btnConnectText.textContent = formatAddress(userAddress); } else { btnConnect.classList.remove('connected'); btnConnectText.textContent = '连接钱包'; } }
-            function clearTimer() { if(timerInterval){ clearInterval(timerInterval); timerInterval = null; } isTimerRunning = false; }
-            function startTimer() { if(isTimerRunning) return; clearTimer(); timerInterval = setInterval(updateAllCards, 1000); isTimerRunning = true; }
+            function clearTimer() { isTimerRunning = false; }
+            function startTimer() { if (isTimerRunning) return; isTimerRunning = true; requestAnimationFrame(tick); }
+            function tick(now) {
+                if (!isTimerRunning) return;
+                if (!lastTick || now - lastTick >= 1000) {
+                    lastTick = now;
+                    updateAllCards();
+                }
+                requestAnimationFrame(tick);
+            }
 
             document.getElementById('lockViewToggle').addEventListener('click', e => {
                 const btn = e.target.closest('button[data-view]'); if(!btn) return;
@@ -309,10 +330,8 @@
             });
 
             window.refreshTotalLocked = async function() {
-                if(!userAddress && !provider){ try { await loadTotalLocked(await getFastestProvider()); } catch(e){ totalLockedEl.textContent='加载失败'; totalLockedSubEl.textContent='请稍后重试'; } }
-                else { await refreshTotalLocked(); }
+                try { await loadTotalLocked(await getFastestProvider()); } catch(e){ totalLockedEl.textContent='加载失败'; totalLockedSubEl.textContent='请稍后重试'; }
             };
-            async function refreshTotalLocked() { if(!userAddress) return; try { await loadTotalLocked(await getFastestProvider()); } catch(e) { totalLockedEl.textContent='加载失败'; } }
 
             function updateAllCards() {
                 const now = Math.floor(Date.now()/1000);
@@ -321,31 +340,34 @@
                 updateVestCards(now);
             }
 
+            // ----- 数据驱动更新：使用存储的 DOM 引用 -----
             function updateLockCards(now) {
                 const view = dataStore.currentView.lock;
                 const source = dataStore.lock[view] || [];
                 const isCompletedView = view.includes('Completed');
                 source.forEach(lock => {
-                    const card = document.querySelector(`.lock-card[data-lock-id="${lock.id}"]`); if(!card) return;
-                    const remaining = lock.unlockTime - now;
-                    const statusEl = card.querySelector('.lock-status');
-                    const countdownEl = card.querySelector('.lock-countdown');
-                    const btnEl = card.querySelector('.btn-claim');
-                    const notOwnerEl = card.querySelector('.btn-claim-not-owner');
+                    const els = lock._els;
+                    if (!els || !els.card || !document.contains(els.card)) return;
                     if(isCompletedView || lock.withdrawn) {
-                        if(btnEl){ btnEl.style.display='flex'; btnEl.disabled=true; btnEl.textContent='已领取'; }
-                        if(notOwnerEl) notOwnerEl.style.display='none';
-                        if(statusEl){ statusEl.className='lock-status status-claimed'; statusEl.textContent='✅ 已领取'; }
-                        if(countdownEl) countdownEl.textContent = '';
+                        if(els.btn){ els.btn.style.display='flex'; els.btn.disabled=true; els.btn.textContent='已领取'; }
+                        if(els.notOwner) els.notOwner.style.display='none';
+                        if(els.status){ els.status.className='lock-status status-claimed'; els.status.textContent='✅ 已领取'; }
+                        if(els.countdown) els.countdown.textContent = '';
                     } else if(!lock.isOwner && view === 'all') {
-                        if(btnEl) btnEl.style.display='none';
-                        if(notOwnerEl){ notOwnerEl.style.display='block'; notOwnerEl.textContent='这不是您的锁仓无法领取哦！'; }
-                        if(remaining <= 0){ if(statusEl){ statusEl.className='lock-status status-ready'; statusEl.textContent='⚡ 可领取'; } if(countdownEl) countdownEl.textContent=''; }
-                        else { updateCountdown(remaining, statusEl, countdownEl); if(btnEl) btnEl.disabled = true; }
+                        if(els.btn) els.btn.style.display='none';
+                        if(els.notOwner){ els.notOwner.style.display='block'; els.notOwner.textContent='这不是您的锁仓无法领取哦！'; }
+                        if(lock.unlockTime <= now){ if(els.status){ els.status.className='lock-status status-ready'; els.status.textContent='⚡ 可领取'; } if(els.countdown) els.countdown.textContent=''; }
+                        else { updateCountdown(lock.unlockTime - now, els.status, els.countdown); if(els.btn) els.btn.disabled = true; }
                     } else {
-                        if(notOwnerEl) notOwnerEl.style.display='none';
-                        if(remaining <= 0){ if(statusEl){ statusEl.className='lock-status status-ready'; statusEl.textContent='⚡ 可领取'; } if(countdownEl) countdownEl.textContent=''; if(btnEl && !isClaiming){ btnEl.style.display='flex'; btnEl.disabled=false; btnEl.innerHTML='<span class="spinner"></span><span class="btn-text">🔥 立即领取</span>'; btnEl.onclick=()=>claimLock(lock.id); } }
-                        else { updateCountdown(remaining, statusEl, countdownEl); if(btnEl){ btnEl.style.display='flex'; btnEl.disabled=true; } }
+                        if(els.notOwner) els.notOwner.style.display='none';
+                        if(lock.unlockTime <= now){
+                            if(els.status){ els.status.className='lock-status status-ready'; els.status.textContent='⚡ 可领取'; }
+                            if(els.countdown) els.countdown.textContent='';
+                            if(els.btn && !isClaiming){ els.btn.style.display='flex'; els.btn.disabled=false; els.btn.innerHTML='<span class="spinner"></span><span class="btn-text">🔥 立即领取</span>'; els.btn.onclick=()=>claimLock(lock.id); }
+                        } else {
+                            updateCountdown(lock.unlockTime - now, els.status, els.countdown);
+                            if(els.btn){ els.btn.style.display='flex'; els.btn.disabled=true; }
+                        }
                     }
                 });
             }
@@ -355,37 +377,41 @@
                 const source = dataStore.vest[view] || [];
                 const isCompletedView = view.includes('Completed');
                 source.forEach(vest => {
-                    const card = document.querySelector(`.vest-card[data-vest-id="${vest.id}"]`); if(!card) return;
-                    const progressBar = card.querySelector('.vest-progress-bar');
-                    const progressText = card.querySelector('.vest-progress-text');
-                    const statusEl = card.querySelector('.lock-status');
-                    const btnEl = card.querySelector('.btn-claim-vest');
-                    const notOwnerEl = card.querySelector('.btn-claim-not-owner');
-                    const availableEl = card.querySelector('.vest-available');
+                    const els = vest._els;
+                    if (!els || !els.card || !document.contains(els.card)) return;
                     let progress = 0, isCliff = now < vest.cliffTime;
                     if(now >= vest.cliffTime){ const tp = vest.endTime - vest.cliffTime; const rt = Math.min(now - vest.cliffTime, tp); progress = tp>0 ? (rt/tp)*100 : 100; }
                     progress = Math.min(100, Math.max(0, progress));
-                    if(progressBar) progressBar.style.width = `${progress.toFixed(1)}%`;
-                    if(progressText) progressText.textContent = `释放进度：${progress.toFixed(1)}%`;
+                    if(els.progressBar) els.progressBar.style.width = `${progress.toFixed(1)}%`;
+                    if(els.progressText) els.progressText.textContent = `释放进度：${progress.toFixed(1)}%`;
                     const total = parseFloat(ethers.utils.formatUnits(vest.totalAmount, vest.decimals));
                     const released = parseFloat(ethers.utils.formatUnits(vest.released, vest.decimals));
                     let unlockable = 0;
                     if(now >= vest.cliffTime){ const el = now - vest.cliffTime; const tp = vest.endTime - vest.cliffTime; const ve = tp>0 ? (total*el)/tp : total; unlockable = Math.max(0, ve - released); if(unlockable > total - released) unlockable = total - released; }
-                    if(availableEl) availableEl.textContent = `可领取：${unlockable.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${vest.symbol}`;
+                    if(els.available) els.available.textContent = `可领取：${unlockable.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${vest.symbol}`;
                     const isFullyReleased = vest.released.gte(vest.totalAmount), isOwner = vest.isOwner;
-                    if(statusEl){ if(isCompletedView || isFullyReleased || progress >= 100){ statusEl.className='lock-status status-ready'; statusEl.textContent='✅ 已完全释放'; } else if(isCliff){ statusEl.className='lock-status status-cliff'; statusEl.textContent='🔒 悬崖期锁定中'; } else { statusEl.className='lock-status status-waiting'; statusEl.textContent='📈 释放中'; } }
-                    if(isCompletedView || isFullyReleased){ if(btnEl){ btnEl.style.display='flex'; btnEl.disabled=true; btnEl.textContent='已全部释放'; } if(notOwnerEl) notOwnerEl.style.display='none'; }
-                    else if(!isOwner && view === 'all'){
-                        if(isCliff){ 
-                            if(btnEl){ btnEl.style.display='flex'; btnEl.disabled=true; btnEl.textContent=`⏳ 释放倒计时 ${formatCountdown(vest.cliffTime-now)}`; } 
-                            if(notOwnerEl) notOwnerEl.style.display='none'; 
-                        } else { 
-                            if(btnEl) btnEl.style.display='none'; 
-                            if(notOwnerEl){ notOwnerEl.style.display='block'; notOwnerEl.textContent='这不是您的锁仓无法领取哦！'; } 
+                    if(els.status){ if(isCompletedView || isFullyReleased || progress >= 100){ els.status.className='lock-status status-ready'; els.status.textContent='✅ 已完全释放'; } else if(isCliff){ els.status.className='lock-status status-cliff'; els.status.textContent='🔒 悬崖期锁定中'; } else { els.status.className='lock-status status-waiting'; els.status.textContent='📈 释放中'; } }
+                    if(isCompletedView || isFullyReleased){
+                        if(els.btn){ els.btn.style.display='flex'; els.btn.disabled=true; els.btn.textContent='已全部释放'; }
+                        if(els.notOwner) els.notOwner.style.display='none';
+                    } else if(!isOwner && view === 'all'){
+                        if(isCliff){
+                            if(els.btn){ els.btn.style.display='flex'; els.btn.disabled=true; els.btn.textContent=`⏳ 释放倒计时 ${formatCountdown(vest.cliffTime-now)}`; }
+                            if(els.notOwner) els.notOwner.style.display='none';
+                        } else {
+                            if(els.btn) els.btn.style.display='none';
+                            if(els.notOwner){ els.notOwner.style.display='block'; els.notOwner.textContent='这不是您的锁仓无法领取哦！'; }
                         }
-                    } else { 
-                        if(notOwnerEl) notOwnerEl.style.display='none'; 
-                        if(btnEl){ btnEl.style.display='flex'; const canClaim = !isCliff && !isFullyReleased && (now >= vest.endTime || vest.released.eq(0) || now >= vest.lastClaimTime + vest.releaseInterval); if(isFullyReleased){ btnEl.disabled=true; btnEl.textContent='✅ 已全部释放'; } else if(canClaim){ btnEl.disabled=false; btnEl.textContent='🔥 领取代币'; btnEl.onclick=()=>claimVest(vest.id); } else if(isCliff){ btnEl.disabled=true; btnEl.textContent=`⏳ 释放倒计时 ${formatCountdown(vest.cliffTime-now)}`; } else { btnEl.disabled=true; btnEl.textContent=`⏳ 下次可领：${formatDateTime(vest.lastClaimTime + vest.releaseInterval)}`; } } 
+                    } else {
+                        if(els.notOwner) els.notOwner.style.display='none';
+                        if(els.btn){
+                            els.btn.style.display='flex';
+                            const canClaim = !isCliff && !isFullyReleased && (now >= vest.endTime || vest.released.eq(0) || now >= vest.lastClaimTime + vest.releaseInterval);
+                            if(isFullyReleased){ els.btn.disabled=true; els.btn.textContent='✅ 已全部释放'; }
+                            else if(canClaim){ els.btn.disabled=false; els.btn.textContent='🔥 领取代币'; els.btn.onclick=()=>claimVest(vest.id); }
+                            else if(isCliff){ els.btn.disabled=true; els.btn.textContent=`⏳ 释放倒计时 ${formatCountdown(vest.cliffTime-now)}`; }
+                            else { els.btn.disabled=true; els.btn.textContent=`⏳ 下次可领：${formatDateTime(vest.lastClaimTime + vest.releaseInterval)}`; }
+                        }
                     }
                 });
             }
@@ -401,18 +427,192 @@
             function buildCalls(ca,abi,m,pl){ const iface = new ethers.utils.Interface(abi); return pl.map(ps=>({target:ca,allowFailure:true,callData:iface.encodeFunctionData(m,ps)})); }
             function decodeResults(r,abi,m){ const iface = new ethers.utils.Interface(abi); return r.map(rr=>rr.success?iface.decodeFunctionResult(m,rr.returnData):null); }
 
-            async function loadAllData(){ const rp = await getFastestProvider(); try { await Promise.all([loadTotalLocked(rp), loadLocks(rp), loadVests(rp)]); } catch(e){ const bk = new ethers.providers.JsonRpcProvider(RPC_URLS[1]); await Promise.all([loadTotalLocked(bk), loadLocks(bk), loadVests(bk)]); } }
+            // 合并锁仓与线性释放的 Multicall 请求
+            async function loadAllData(){
+                const rp = await getFastestProvider();
+                try {
+                    const lc = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, rp);
+                    const [lcB, vcB] = await Promise.all([lc.lockCount(), lc.vestCount()]);
+                    const lockCount = lcB.toNumber(), vestCount = vcB.toNumber();
+                    const lockCalls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenLocks', Array.from({length: lockCount}, (_,i)=>[i+1]));
+                    const vestCalls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenVests', Array.from({length: vestCount}, (_,i)=>[i+1]));
+                    const allCalls = [...lockCalls, ...vestCalls];
+                    const results = await multicall(rp, allCalls);
+                    const lockResults = results.slice(0, lockCount);
+                    const vestResults = results.slice(lockCount);
+                    const locks = decodeResults(lockResults, CONTRACT_ABI, 'tokenLocks');
+                    const vests = decodeResults(vestResults, CONTRACT_ABI, 'tokenVests');
+                    await Promise.all([
+                        loadTotalLocked(rp),  // 总锁仓独立计算
+                        processLocks(locks, rp),
+                        processVests(vests, rp)
+                    ]);
+                } catch(e){
+                    const backup = new ethers.providers.JsonRpcProvider(RPC_URLS[1]);
+                    const lc = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, backup);
+                    const [lcB, vcB] = await Promise.all([lc.lockCount(), lc.vestCount()]);
+                    const lockCount = lcB.toNumber(), vestCount = vcB.toNumber();
+                    const lockCalls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenLocks', Array.from({length: lockCount}, (_,i)=>[i+1]));
+                    const vestCalls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenVests', Array.from({length: vestCount}, (_,i)=>[i+1]));
+                    const allCalls = [...lockCalls, ...vestCalls];
+                    const results = await multicall(backup, allCalls);
+                    const lockResults = results.slice(0, lockCount);
+                    const vestResults = results.slice(lockCount);
+                    const locks = decodeResults(lockResults, CONTRACT_ABI, 'tokenLocks');
+                    const vests = decodeResults(vestResults, CONTRACT_ABI, 'tokenVests');
+                    await Promise.all([loadTotalLocked(backup), processLocks(locks, backup), processVests(vests, backup)]);
+                }
+            }
+
+            async function processLocks(locks, p){
+                const allTokens = new Set();
+                const raw = [];
+                locks.forEach((l, idx) => {
+                    if(!l || !l.beneficiary || l.beneficiary === ethers.constants.AddressZero) return;
+                    const isOwner = userAddress && l.beneficiary.toLowerCase() === userAddress.toLowerCase();
+                    raw.push({ id: idx+1, token: l.token, amount: l.amount, unlockTime: l.unlockTime.toNumber(), withdrawn: l.withdrawn, isOwner, beneficiary: l.beneficiary });
+                    allTokens.add(l.token.toLowerCase());
+                });
+                const tim = await fetchTokenInfos(p, Array.from(allTokens));
+                const grouped = { all:[], personal:[], allCompleted:[], personalCompleted:[] };
+                raw.forEach(l => {
+                    const info = tim[l.token.toLowerCase()] || {symbol:'TOKEN', decimals:18};
+                    l.symbol = info.symbol; l.decimals = info.decimals;
+                    if(l.withdrawn){ grouped.allCompleted.push(l); if(l.isOwner) grouped.personalCompleted.push(l); }
+                    else { grouped.all.push(l); if(l.isOwner) grouped.personal.push(l); }
+                });
+                Object.keys(grouped).forEach(k => { dataStore.lock[k] = grouped[k].sort((a,b)=>a.id-b.id); });
+                updateCountDisplays('lock');
+                renderLockCards();
+            }
+
+            function renderLockCards(){
+                const view = dataStore.currentView.lock;
+                const source = dataStore.lock[view] || [];
+                if(source.length === 0){ lockListEl.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>暂无记录</p></div>'; return; }
+                const isCompletedView = view.includes('Completed');
+                const now = Math.floor(Date.now()/1000);
+                lockListEl.innerHTML = source.map(lock => {
+                    const da = parseFloat(ethers.utils.formatUnits(lock.amount, lock.decimals)).toLocaleString('zh-CN',{maximumFractionDigits:2});
+                    const ud = formatDateTime(lock.unlockTime);
+                    const addrDisplay = formatAddress(lock.beneficiary);
+                    const isOwner = lock.isOwner;
+                    let sHTML, statusClass;
+                    if(isCompletedView || lock.withdrawn){ sHTML='✅ 已领取'; statusClass='status-claimed'; }
+                    else if(now >= lock.unlockTime){ sHTML='⚡ 可领取'; statusClass='status-ready'; }
+                    else { sHTML='⏳ 等待解锁'; statusClass='status-waiting'; }
+                    let btnHTML='', notOwnerHTML='';
+                    if(isCompletedView || lock.withdrawn){ btnHTML='<button class="btn-claim" disabled>已领取</button>'; }
+                    else if(!isOwner && view==='all'){ notOwnerHTML='<div class="btn-claim-not-owner">这不是您的锁仓无法领取哦！</div>'; }
+                    else { btnHTML = (now >= lock.unlockTime ? `<button class="btn-claim" id="btnLock${lock.id}"><span class="spinner"></span><span class="btn-text">🔥 立即领取</span></button>` : '<button class="btn-claim" disabled>剩余 <span class="lock-countdown"></span></button>'); }
+                    return `<div class="lock-card ${(isCompletedView||lock.withdrawn)?'claimed':''} ${!isOwner&&view==='all'?'not-owner':''}" data-lock-id="${lock.id}">
+                        <div class="lock-card-header"><span class="lock-id">${addrDisplay}</span><span class="lock-status ${statusClass}">${sHTML}</span></div>
+                        <div class="lock-amount"><span class="amount-num">${da}</span><span class="amount-unit">枚</span> <span class="lock-token">${lock.symbol}</span></div>
+                        <div class="lock-time">📅 解锁时间：${ud}</div>
+                        <div class="lock-countdown"></div>
+                        ${btnHTML}${notOwnerHTML}
+                    </div>`;
+                }).join('');
+                // 缓存 DOM 元素引用
+                source.forEach(lock => {
+                    const card = document.querySelector(`.lock-card[data-lock-id="${lock.id}"]`);
+                    if (card) {
+                        lock._els = {
+                            card,
+                            status: card.querySelector('.lock-status'),
+                            countdown: card.querySelector('.lock-countdown'),
+                            btn: card.querySelector('.btn-claim'),
+                            notOwner: card.querySelector('.btn-claim-not-owner')
+                        };
+                    }
+                });
+                updateAllCards();
+            }
+
+            async function processVests(vests, p){
+                const allTokens = new Set();
+                const raw = [];
+                vests.forEach((v, idx) => {
+                    if(!v || !v.beneficiary || v.beneficiary === ethers.constants.AddressZero) return;
+                    const isOwner = userAddress && v.beneficiary.toLowerCase() === userAddress.toLowerCase();
+                    const isCompleted = v.released.gte(v.totalAmount);
+                    raw.push({ id: idx+1, token: v.token, totalAmount: v.totalAmount, cliffTime: v.cliffTime.toNumber(), endTime: v.endTime.toNumber(), releaseInterval: v.releaseInterval.toNumber(), lastClaimTime: v.lastClaimTime.toNumber(), released: v.released, isOwner, isCompleted, beneficiary: v.beneficiary });
+                    allTokens.add(v.token.toLowerCase());
+                });
+                const tim = await fetchTokenInfos(p, Array.from(allTokens));
+                const grouped = { all:[], personal:[], allCompleted:[], personalCompleted:[] };
+                raw.forEach(v => {
+                    const info = tim[v.token.toLowerCase()] || {symbol:'TOKEN', decimals:18};
+                    v.symbol = info.symbol; v.decimals = info.decimals;
+                    if(v.isCompleted){ grouped.allCompleted.push(v); if(v.isOwner) grouped.personalCompleted.push(v); }
+                    else { grouped.all.push(v); if(v.isOwner) grouped.personal.push(v); }
+                });
+                Object.keys(grouped).forEach(k => { dataStore.vest[k] = grouped[k].sort((a,b)=>a.id-b.id); });
+                updateCountDisplays('vest');
+                renderVestCards();
+            }
+
+            function renderVestCards(){
+                const view = dataStore.currentView.vest;
+                const source = dataStore.vest[view] || [];
+                if(source.length === 0){ vestListEl.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>暂无记录</p></div>'; return; }
+                const isCompletedView = view.includes('Completed');
+                const now = Math.floor(Date.now()/1000);
+                vestListEl.innerHTML = source.map(vest => {
+                    const total = parseFloat(ethers.utils.formatUnits(vest.totalAmount, vest.decimals));
+                    const released = parseFloat(ethers.utils.formatUnits(vest.released, vest.decimals));
+                    let progress = 0, isCliff = now < vest.cliffTime;
+                    if(now >= vest.cliffTime){ const tp = vest.endTime - vest.cliffTime; const rt = Math.min(now - vest.cliffTime, tp); progress = tp>0 ? (rt/tp)*100 : 100; }
+                    progress = Math.min(100, Math.max(0, progress));
+                    const isFullyReleased = vest.released.gte(vest.totalAmount) || isCompletedView;
+                    const addrDisplay = formatAddress(vest.beneficiary);
+                    const isOwner = vest.isOwner;
+                    let unlockable = 0;
+                    if(now >= vest.cliffTime){ const el = now - vest.cliffTime; const tp = vest.endTime - vest.cliffTime; const ve = tp>0 ? (total*el)/tp : total; unlockable = Math.max(0, ve - released); if(unlockable > total - released) unlockable = total - released; }
+                    let statusText='', statusClass='';
+                    if(isCompletedView || isFullyReleased || progress >= 100){ statusText='✅ 已完全释放'; statusClass='status-ready'; }
+                    else if(isCliff){ statusText='🔒 悬崖期锁定中'; statusClass='status-cliff'; }
+                    else { statusText='📈 释放中'; statusClass='status-waiting'; }
+                    let btnHTML='', notOwnerHTML='';
+                    if(isCompletedView || isFullyReleased){ btnHTML='<button class="btn-claim-vest" disabled>已全部释放</button>'; }
+                    else if(!isOwner && view==='all'){
+                        if(isCliff){ btnHTML=`<button class="btn-claim-vest" disabled>⏳ 释放倒计时 ${formatCountdown(vest.cliffTime-now)}</button>`; notOwnerHTML='<div class="btn-claim-not-owner" style="display:none;">这不是您的锁仓无法领取哦！</div>'; }
+                        else { btnHTML='<button class="btn-claim-vest" style="display:none;"></button>'; notOwnerHTML='<div class="btn-claim-not-owner">这不是您的锁仓无法领取哦！</div>'; }
+                    } else { btnHTML=`<button class="btn-claim-vest" id="btnVest${vest.id}" disabled>⏳ ...</button>`; }
+                    return `<div class="vest-card ${!isOwner&&view==='all'?'not-owner':''}" data-vest-id="${vest.id}">
+                        <div class="lock-card-header"><span class="lock-id">${addrDisplay}</span><span class="lock-status ${statusClass}">${statusText}</span></div>
+                        <div class="lock-amount"><span class="amount-num">${total.toLocaleString('zh-CN',{maximumFractionDigits:2})}</span><span class="amount-unit">枚</span> <span class="lock-token">${vest.symbol}</span></div>
+                        <div style="font-size:0.8rem;color:var(--text-dim);">已领取：${released.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${vest.symbol}</div>
+                        <div class="vest-progress"><div class="vest-progress-bar" style="width:${progress.toFixed(1)}%;"></div></div>
+                        <div class="vest-progress-text" style="font-size:0.7rem;color:var(--text-dim);">释放进度：${progress.toFixed(1)}%</div>
+                        <div class="vest-available" style="font-size:0.8rem;color:var(--gold-light);margin-top:2px;">可领取：${unlockable.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${vest.symbol}</div>
+                        <div class="vest-note">过悬崖期后可线性释放！</div>
+                        <div class="lock-time">📅 悬崖期结束：${formatDateTime(vest.cliffTime)}</div>
+                        <div class="lock-time">📅 预计释放完成日期：${formatDateTime(vest.endTime)}</div>
+                        ${btnHTML}${notOwnerHTML}
+                    </div>`;
+                }).join('');
+                // 缓存 DOM 元素引用
+                source.forEach(vest => {
+                    const card = document.querySelector(`.vest-card[data-vest-id="${vest.id}"]`);
+                    if (card) {
+                        vest._els = {
+                            card,
+                            progressBar: card.querySelector('.vest-progress-bar'),
+                            progressText: card.querySelector('.vest-progress-text'),
+                            status: card.querySelector('.lock-status'),
+                            btn: card.querySelector('.btn-claim-vest'),
+                            notOwner: card.querySelector('.btn-claim-not-owner'),
+                            available: card.querySelector('.vest-available')
+                        };
+                    }
+                });
+                updateAllCards();
+            }
+
             async function fetchTokenInfos(p,addrs){ const unc=[]; const rm={}; for(const a of addrs){ const c=getCachedTokenInfo(a); if(c){ rm[a]=c; } else { unc.push(a); } } if(unc.length>0){ const sc=unc.map(a=>({target:a,allowFailure:true,callData:new ethers.utils.Interface(['function symbol() view returns (string)']).encodeFunctionData('symbol')})); const dc=unc.map(a=>({target:a,allowFailure:true,callData:new ethers.utils.Interface(['function decimals() view returns (uint8)']).encodeFunctionData('decimals')})); const[sr,dr]=await Promise.all([multicall(p,sc),multicall(p,dc)]); const sd=new ethers.utils.Interface(['function symbol() view returns (string)']),dd=new ethers.utils.Interface(['function decimals() view returns (uint8)']); for(let i=0;i<unc.length;i++){ let sym='TOKEN',dec=18; if(sr[i].success) try{sym=sd.decodeFunctionResult('symbol',sr[i].returnData)[0];}catch(e){} if(dr[i].success) try{dec=dd.decodeFunctionResult('decimals',dr[i].returnData)[0];}catch(e){} const info={symbol:sym,decimals:dec}; rm[unc[i]]=info; setCachedTokenInfo(unc[i],info); } } return rm; }
 
             async function loadTotalLocked(p){ try{ const lc=new ethers.Contract(CONTRACT_ADDRESS,CONTRACT_ABI,p); const[lcB,vcB]=await Promise.all([lc.lockCount(),lc.vestCount()]); const tlc=lcB.toNumber(),tvc=vcB.toNumber(); if(tlc+tvc===0){ animateNumberUpdate(totalLockedEl,'0'); totalLockedSubEl.innerHTML='一次性锁仓 <span class="stat-num">0</span> 笔 · 线性锁仓释放 <span class="stat-num">0</span> 笔'; return; } const lCalls=buildCalls(CONTRACT_ADDRESS,CONTRACT_ABI,'tokenLocks',Array.from({length:tlc},(_,i)=>[i+1])); const vCalls=buildCalls(CONTRACT_ADDRESS,CONTRACT_ABI,'tokenVests',Array.from({length:tvc},(_,i)=>[i+1])); const[lRes,vRes]=await Promise.all([multicall(p,lCalls),multicall(p,vCalls)]); const locks=decodeResults(lRes,CONTRACT_ABI,'tokenLocks'),vests=decodeResults(vRes,CONTRACT_ABI,'tokenVests'); const ta={}; let alc=0,avc=0; const it=new Set(); locks.forEach(l=>{ if(l&&!l.withdrawn){ alc++; const a=l.token.toLowerCase(); it.add(a); if(!ta[a])ta[a]=ethers.BigNumber.from(0); ta[a]=ta[a].add(l.amount); } }); vests.forEach(v=>{ if(v&&v.released.lt(v.totalAmount)){ avc++; const rem=v.totalAmount.sub(v.released),a=v.token.toLowerCase(); it.add(a); if(!ta[a])ta[a]=ethers.BigNumber.from(0); ta[a]=ta[a].add(rem); } }); const tim=await fetchTokenInfos(p,Array.from(it)); const parts=[]; for(const[a,am] of Object.entries(ta)){ if(am.gt(0)){ const info=tim[a]||{symbol:'TOKEN',decimals:18}; const num=parseFloat(ethers.utils.formatUnits(am,info.decimals)); if(num>0)parts.push(num.toLocaleString('zh-CN',{maximumFractionDigits:2})); } } animateNumberUpdate(totalLockedEl,parts.length?parts.join(' + '):'0'); totalLockedSubEl.innerHTML=`一次性锁仓 <span class="stat-num">${alc}</span> 笔 · 线性锁仓释放 <span class="stat-num">${avc}</span> 笔`; }catch(e){ totalLockedEl.textContent='加载失败'; totalLockedSubEl.textContent='点击刷新重试'; } }
-
-            async function loadLocks(p){ try{ const lc=new ethers.Contract(CONTRACT_ADDRESS,CONTRACT_ABI,p); const lCount=(await lc.lockCount()).toNumber(); if(lCount===0){ lockListEl.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>暂无一次性锁仓记录</p></div>'; resetCounts('lock'); return; } const calls=buildCalls(CONTRACT_ADDRESS,CONTRACT_ABI,'tokenLocks',Array.from({length:lCount},(_,i)=>[i+1])); const res=await multicall(p,calls); const locks=decodeResults(res,CONTRACT_ABI,'tokenLocks'); const allTokens=new Set(); const raw=[]; locks.forEach((l,idx)=>{ if(!l||!l.beneficiary||l.beneficiary===ethers.constants.AddressZero)return; const isOwner=userAddress&&l.beneficiary.toLowerCase()===userAddress.toLowerCase(); raw.push({id:idx+1,token:l.token,amount:l.amount,unlockTime:l.unlockTime.toNumber(),withdrawn:l.withdrawn,isOwner,beneficiary:l.beneficiary}); allTokens.add(l.token.toLowerCase()); }); const tim=await fetchTokenInfos(p,Array.from(allTokens)); const grouped = { all:[], personal:[], allCompleted:[], personalCompleted:[] }; raw.forEach(l=>{ const info=tim[l.token.toLowerCase()]||{symbol:'TOKEN',decimals:18}; l.symbol=info.symbol; l.decimals=info.decimals; if(l.withdrawn){ grouped.allCompleted.push(l); if(l.isOwner) grouped.personalCompleted.push(l); } else { grouped.all.push(l); if(l.isOwner) grouped.personal.push(l); } }); Object.keys(grouped).forEach(k=>{ dataStore.lock[k]=grouped[k].sort((a,b)=>a.id-b.id); }); updateCountDisplays('lock'); renderLockCards(); updateAllCards(); }catch(e){ lockListEl.innerHTML='<div class="empty-state"><div class="icon">⚠️</div><p>加载失败，请刷新重试</p></div>'; } }
-
-            function renderLockCards(){ const view=dataStore.currentView.lock; const source=dataStore.lock[view]||[]; if(source.length===0){ lockListEl.innerHTML='<div class="empty-state"><div class="icon">🔍</div><p>暂无记录</p></div>'; return; } const isCompletedView=view.includes('Completed'); const now=Math.floor(Date.now()/1000); lockListEl.innerHTML=source.map(lock=>{ const da=parseFloat(ethers.utils.formatUnits(lock.amount,lock.decimals)).toLocaleString('zh-CN',{maximumFractionDigits:2}); const ud=formatDateTime(lock.unlockTime); const addrDisplay=formatAddress(lock.beneficiary); const isOwner=lock.isOwner; let sHTML,statusClass; if(isCompletedView||lock.withdrawn){ sHTML='✅ 已领取'; statusClass='status-claimed'; }else if(now>=lock.unlockTime){ sHTML='⚡ 可领取'; statusClass='status-ready'; }else{ sHTML='⏳ 等待解锁'; statusClass='status-waiting'; } let btnHTML='',notOwnerHTML=''; if(isCompletedView||lock.withdrawn){ btnHTML='<button class="btn-claim" disabled>已领取</button>'; }else if(!isOwner&&view==='all'){ notOwnerHTML='<div class="btn-claim-not-owner">这不是您的锁仓无法领取哦！</div>'; }else{ btnHTML=(now>=lock.unlockTime?`<button class="btn-claim" onclick="claimLock(${lock.id})" id="btnLock${lock.id}"><span class="spinner"></span><span class="btn-text">🔥 立即领取</span></button>`:'<button class="btn-claim" disabled>剩余 <span class="lock-countdown"></span></button>'); } return`<div class="lock-card ${(isCompletedView||lock.withdrawn)?'claimed':''} ${!isOwner&&view==='all'?'not-owner':''}" data-lock-id="${lock.id}"><div class="lock-card-header"><span class="lock-id">${addrDisplay}</span><span class="lock-status ${statusClass}">${sHTML}</span></div><div class="lock-amount"><span class="amount-num">${da}</span><span class="amount-unit">枚</span> <span class="lock-token">${lock.symbol}</span></div><div class="lock-time">📅 解锁时间：${ud}</div><div class="lock-countdown"></div>${btnHTML}${notOwnerHTML}</div>`; }).join(''); updateAllCards(); }
-
-            async function loadVests(p){ try{ const lc=new ethers.Contract(CONTRACT_ADDRESS,CONTRACT_ABI,p); const vCount=(await lc.vestCount()).toNumber(); if(vCount===0){ vestListEl.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>暂无线性释放记录</p></div>'; resetCounts('vest'); return; } const calls=buildCalls(CONTRACT_ADDRESS,CONTRACT_ABI,'tokenVests',Array.from({length:vCount},(_,i)=>[i+1])); const res=await multicall(p,calls); const vests=decodeResults(res,CONTRACT_ABI,'tokenVests'); const allTokens=new Set(); const raw=[]; vests.forEach((v,idx)=>{ if(!v||!v.beneficiary||v.beneficiary===ethers.constants.AddressZero)return; const isOwner=userAddress&&v.beneficiary.toLowerCase()===userAddress.toLowerCase(); const isCompleted=v.released.gte(v.totalAmount); raw.push({id:idx+1,token:v.token,totalAmount:v.totalAmount,cliffTime:v.cliffTime.toNumber(),endTime:v.endTime.toNumber(),releaseInterval:v.releaseInterval.toNumber(),lastClaimTime:v.lastClaimTime.toNumber(),released:v.released,isOwner,isCompleted,beneficiary:v.beneficiary}); allTokens.add(v.token.toLowerCase()); }); const tim=await fetchTokenInfos(p,Array.from(allTokens)); const grouped = { all:[], personal:[], allCompleted:[], personalCompleted:[] }; raw.forEach(v=>{ const info=tim[v.token.toLowerCase()]||{symbol:'TOKEN',decimals:18}; v.symbol=info.symbol; v.decimals=info.decimals; if(v.isCompleted){ grouped.allCompleted.push(v); if(v.isOwner) grouped.personalCompleted.push(v); } else { grouped.all.push(v); if(v.isOwner) grouped.personal.push(v); } }); Object.keys(grouped).forEach(k=>{ dataStore.vest[k]=grouped[k].sort((a,b)=>a.id-b.id); }); updateCountDisplays('vest'); renderVestCards(); updateAllCards(); }catch(e){ vestListEl.innerHTML='<div class="empty-state"><div class="icon">⚠️</div><p>加载失败，请刷新重试</p></div>'; } }
-
-            function renderVestCards(){ const view=dataStore.currentView.vest; const source=dataStore.vest[view]||[]; if(source.length===0){ vestListEl.innerHTML='<div class="empty-state"><div class="icon">🔍</div><p>暂无记录</p></div>'; return; } const isCompletedView=view.includes('Completed'); const now=Math.floor(Date.now()/1000); vestListEl.innerHTML=source.map(vest=>{ const total=parseFloat(ethers.utils.formatUnits(vest.totalAmount,vest.decimals)); const released=parseFloat(ethers.utils.formatUnits(vest.released,vest.decimals)); let progress=0,isCliff=now<vest.cliffTime; if(now>=vest.cliffTime){ const tp=vest.endTime-vest.cliffTime; const rt=Math.min(now-vest.cliffTime,tp); progress=tp>0?(rt/tp)*100:100; } progress=Math.min(100,Math.max(0,progress)); const isFullyReleased=vest.released.gte(vest.totalAmount)||isCompletedView; const addrDisplay=formatAddress(vest.beneficiary); const isOwner=vest.isOwner; let unlockable=0; if(now>=vest.cliffTime){ const el=now-vest.cliffTime; const tp=vest.endTime-vest.cliffTime; const ve=tp>0?(total*el)/tp:total; unlockable=Math.max(0,ve-released); if(unlockable>total-released)unlockable=total-released; } let statusText='',statusClass=''; if(isCompletedView||isFullyReleased||progress>=100){ statusText='✅ 已完全释放'; statusClass='status-ready'; }else if(isCliff){ statusText='🔒 悬崖期锁定中'; statusClass='status-cliff'; }else{ statusText='📈 释放中'; statusClass='status-waiting'; } let btnHTML='',notOwnerHTML=''; if(isCompletedView||isFullyReleased){ btnHTML='<button class="btn-claim-vest" disabled>已全部释放</button>'; }else if(!isOwner&&view==='all'){ if(isCliff){ btnHTML=`<button class="btn-claim-vest" disabled>⏳ 释放倒计时 ${formatCountdown(vest.cliffTime-now)}</button>`; notOwnerHTML='<div class="btn-claim-not-owner" style="display:none;">这不是您的锁仓无法领取哦！</div>'; }else{ btnHTML='<button class="btn-claim-vest" style="display:none;"></button>'; notOwnerHTML='<div class="btn-claim-not-owner">这不是您的锁仓无法领取哦！</div>'; } }else{ btnHTML=`<button class="btn-claim-vest" id="btnVest${vest.id}" disabled>⏳ ...</button>`; } return`<div class="vest-card ${!isOwner&&view==='all'?'not-owner':''}" data-vest-id="${vest.id}"><div class="lock-card-header"><span class="lock-id">${addrDisplay}</span><span class="lock-status ${statusClass}">${statusText}</span></div><div class="lock-amount"><span class="amount-num">${total.toLocaleString('zh-CN',{maximumFractionDigits:2})}</span><span class="amount-unit">枚</span> <span class="lock-token">${vest.symbol}</span></div><div style="font-size:0.8rem;color:var(--text-dim);">已领取：${released.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${vest.symbol}</div><div class="vest-progress"><div class="vest-progress-bar" style="width:${progress.toFixed(1)}%;"></div></div><div class="vest-progress-text" style="font-size:0.7rem;color:var(--text-dim);">释放进度：${progress.toFixed(1)}%</div><div class="vest-available" style="font-size:0.8rem;color:var(--gold-light);margin-top:2px;">可领取：${unlockable.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${vest.symbol}</div><div class="vest-note">过悬崖期后可线性释放！</div><div class="lock-time">📅 悬崖期结束：${formatDateTime(vest.cliffTime)}</div><div class="lock-time">📅 预计释放完成日期：${formatDateTime(vest.endTime)}</div>${btnHTML}${notOwnerHTML}</div>`; }).join(''); updateAllCards(); }
 
             function updateCountDisplays(type) {
                 const ids = type === 'lock' ? {
@@ -442,7 +642,12 @@
             window.claimLock = async function(lockId) { if(isClaiming)return; if(!contract||!signer){showToast('请先连接钱包','error');return;} const btn=document.getElementById('btnLock'+lockId); if(btn){btn.classList.add('loading');btn.disabled=true;} isClaiming=true; try{const tx=await contract.withdrawLock(lockId);showToast('交易已提交，等待确认...','');await tx.wait();showToast(`锁仓 #${lockId} 领取成功！🎉`,'success');await loadAllData();}catch(err){let msg='领取失败';if(err.code===4001)msg='用户取消了交易';else if(err.message&&err.message.includes('Not beneficiary'))msg='您不是受益人';else if(err.message&&err.message.includes('Not unlock yet'))msg='尚未到解锁时间';else if(err.message&&err.message.includes('Already withdrawn'))msg='已被领取';else if(err.message)msg='领取失败: '+err.message;showToast(msg,'error');}finally{isClaiming=false;if(btn){btn.classList.remove('loading');btn.disabled=false;}updateAllCards();}};
             window.claimVest = async function(vestId) { if(isClaiming)return; if(!contract||!signer){showToast('请先连接钱包','error');return;} const btn=document.getElementById('btnVest'+vestId); if(btn){btn.disabled=true;btn.textContent='⏳ 处理中...';} isClaiming=true; try{const tx=await contract.withdrawVest(vestId);showToast('交易已提交，等待确认...','');await tx.wait();showToast(`线性释放 #${vestId} 领取成功！🎉`,'success');await loadAllData();}catch(err){let msg='领取失败';if(err.code===4001)msg='用户取消了交易';else if(err.message&&err.message.includes('Not beneficiary'))msg='您不是受益人';else if(err.message&&err.message.includes('Wait for next cycle'))msg='请等待下一个领取周期';else if(err.message&&err.message.includes('No token to claim'))msg='当前无可领取代币';else if(err.message&&err.message.includes('Cliff not over'))msg='悬崖期尚未结束';else if(err.message)msg='领取失败: '+err.message;showToast(msg,'error');}finally{isClaiming=false;if(btn){btn.disabled=false;btn.textContent='🔥 领取代币';}updateAllCards();}};
 
-            (async function autoInit(){ try{ const rp=await getFastestProvider(); await loadTotalLocked(rp); }catch(e){ totalLockedEl.textContent='--'; totalLockedSubEl.textContent='RPC连接较慢'; } if(window.ethereum){ try{ const accs=await window.ethereum.request({method:'eth_accounts'}); if(accs.length>0)await setupWallet(accs[0]); }catch(e){} } })();
+            (async function autoInit() {
+                getFastestProvider().then(rp => loadTotalLocked(rp)).catch(() => { totalLockedEl.textContent = '--'; totalLockedSubEl.textContent = 'RPC连接较慢'; });
+                if (window.ethereum) {
+                    try { const accs = await window.ethereum.request({ method: 'eth_accounts' }); if (accs.length > 0) await setupWallet(accs[0]); } catch (e) {}
+                }
+            })();
         })();
     </script>
 </body>
