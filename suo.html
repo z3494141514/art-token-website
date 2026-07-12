@@ -198,12 +198,27 @@
         </section>
         <footer style="text-align:center;padding:24px 0;border-top:1px solid var(--border);color:var(--text-dim);font-size:0.75rem;letter-spacing:2px;">© 2026 铁军招募计划 · Powered by Smart Contract · BSC Testnet</footer>
     </div>
-    <script src="https://cdn.bootcdn.net/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+
+    <!-- ethers.js：本地优先，否则 CDN -->
+    <script>
+        var localEthers = true;   // 改为 true 使用本地文件
+        if (localEthers) {
+            document.write('<script src="./ethers.umd.min.js"><\/script>');
+        } else {
+            document.write('<script src="https://cdn.bootcdn.net/ajax/libs/ethers/5.7.2/ethers.umd.min.js"><\/script>');
+        }
+    </script>
+
     <script>
         (function() {
             const CONTRACT_ADDRESS = '0x3d4F23636A149930EAa69a4ACaba50fd8E1Eb1Ed';
             const CHAIN_ID = 97; const CHAIN_ID_HEX = '0x61';
-            const RPC_URLS = ['https://bsc-testnet-rpc.publicnode.com','https://bsc-testnet.binance.org/'];
+            const RPC_URLS = [
+                'https://bsc-testnet-rpc.publicnode.com',
+                'https://bsc-testnet.binance.org/',
+                'https://data-seed-prebsc-1-s1.binance.org:8545/',
+                'https://data-seed-prebsc-2-s1.binance.org:8545/'
+            ];
             const MULTICALL = '0xca11bde05977b3631167028862be2a173976ca11';
             const MULTICALL_ABI = ["function aggregate3(tuple(address target, bool allowFailure, bytes callData)[] calls) view returns (tuple(bool success, bytes returnData)[])"];
             const CONTRACT_ABI = [
@@ -236,6 +251,16 @@
             function getCachedTokenInfo(a) { try { const r = localStorage.getItem('tokenCache_'+a.toLowerCase()); if(r) return JSON.parse(r); } catch(e) {} return null; }
             function setCachedTokenInfo(a, i) { try { localStorage.setItem('tokenCache_'+a.toLowerCase(), JSON.stringify(i)); } catch(e) {} }
             function showToast(m, t='') { const to = document.createElement('div'); to.className = `toast ${t}`; to.textContent = m; to.addEventListener('click', ()=>to.remove()); setTimeout(() => { if(to.parentNode) to.remove(); }, 3000); toastContainer.appendChild(to); }
+
+            async function getFastestProvider() {
+                const promises = RPC_URLS.map(url => {
+                    const p = new ethers.providers.JsonRpcProvider(url);
+                    return p.getNetwork().then(() => p).catch(() => null);
+                });
+                const results = await Promise.all(promises);
+                for (const p of results) { if (p) return p; }
+                throw new Error('所有 RPC 节点不可用');
+            }
 
             window.toggleWallet = () => userAddress ? disconnectWallet() : connectWallet(true);
 
@@ -285,10 +310,10 @@
             });
 
             window.refreshTotalLocked = async function() {
-                if(!userAddress && !provider){ const rp = new ethers.providers.JsonRpcProvider(RPC_URLS[0]); try { await loadTotalLocked(rp); } catch(e){ totalLockedEl.textContent='加载失败'; totalLockedSubEl.textContent='请稍后重试'; } }
+                if(!userAddress && !provider){ try { await loadTotalLocked(await getFastestProvider()); } catch(e){ totalLockedEl.textContent='加载失败'; totalLockedSubEl.textContent='请稍后重试'; } }
                 else { await refreshTotalLocked(); }
             };
-            async function refreshTotalLocked() { if(!userAddress) return; const rp = new ethers.providers.JsonRpcProvider(RPC_URLS[0]); try { await loadTotalLocked(rp); } catch(e) { try { await loadTotalLocked(new ethers.providers.JsonRpcProvider(RPC_URLS[1])); } catch(e2){} } }
+            async function refreshTotalLocked() { if(!userAddress) return; try { await loadTotalLocked(await getFastestProvider()); } catch(e) { totalLockedEl.textContent='加载失败'; } }
 
             function updateAllCards() {
                 const now = Math.floor(Date.now()/1000);
@@ -377,7 +402,7 @@
             function buildCalls(ca,abi,m,pl){ const iface = new ethers.utils.Interface(abi); return pl.map(ps=>({target:ca,allowFailure:true,callData:iface.encodeFunctionData(m,ps)})); }
             function decodeResults(r,abi,m){ const iface = new ethers.utils.Interface(abi); return r.map(rr=>rr.success?iface.decodeFunctionResult(m,rr.returnData):null); }
 
-            async function loadAllData(){ const rp = new ethers.providers.JsonRpcProvider(RPC_URLS[0]); try { await Promise.all([loadTotalLocked(rp), loadLocks(rp), loadVests(rp)]); } catch(e){ const bk = new ethers.providers.JsonRpcProvider(RPC_URLS[1]); await Promise.all([loadTotalLocked(bk), loadLocks(bk), loadVests(bk)]); } }
+            async function loadAllData(){ const rp = await getFastestProvider(); try { await Promise.all([loadTotalLocked(rp), loadLocks(rp), loadVests(rp)]); } catch(e){ const bk = new ethers.providers.JsonRpcProvider(RPC_URLS[1]); await Promise.all([loadTotalLocked(bk), loadLocks(bk), loadVests(bk)]); } }
             async function fetchTokenInfos(p,addrs){ const unc=[]; const rm={}; for(const a of addrs){ const c=getCachedTokenInfo(a); if(c){ rm[a]=c; } else { unc.push(a); } } if(unc.length>0){ const sc=unc.map(a=>({target:a,allowFailure:true,callData:new ethers.utils.Interface(['function symbol() view returns (string)']).encodeFunctionData('symbol')})); const dc=unc.map(a=>({target:a,allowFailure:true,callData:new ethers.utils.Interface(['function decimals() view returns (uint8)']).encodeFunctionData('decimals')})); const[sr,dr]=await Promise.all([multicall(p,sc),multicall(p,dc)]); const sd=new ethers.utils.Interface(['function symbol() view returns (string)']),dd=new ethers.utils.Interface(['function decimals() view returns (uint8)']); for(let i=0;i<unc.length;i++){ let sym='TOKEN',dec=18; if(sr[i].success) try{sym=sd.decodeFunctionResult('symbol',sr[i].returnData)[0];}catch(e){} if(dr[i].success) try{dec=dd.decodeFunctionResult('decimals',dr[i].returnData)[0];}catch(e){} const info={symbol:sym,decimals:dec}; rm[unc[i]]=info; setCachedTokenInfo(unc[i],info); } } return rm; }
 
             async function loadTotalLocked(p){ try{ const lc=new ethers.Contract(CONTRACT_ADDRESS,CONTRACT_ABI,p); const[lcB,vcB]=await Promise.all([lc.lockCount(),lc.vestCount()]); const tlc=lcB.toNumber(),tvc=vcB.toNumber(); if(tlc+tvc===0){ animateNumberUpdate(totalLockedEl,'0'); totalLockedSubEl.innerHTML='一次性锁仓 <span class="stat-num">0</span> 笔 · 线性锁仓释放 <span class="stat-num">0</span> 笔'; return; } const lCalls=buildCalls(CONTRACT_ADDRESS,CONTRACT_ABI,'tokenLocks',Array.from({length:tlc},(_,i)=>[i+1])); const vCalls=buildCalls(CONTRACT_ADDRESS,CONTRACT_ABI,'tokenVests',Array.from({length:tvc},(_,i)=>[i+1])); const[lRes,vRes]=await Promise.all([multicall(p,lCalls),multicall(p,vCalls)]); const locks=decodeResults(lRes,CONTRACT_ABI,'tokenLocks'),vests=decodeResults(vRes,CONTRACT_ABI,'tokenVests'); const ta={}; let alc=0,avc=0; const it=new Set(); locks.forEach(l=>{ if(l&&!l.withdrawn){ alc++; const a=l.token.toLowerCase(); it.add(a); if(!ta[a])ta[a]=ethers.BigNumber.from(0); ta[a]=ta[a].add(l.amount); } }); vests.forEach(v=>{ if(v&&v.released.lt(v.totalAmount)){ avc++; const rem=v.totalAmount.sub(v.released),a=v.token.toLowerCase(); it.add(a); if(!ta[a])ta[a]=ethers.BigNumber.from(0); ta[a]=ta[a].add(rem); } }); const tim=await fetchTokenInfos(p,Array.from(it)); const parts=[]; for(const[a,am] of Object.entries(ta)){ if(am.gt(0)){ const info=tim[a]||{symbol:'TOKEN',decimals:18}; const num=parseFloat(ethers.utils.formatUnits(am,info.decimals)); if(num>0)parts.push(num.toLocaleString('zh-CN',{maximumFractionDigits:2})); } } animateNumberUpdate(totalLockedEl,parts.length?parts.join(' + '):'0'); totalLockedSubEl.innerHTML=`一次性锁仓 <span class="stat-num">${alc}</span> 笔 · 线性锁仓释放 <span class="stat-num">${avc}</span> 笔`; }catch(e){ totalLockedEl.textContent='加载失败'; totalLockedSubEl.textContent='点击刷新重试'; } }
@@ -418,7 +443,7 @@
             window.claimLock = async function(lockId) { if(isClaiming)return; if(!contract||!signer){showToast('请先连接钱包','error');return;} const btn=document.getElementById('btnLock'+lockId); if(btn){btn.classList.add('loading');btn.disabled=true;} isClaiming=true; try{const tx=await contract.withdrawLock(lockId);showToast('交易已提交，等待确认...','');await tx.wait();showToast(`锁仓 #${lockId} 领取成功！🎉`,'success');await loadAllData();}catch(err){let msg='领取失败';if(err.code===4001)msg='用户取消了交易';else if(err.message&&err.message.includes('Not beneficiary'))msg='您不是受益人';else if(err.message&&err.message.includes('Not unlock yet'))msg='尚未到解锁时间';else if(err.message&&err.message.includes('Already withdrawn'))msg='已被领取';else if(err.message)msg='领取失败: '+err.message;showToast(msg,'error');}finally{isClaiming=false;if(btn){btn.classList.remove('loading');btn.disabled=false;}updateAllCards();}};
             window.claimVest = async function(vestId) { if(isClaiming)return; if(!contract||!signer){showToast('请先连接钱包','error');return;} const btn=document.getElementById('btnVest'+vestId); if(btn){btn.disabled=true;btn.textContent='⏳ 处理中...';} isClaiming=true; try{const tx=await contract.withdrawVest(vestId);showToast('交易已提交，等待确认...','');await tx.wait();showToast(`线性释放 #${vestId} 领取成功！🎉`,'success');await loadAllData();}catch(err){let msg='领取失败';if(err.code===4001)msg='用户取消了交易';else if(err.message&&err.message.includes('Not beneficiary'))msg='您不是受益人';else if(err.message&&err.message.includes('Wait for next cycle'))msg='请等待下一个领取周期';else if(err.message&&err.message.includes('No token to claim'))msg='当前无可领取代币';else if(err.message&&err.message.includes('Cliff not over'))msg='悬崖期尚未结束';else if(err.message)msg='领取失败: '+err.message;showToast(msg,'error');}finally{isClaiming=false;if(btn){btn.disabled=false;btn.textContent='🔥 领取代币';}updateAllCards();}};
 
-            (async function autoInit(){ try{ const rp=new ethers.providers.JsonRpcProvider(RPC_URLS[0]); await loadTotalLocked(rp); }catch(e){ totalLockedEl.textContent='--'; totalLockedSubEl.textContent='RPC连接较慢'; } if(window.ethereum){ try{ const accs=await window.ethereum.request({method:'eth_accounts'}); if(accs.length>0)await setupWallet(accs[0]); }catch(e){} } })();
+            (async function autoInit(){ try{ const rp=await getFastestProvider(); await loadTotalLocked(rp); }catch(e){ totalLockedEl.textContent='--'; totalLockedSubEl.textContent='RPC连接较慢'; } if(window.ethereum){ try{ const accs=await window.ethereum.request({method:'eth_accounts'}); if(accs.length>0)await setupWallet(accs[0]); }catch(e){} } })();
         })();
     </script>
 </body>
