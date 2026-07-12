@@ -258,34 +258,8 @@
             function animateNumberUpdate(el, t) { el.classList.add('bump'); setTimeout(() => el.classList.remove('bump'), 300); el.textContent = t; }
             function formatDateTime(t) { const d = new Date(t*1000), p = n => String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`; }
             function formatCountdown(s) { if(s<=0)return'剩余 00:00:00'; const d=Math.floor(s/86400),h=Math.floor((s%86400)/3600),m=Math.floor((s%3600)/60),ss=s%60,p=n=>String(n).padStart(2,'0'); let r=''; if(d>0)r+=`${d}天 `; r+=`${p(h)}:${p(m)}:${p(ss)}`; return`剩余 ${r}`; }
-
-            // 修复：缓存读取时增加有效性验证，防止返回不完整的数据导致 symbol 为 undefined
-            function getCachedTokenInfo(a) {
-                try {
-                    const r = localStorage.getItem('tokenCache_' + a.toLowerCase());
-                    if (r) {
-                        const parsed = JSON.parse(r);
-                        // 验证结构完整：symbol 必须是非空字符串，decimals 必须是正数
-                        if (parsed && typeof parsed.symbol === 'string' && parsed.symbol.length > 0 &&
-                            typeof parsed.decimals === 'number' && parsed.decimals > 0) {
-                            return parsed;
-                        }
-                        // 如果验证失败，删除无效缓存并返回 null，让其重新链上查询
-                        localStorage.removeItem('tokenCache_' + a.toLowerCase());
-                    }
-                } catch(e) {}
-                return null;
-            }
-
-            function setCachedTokenInfo(a, i) {
-                try {
-                    // 确保存储的数据完整
-                    if (i && typeof i.symbol === 'string' && typeof i.decimals === 'number' && i.decimals > 0) {
-                        localStorage.setItem('tokenCache_' + a.toLowerCase(), JSON.stringify(i));
-                    }
-                } catch(e) {}
-            }
-
+            function getCachedTokenInfo(a) { try { const r = localStorage.getItem('tokenCache_'+a.toLowerCase()); if(r) return JSON.parse(r); } catch(e) {} return null; }
+            function setCachedTokenInfo(a, i) { try { localStorage.setItem('tokenCache_'+a.toLowerCase(), JSON.stringify(i)); } catch(e) {} }
             function showToast(m, t='') { const to = document.createElement('div'); to.className = `toast ${t}`; to.textContent = m; to.addEventListener('click', ()=>to.remove()); setTimeout(() => { if(to.parentNode) to.remove(); }, 3000); toastContainer.appendChild(to); }
 
             async function getFastestProvider() {
@@ -500,9 +474,7 @@
                 const grouped = { all:[], personal:[], allCompleted:[], personalCompleted:[] };
                 raw.forEach(l => {
                     const info = tim[l.token.toLowerCase()] || {symbol:'TOKEN', decimals:18};
-                    // 修复：增加字段级别的兜底，防止 symbol 为 undefined
-                    l.symbol = (typeof info.symbol === 'string' && info.symbol.length > 0) ? info.symbol : 'TOKEN';
-                    l.decimals = (typeof info.decimals === 'number' && info.decimals > 0) ? info.decimals : 18;
+                    l.symbol = info.symbol; l.decimals = info.decimals;
                     if(l.withdrawn){ grouped.allCompleted.push(l); if(l.isOwner) grouped.personalCompleted.push(l); }
                     else { grouped.all.push(l); if(l.isOwner) grouped.personal.push(l); }
                 });
@@ -567,9 +539,7 @@
                 const grouped = { all:[], personal:[], allCompleted:[], personalCompleted:[] };
                 raw.forEach(v => {
                     const info = tim[v.token.toLowerCase()] || {symbol:'TOKEN', decimals:18};
-                    // 修复：增加字段级别的兜底
-                    v.symbol = (typeof info.symbol === 'string' && info.symbol.length > 0) ? info.symbol : 'TOKEN';
-                    v.decimals = (typeof info.decimals === 'number' && info.decimals > 0) ? info.decimals : 18;
+                    v.symbol = info.symbol; v.decimals = info.decimals;
                     if(v.isCompleted){ grouped.allCompleted.push(v); if(v.isOwner) grouped.personalCompleted.push(v); }
                     else { grouped.all.push(v); if(v.isOwner) grouped.personal.push(v); }
                 });
@@ -635,6 +605,7 @@
                 updateAllCards();
             }
 
+            // 【唯一修复点】fetchTokenInfos 写入缓存前确保 symbol 和 decimals 有效
             async function fetchTokenInfos(p,addrs){
                 const unc = [];
                 const rm = {};
@@ -656,7 +627,7 @@
                         let sym = 'TOKEN', dec = 18;
                         if (sr[i].success) try { sym = sd.decodeFunctionResult('symbol', sr[i].returnData)[0]; } catch(e) {}
                         if (dr[i].success) try { dec = dd.decodeFunctionResult('decimals', dr[i].returnData)[0]; } catch(e) {}
-                        // 确保存储前数据有效
+                        // 存入缓存前确保有效
                         if (typeof sym !== 'string' || sym.length === 0) sym = 'TOKEN';
                         if (typeof dec !== 'number' || dec <= 0) dec = 18;
                         const info = { symbol: sym, decimals: dec };
