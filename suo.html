@@ -88,7 +88,58 @@
 
         .hero-badge { display: inline-block; padding: 6px 18px; border-radius: 50px; border: 1px solid rgba(201,160,80,0.6); font-size: 0.8rem; letter-spacing: 3px; color: var(--gold); background: linear-gradient(180deg, rgba(35,30,25,0.8) 0%, rgba(20,18,15,0.9) 100%); margin-bottom: 16px; text-transform: uppercase; backdrop-filter: blur(5px); box-shadow: 0 2px 6px rgba(0,0,0,0.5), 0 0 10px rgba(201,160,80,0.2) inset; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
 
-        /* 标题：立体 + 文字范围内扫光 */
+        /* 铁军数量时钟样式 */
+        .iron-count {
+            margin: 12px auto 20px;
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .iron-count-label {
+            opacity: 0.8;
+        }
+        .iron-count-num {
+            display: inline-flex;
+            gap: 4px;
+            background: #1a1a24;
+            padding: 8px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(201,160,80,0.5);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4), 0 0 8px rgba(201,160,80,0.2) inset;
+        }
+        .iron-digit {
+            display: inline-block;
+            width: 28px;
+            height: 42px;
+            line-height: 42px;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            color: var(--gold-light);
+            background: linear-gradient(180deg, #2a2a35 0%, #12121c 100%);
+            border-radius: 6px;
+            box-shadow: 0 2px 0 #000, 0 4px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+            text-shadow: 0 0 10px rgba(201,160,80,0.7);
+            position: relative;
+        }
+        /* 数字之间分隔线 */
+        .iron-digit:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: 50%;
+            width: 2px;
+            height: 50%;
+            background: rgba(201,160,80,0.3);
+            transform: translateY(-50%);
+        }
+
         .hero-title {
             font-family: var(--font-military);
             font-size: clamp(2rem,5vw,3.2rem);
@@ -99,7 +150,7 @@
             text-shadow: 0 1px 0 rgba(0,0,0,0.9), 0 2px 0 rgba(0,0,0,0.7), 0 3px 2px rgba(0,0,0,0.5), 0 5px 8px rgba(0,0,0,0.4), 0 0 20px rgba(201,160,80,0.6), 0 0 35px rgba(201,160,80,0.3);
             position: relative;
             display: inline-block;
-            overflow: hidden; /* 裁剪多余光束 */
+            overflow: hidden;
         }
         .hero-title .accent { color: var(--gold); }
 
@@ -121,7 +172,6 @@
             100% { left: 100%; }
         }
 
-        /* 描述文字：移除动画，静态展示 */
         .hero-desc {
             color: var(--text-dim);
             font-size: 0.95rem;
@@ -632,6 +682,12 @@
         </nav>
         <section class="hero-section">
             <div class="hero-badge">⚔️ 铁军招募计划 ⚔️</div>
+            <!-- 新增铁军数量展示 -->
+            <div class="iron-count">
+                <span class="iron-count-label">目前已加入铁军</span>
+                <span class="iron-count-num" id="ironCountNum">0</span>
+                <span class="iron-count-label">名</span>
+            </div>
             <h1 class="hero-title">铁军<span class="accent">锁仓</span>领取</h1>
             <p class="hero-desc">链上智能合约锁定 · 到期自动释放 · 铁血纪律守护资产安全</p>
             <div class="stat-card" style="margin-top:16px;"><div class="stat-card-inner"><div class="stat-label">📊 合约总锁仓 <button class="stat-refresh-btn" id="btnRefreshTotal" title="刷新总锁仓"><span class="refresh-icon">↻</span></button></div><div class="stat-value" id="totalLocked">--</div><div class="stat-sub" id="totalLockedSub">加载中...</div></div></div>
@@ -715,6 +771,7 @@
             const btnConnect = $('btnConnect'), btnConnectText = $('btnConnectText');
             const btnRefreshTotal = $('btnRefreshTotal');
             const toastContainer = $('toastContainer');
+            const ironCountNumEl = $('ironCountNum');
 
             function escapeHtml(str) {
                 if (!str && str !== 0) return '';
@@ -769,6 +826,19 @@
                 card.addEventListener('touchcancel', function(e) {
                     card.classList.remove('touch-active');
                 });
+            }
+
+            // 计算唯一受益人数量
+            function updateIronCount() {
+                const addrSet = new Set();
+                const allLocks = [...dataStore.lock.all, ...dataStore.lock.allCompleted];
+                const allVests = [...dataStore.vest.all, ...dataStore.vest.allCompleted];
+                allLocks.forEach(lock => { if (lock.beneficiary) addrSet.add(lock.beneficiary.toLowerCase()); });
+                allVests.forEach(vest => { if (vest.beneficiary) addrSet.add(vest.beneficiary.toLowerCase()); });
+                const count = addrSet.size;
+                // 将数字拆分成单个字符，生成 digit 元素
+                const digits = String(count).split('');
+                ironCountNumEl.innerHTML = digits.map(d => `<span class="iron-digit">${d}</span>`).join('');
             }
 
             async function getFastestProvider() {
@@ -835,11 +905,12 @@
                 renderVestCards(); updateAllCards();
             });
 
+            // 刷新按钮改为完整加载数据（包括铁军数量更新）
             btnRefreshTotal.addEventListener('click', async () => {
                 if (btnRefreshTotal.classList.contains('loading')) return;
                 btnRefreshTotal.classList.add('loading');
                 try {
-                    await loadTotalLocked(await getFastestProvider());
+                    await loadAllData();
                     showToast('✅ 数据已刷新', 'success');
                 } catch(e) {
                     showToast('刷新失败，请重试', 'error');
@@ -852,7 +923,7 @@
                 if (btnRefreshTotal.classList.contains('loading')) return;
                 btnRefreshTotal.classList.add('loading');
                 try {
-                    await loadTotalLocked(await getFastestProvider());
+                    await loadAllData();
                     showToast('✅ 数据已刷新', 'success');
                 } catch(e) {
                     showToast('刷新失败，请重试', 'error');
@@ -955,6 +1026,7 @@
                     const locks = decodeResults(lockResults, CONTRACT_ABI, 'tokenLocks');
                     const vests = decodeResults(vestResults, CONTRACT_ABI, 'tokenVests');
                     await Promise.all([loadTotalLocked(rp), processLocks(locks, rp), processVests(vests, rp)]);
+                    updateIronCount(); // 数据更新后刷新铁军人数
                 } catch(e){
                     const backup = new ethers.providers.JsonRpcProvider(RPC_URLS[1]);
                     const lc = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, backup);
@@ -967,6 +1039,7 @@
                     const locks = decodeResults(lockResults, CONTRACT_ABI, 'tokenLocks');
                     const vests = decodeResults(vestResults, CONTRACT_ABI, 'tokenVests');
                     await Promise.all([loadTotalLocked(backup), processLocks(locks, backup), processVests(vests, backup)]);
+                    updateIronCount();
                 }
             }
 
@@ -1134,8 +1207,14 @@
             };
 
             (async function autoInit() {
-                getFastestProvider().then(rp => loadTotalLocked(rp)).catch(() => { totalLockedEl.textContent = '--'; totalLockedSubEl.textContent = 'RPC连接较慢'; });
-                if (window.ethereum) { try { const accs = await window.ethereum.request({ method: 'eth_accounts' }); if (accs.length > 0) await setupWallet(accs[0]); } catch (e) {} }
+                // 优先加载全部数据，确保铁军数量显示
+                getFastestProvider().then(rp => loadAllData()).catch(() => {
+                    totalLockedEl.textContent = '--';
+                    totalLockedSubEl.textContent = 'RPC连接较慢';
+                });
+                if (window.ethereum) {
+                    try { const accs = await window.ethereum.request({ method: 'eth_accounts' }); if (accs.length > 0) await setupWallet(accs[0]); } catch (e) {}
+                }
             })();
         })();
     </script>
