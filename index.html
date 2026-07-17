@@ -341,7 +341,6 @@
         </div>
         <div id="mobileMenu" class="hidden md:hidden bg-darkCard border-t border-white/10" role="navigation" aria-label="移动端菜单">
             <div class="container mx-auto px-4 py-4 flex flex-col gap-2">
-                <!-- 移动端链接加大触屏区域 -->
                 <a href="#home" class="py-3 text-base hover:text-primary transition-colors">
                     <span class="lang-en">Home</span>
                     <span class="lang-zh">首页</span>
@@ -443,7 +442,7 @@
             </div>
         </section>
 
-        <!-- 代币经济 / Tokenomics （复用卡片结构，注释标记） -->
+        <!-- 代币经济 / Tokenomics -->
         <section id="tokenomics" class="py-20 bg-darkCard" aria-labelledby="tokenomics-heading">
             <div class="container mx-auto px-4 md:px-6">
                 <div class="text-center max-w-3xl mx-auto mb-16 animate-fade-up">
@@ -457,7 +456,6 @@
                     </p>
                 </div>
                 <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <!-- 卡片模板：.bg-dark .p-8 .rounded-2xl .border .border-white/10 .card-hover .animate-fade-up -->
                     <div class="bg-dark p-8 rounded-2xl border border-white/10 hover:border-primary/40 transition-all card-hover animate-fade-up">
                         <i class="fa-solid fa-coins text-primary text-3xl mb-4 icon-tremble" aria-hidden="true"></i>
                         <h3 class="text-xl font-semibold mb-2">
@@ -476,7 +474,7 @@
                             <span class="lang-en">Buy Tax</span>
                             <span class="lang-zh">买入税费</span>
                         </h3>
-                        <p class="text-2xl font-bold text-primary">1.5%</p>
+                        <p class="text-2xl font-bold text-primary">2%</p>
                         <p class="text-grayText mt-2 text-sm">
                             <span class="lang-en">10% Burn + 90% Treasury</span>
                             <span class="lang-zh">10%销毁 + 90%国库</span>
@@ -488,7 +486,7 @@
                             <span class="lang-en">Sell Tax</span>
                             <span class="lang-zh">卖出税费</span>
                         </h3>
-                        <p class="text-2xl font-bold text-primary">1.5%</p>
+                        <p class="text-2xl font-bold text-primary">2%</p>
                         <p class="text-grayText mt-2 text-sm">
                             <span class="lang-en">10% Burn + 90% Treasury</span>
                             <span class="lang-zh">10%销毁 + 90%国库</span>
@@ -533,7 +531,7 @@
             </div>
         </section>
 
-        <!-- 合约信息 / Contract (已移除所有 border-stream) -->
+        <!-- 合约信息 / Contract -->
         <section id="contract" class="py-20" aria-labelledby="contract-heading">
             <div class="container mx-auto px-4 md:px-6">
                 <div class="text-center max-w-3xl mx-auto mb-16 animate-fade-up">
@@ -553,7 +551,7 @@
                             <span class="lang-zh">合约地址</span>
                         </p>
                         <div class="flex items-center gap-2 bg-dark p-4 rounded-lg border border-white/10 code-block">
-                            <code id="contractAddr" class="text-sm md:text-base break-all">0xYourContractAddressHere</code>
+                            <code id="contractAddr" class="text-sm md:text-base break-all">0x1C97E16Bb102DF5b29d682b4cFeB38aa0B9Dfd4b</code>
                             <button data-copy-target="contractAddr" class="text-primary hover:text-secondary transition-colors flex-shrink-0 icon-tremble p-2 min-w-[44px] min-h-[44px]" aria-label="复制合约地址">
                                 <i class="fa-solid fa-copy" aria-hidden="true"></i>
                             </button>
@@ -617,7 +615,7 @@
             </div>
         </section>
 
-        <!-- 销毁记录 / Burn Record (已移除所有 border-stream) -->
+        <!-- 销毁记录 / Burn Record -->
         <section id="burn" class="py-20 bg-darkCard" aria-labelledby="burn-heading">
             <div class="container mx-auto px-4 md:px-6">
                 <div class="text-center max-w-3xl mx-auto mb-16 animate-fade-up">
@@ -657,25 +655,15 @@
                                 <span class="lang-zh">销毁交易哈希</span>
                             </p>
                             <div class="flex items-center gap-2 bg-darkCard p-4 rounded-lg border border-white/10 code-block">
-                                <code id="burnTxHash" class="text-sm md:text-base break-all">0xYourBurnTxHashHere</code>
+                                <code id="burnTxHash" class="text-sm md:text-base break-all">0xfd919edd465ab371e62f1876017386ab1a81fd66e0cdb1f10524af589a57ff4c</code>
                                 <button data-copy-target="burnTxHash" class="text-primary hover:text-secondary transition-colors flex-shrink-0 icon-tremble p-2 min-w-[44px] min-h-[44px]" aria-label="复制交易哈希">
                                     <i class="fa-solid fa-copy" aria-hidden="true"></i>
                                 </button>
                             </div>
-                            <a href="https://SCAN_BURN_TX_LINK" target="_blank" rel="noopener noreferrer" class="inline-block mt-2 text-sm text-primary hover:underline">
+                            <a href="https://bscscan.com/tx/0xfd919edd465ab371e62f1876017386ab1a81fd66e0cdb1f10524af589a57ff4c" target="_blank" rel="noopener noreferrer" class="inline-block mt-2 text-sm text-primary hover:underline">
                                 <span class="lang-en">View on Explorer</span>
                                 <span class="lang-zh">在区块浏览器查看</span>
                                 <i class="fa-solid fa-arrow-up-right-dots ml-1 icon-tremble" aria-hidden="true"></i>
-                            </a>
-                        </div>
-                        <div>
-                            <p class="text-grayText text-sm mb-2">
-                                <span class="lang-en">Burn Address On Explorer</span>
-                                <span class="lang-zh">黑洞地址区块浏览器</span>
-                            </p>
-                            <a href="https://bscscan.com/address/0x000000000000000000000000000000000000dEaD" target="_blank" rel="noopener noreferrer" class="block bg-darkCard p-4 rounded-lg border border-white/10 text-primary hover:underline break-all code-block">
-                                <span class="lang-en">Check Burn Balance</span>
-                                <span class="lang-zh">查询销毁余额</span>
                             </a>
                         </div>
                     </div>
@@ -689,7 +677,7 @@
             </div>
         </section>
 
-        <!-- 购买指南 / How To Buy (保留 border-stream) -->
+        <!-- 购买指南 / How To Buy -->
         <section id="buy" class="py-20 bg-darkCard" aria-labelledby="buy-heading">
             <div class="container mx-auto px-4 md:px-6">
                 <div class="text-center max-w-3xl mx-auto mb-16 animate-fade-up">
@@ -744,7 +732,7 @@
                     </div>
                 </div>
                 <div class="text-center mt-10 animate-fade-up">
-                    <a href="https://pancakeswap.finance/swap?outputCurrency=0xYourContractAddressHere" target="_blank" rel="noopener noreferrer" class="inline-block bg-primary hover:bg-primary/90 px-10 py-4 rounded-full text-lg font-medium transition-all btn-stream shadow-lg shadow-primary/20">
+                    <a href="https://pancakeswap.finance/swap?inputCurrency=0x1C97E16Bb102DF5b29d682b4cFeB38aa0B9Dfd4b&outputCurrency=0x55d398326f99059fF775485246999027B3197955" target="_blank" rel="noopener noreferrer" class="inline-block bg-primary hover:bg-primary/90 px-10 py-4 rounded-full text-lg font-medium transition-all btn-stream shadow-lg shadow-primary/20">
                         <span class="lang-en">Buy on PancakeSwap</span>
                         <span class="lang-zh">前往薄饼购买</span>
                         <i class="fa-solid fa-arrow-up-right-dots ml-2 icon-tremble" aria-hidden="true"></i>
@@ -883,7 +871,6 @@
                 toast.textContent = message;
                 toast.setAttribute('role', 'alert');
                 toast.addEventListener('click', () => toast.remove());
-                // 自动消失备选（点击可提前移除）
                 const autoRemove = setTimeout(() => {
                     if (toast.parentNode) toast.remove();
                 }, 2000);
