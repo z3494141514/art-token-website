@@ -302,6 +302,18 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* 项目方卡片容器 */
+        .project-cards-wrapper {
+            margin: 20px 0;
+            padding: 16px;
+            background: rgba(18,18,28,0.6);
+            border-radius: var(--radius);
+            border: 1px solid rgba(201,160,80,0.3);
+            backdrop-filter: blur(5px);
+        }
+        .project-cards-wrapper .section-title { margin-bottom: 10px; }
+        .project-cards-wrapper .lock-grid { margin-top: 0; }
+
         .section-title {
             font-family: var(--font-military);
             font-size: 1.5rem;
@@ -611,6 +623,14 @@
             <a href="#" class="navbar-brand"><div class="navbar-logo">🛡️</div><div><div class="navbar-title">铁军招募</div><div class="navbar-subtitle">Iron Army · Lock & Claim</div></div></a>
             <button id="btnConnect" class="btn-connect" onclick="toggleWallet()"><span class="dot"></span><span id="btnConnectText">连接钱包</span></button>
         </nav>
+
+        <!-- 项目方锁仓详情卡片（移至顶部） -->
+        <div class="project-cards-wrapper">
+            <div id="projectRecordsList" class="lock-grid">
+                <div class="empty-state"><div class="icon">🔍</div><p>加载中...</p></div>
+            </div>
+        </div>
+
         <section class="hero-section">
             <div class="hero-badge">⚔️ 铁军招募计划 ⚔️</div>
             <div class="iron-count">
@@ -626,20 +646,6 @@
                         <div class="stat-sub" id="ironArmySub">加载中...</div>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-card-inner">
-                        <div class="stat-label">🏛️ 项目方锁仓 <button class="stat-refresh-btn" id="btnRefreshProject" title="刷新项目方锁仓"><span class="refresh-icon">↻</span></button></div>
-                        <div class="stat-value" id="projectLocked">--</div>
-                        <div class="stat-sub" id="projectSub">加载中...</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section style="padding: 10px 0 30px;">
-            <div class="section-title">🏛️ 项目方锁仓详情</div>
-            <div id="projectRecordsList" class="lock-grid">
-                <div class="empty-state"><div class="icon">🔍</div><p>加载中...</p></div>
             </div>
         </section>
 
@@ -721,11 +727,10 @@
 
             const $ = id => document.getElementById(id);
             const ironArmyLockedEl = $('ironArmyLocked'), ironArmySubEl = $('ironArmySub');
-            const projectLockedEl = $('projectLocked'), projectSubEl = $('projectSub');
             const lockListEl = $('lockList'), vestListEl = $('vestList');
             const projectRecordsListEl = $('projectRecordsList');
             const btnConnect = $('btnConnect'), btnConnectText = $('btnConnectText');
-            const btnRefreshIronArmy = $('btnRefreshIronArmy'), btnRefreshProject = $('btnRefreshProject');
+            const btnRefreshIronArmy = $('btnRefreshIronArmy');
             const toastContainer = $('toastContainer');
             const ironCountNumEl = $('ironCountNum');
 
@@ -840,7 +845,6 @@
                 vestListEl.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><p>请连接钱包查看线性释放记录</p></div>';
                 projectRecordsListEl.innerHTML = '<div class="empty-state"><div class="icon">🏛️</div><p>请连接钱包查看项目方锁仓</p></div>';
                 ironArmyLockedEl.textContent = '--'; ironArmySubEl.textContent = '请连接钱包';
-                projectLockedEl.textContent = '--'; projectSubEl.textContent = '请连接钱包';
                 updateCountDisplays('lock'); updateCountDisplays('vest');
                 showToast('👋 钱包已断开', 'info');
             }
@@ -873,14 +877,6 @@
                 try { await refreshTotalLocked(); showToast('✅ 铁军锁仓已刷新', 'success'); }
                 catch(e) { showToast('刷新失败，请重试', 'error'); }
                 finally { btnRefreshIronArmy.classList.remove('loading'); }
-            });
-
-            btnRefreshProject.addEventListener('click', async () => {
-                if (btnRefreshProject.classList.contains('loading')) return;
-                btnRefreshProject.classList.add('loading');
-                try { await refreshTotalLocked(); showToast('✅ 项目方锁仓已刷新', 'success'); }
-                catch(e) { showToast('刷新失败，请重试', 'error'); }
-                finally { btnRefreshProject.classList.remove('loading'); }
             });
 
             async function refreshTotalLocked() {
@@ -1080,7 +1076,7 @@
                     const vestResults = await multicallPaginated(rp, vestCalls);
                     const locks = decodeResults(lockResults, CONTRACT_ABI, 'tokenLocks');
                     const vests = decodeResults(vestResults, CONTRACT_ABI, 'tokenVests');
-                    await Promise.all([loadIronArmyAndProjectLocked(rp), processLocks(locks, rp), processVests(vests, rp), processProjectRecords(locks, vests, rp)]);
+                    await Promise.all([loadIronArmyLocked(rp), processLocks(locks, rp), processVests(vests, rp), processProjectRecords(locks, vests, rp)]);
                     updateIronCount();
                 } catch(e){
                     const backup = new ethers.providers.JsonRpcProvider(RPC_URLS[1]);
@@ -1094,7 +1090,7 @@
                     const vestResults = await multicallPaginated(backup, vestCalls);
                     const locks = decodeResults(lockResults, CONTRACT_ABI, 'tokenLocks');
                     const vests = decodeResults(vestResults, CONTRACT_ABI, 'tokenVests');
-                    await Promise.all([loadIronArmyAndProjectLocked(backup), processLocks(locks, backup), processVests(vests, backup), processProjectRecords(locks, vests, backup)]);
+                    await Promise.all([loadIronArmyLocked(backup), processLocks(locks, backup), processVests(vests, backup), processProjectRecords(locks, vests, backup)]);
                     updateIronCount();
                 }
             }
@@ -1219,7 +1215,7 @@
                 return rm;
             }
 
-            async function loadIronArmyAndProjectLocked(p){
+            async function loadIronArmyLocked(p){
                 try {
                     const lc = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, p);
                     const owner = await getOwnerAddress(p);
@@ -1228,9 +1224,7 @@
                     const lcNum = lockCount.toNumber(), vcNum = vestCount.toNumber();
                     if (lcNum + vcNum === 0) {
                         animateNumberUpdate(ironArmyLockedEl, '0');
-                        animateNumberUpdate(projectLockedEl, '0');
                         ironArmySubEl.innerHTML = '暂无锁仓';
-                        projectSubEl.innerHTML = '暂无锁仓';
                         return;
                     }
                     const lockCalls = buildCalls(CONTRACT_ADDRESS, CONTRACT_ABI, 'tokenLocks', Array.from({length: lcNum}, (_,i)=>[i+1]));
@@ -1242,37 +1236,34 @@
                     const locks = decodeResults(lockRes, CONTRACT_ABI, 'tokenLocks');
                     const vests = decodeResults(vestRes, CONTRACT_ABI, 'tokenVests');
 
-                    const ironTokens = {}, projectTokens = {};
-                    let ironLockCount = 0, ironVestCount = 0, projectLockCount = 0, projectVestCount = 0;
+                    const ironTokens = {};
+                    let ironLockCount = 0, ironVestCount = 0;
                     const allTokens = new Set();
 
-                    const processRecord = (record, isVest, recordObj) => {
+                    const processRecord = (record, isVest) => {
                         if (!record || !record.beneficiary) return;
                         const beneficiaryLower = record.beneficiary.toLowerCase();
-                        const isProject = ownerLower && beneficiaryLower === ownerLower;
+                        if (ownerLower && beneficiaryLower === ownerLower) return; // 跳过项目方
                         const tokenAddr = record.token.toLowerCase();
                         allTokens.add(tokenAddr);
                         let amount;
                         if (isVest) {
                             amount = record.totalAmount.sub(record.released);
-                            if (amount.gt(0)) {
-                                if (isProject) projectVestCount++; else ironVestCount++;
-                            }
+                            if (amount.gt(0)) ironVestCount++;
                         } else {
                             if (!record.withdrawn) {
                                 amount = record.amount;
-                                if (isProject) projectLockCount++; else ironLockCount++;
+                                ironLockCount++;
                             } else return;
                         }
                         if (amount && amount.gt(0)) {
-                            const targetMap = isProject ? projectTokens : ironTokens;
-                            if (!targetMap[tokenAddr]) targetMap[tokenAddr] = ethers.BigNumber.from(0);
-                            targetMap[tokenAddr] = targetMap[tokenAddr].add(amount);
+                            if (!ironTokens[tokenAddr]) ironTokens[tokenAddr] = ethers.BigNumber.from(0);
+                            ironTokens[tokenAddr] = ironTokens[tokenAddr].add(amount);
                         }
                     };
 
-                    locks.forEach(l => processRecord(l, false, l));
-                    vests.forEach(v => processRecord(v, true, v));
+                    locks.forEach(l => processRecord(l, false));
+                    vests.forEach(v => processRecord(v, true));
 
                     const tokenInfoMap = await fetchTokenInfos(p, Array.from(allTokens));
                     const formatAmounts = (map) => {
@@ -1289,12 +1280,8 @@
 
                     animateNumberUpdate(ironArmyLockedEl, formatAmounts(ironTokens));
                     ironArmySubEl.innerHTML = `一次性锁仓 <span class="stat-num">${ironLockCount}</span> 笔 · 线性释放 <span class="stat-num">${ironVestCount}</span> 笔`;
-
-                    animateNumberUpdate(projectLockedEl, formatAmounts(projectTokens));
-                    projectSubEl.innerHTML = `一次性锁仓 <span class="stat-num">${projectLockCount}</span> 笔 · 线性释放 <span class="stat-num">${projectVestCount}</span> 笔`;
                 } catch (e) {
                     ironArmyLockedEl.textContent = '加载失败';
-                    projectLockedEl.textContent = '加载失败';
                 }
             }
 
@@ -1482,7 +1469,6 @@
             (async function autoInit() {
                 getFastestProvider().then(rp => loadAllData()).catch(() => {
                     ironArmyLockedEl.textContent = '--';
-                    projectLockedEl.textContent = '--';
                 });
                 if (window.ethereum) { try { const accs = await window.ethereum.request({ method: 'eth_accounts' }); if (accs.length > 0) await setupWallet(accs[0]); } catch (e) {} }
             })();
