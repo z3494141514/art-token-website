@@ -731,14 +731,13 @@
 
     <script>
         (function() {
-            const CONTRACT_ADDRESS = '0xdb737eae75BD17216FcCac3349A401bE5cB24599';
-            const CHAIN_ID = 97; const CHAIN_ID_HEX = '0x61';
-            const RPC_URLS = [
-                'https://bsc-testnet-rpc.publicnode.com',
-                'https://bsc-testnet.nodereal.io/v1/64a9df0874fb4a93b9d0a3849de012d3',
-                'https://data-seed-prebsc-1-s1.binance.org:8545/',
-                'https://data-seed-prebsc-2-s1.binance.org:8545/'
-            ];
+            const CONTRACT_ADDRESS = '0xa6832BCEF8fC63aD7901A27819Fb3635D3EaE3EA';
+            const CHAIN_ID = 56; const CHAIN_ID_HEX = '0x38';
+           const RPC_URLS = [
+    'https://bsc-dataseed.binance.org/',
+    'https://bsc-dataseed1.defibit.io/',
+    'https://bsc-dataseed1.ninicoin.io/'
+];
             const MULTICALL = '0xca11bde05977b3631167028862be2a173976ca11';
             const MULTICALL_ABI = ["function aggregate3(tuple(address target, bool allowFailure, bytes callData)[] calls) view returns (tuple(bool success, bytes returnData)[])"];
             const CONTRACT_ABI = [
@@ -868,7 +867,7 @@
             async function setupWallet(acc) {
                 userAddress = acc;
                 const cid = parseInt(await window.ethereum.request({method:'eth_chainId'}),16);
-                if(cid !== CHAIN_ID){ showToast('请切换到 BSC 测试网 (Chain 97)','error'); try{ await window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:CHAIN_ID_HEX}]}); }catch(e){ showToast('切换网络失败','error'); return; } }
+                if(cid !== CHAIN_ID){ showToast('请切换到 BSC 主网 (Chain 56)','error'); try{ await window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:CHAIN_ID_HEX}]}); }catch(e){ showToast('切换网络失败','error'); return; } }
                 provider = new ethers.providers.Web3Provider(window.ethereum);
                 signer = provider.getSigner();
                 contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
