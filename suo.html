@@ -660,9 +660,8 @@
             <button id="btnConnect" class="btn-connect" onclick="toggleWallet()"><span class="dot"></span><span id="btnConnectText">连接钱包</span></button>
         </nav>
 
-        <!-- 项目方锁仓详情卡片（移至顶部） -->
+        <!-- 项目方锁仓详情卡片 -->
         <div class="project-cards-wrapper">
-            <!-- 醒目的项目方声明横幅 -->
             <div class="project-banner">
                 <p>
                     🔐 为让铁军成员安心锁仓，项目方已将 <span class="highlight-num">3.5 亿枚</span> 代币锁入合约，按 <span class="highlight-time">线性释放 1 年</span>，与社区共进退，绝不提前抛售。
@@ -985,8 +984,8 @@
                     if(isCompletedView || isFullyReleased){
                         if(els.btn){ els.btn.style.display='flex'; els.btn.disabled=true; els.btn.textContent='已全部释放'; }
                         if(els.notOwner) els.notOwner.style.display='none';
-                    } else if(!isOwner && view === 'all'){ if(isCliff){ if(els.btn){ els.btn.style.display='flex'; els.btn.disabled=true; els.btn.textContent=`⏳ 释放倒计时 ${formatCountdown(vest.cliffTime-now)}`; } if(els.notOwner) els.notOwner.style.display='none'; } else { if(els.btn) els.btn.style.display='none'; if(els.notOwner){ els.notOwner.style.display='block'; els.notOwner.textContent='这不是您的锁仓无法领取哦！'; } } }
-                    else { if(els.notOwner) els.notOwner.style.display='none'; if(els.btn){ els.btn.style.display='flex'; const canClaim = !isCliff && !isFullyReleased && (now >= vest.endTime || vest.released.eq(0) || now >= vest.lastClaimTime + vest.releaseInterval); if(isFullyReleased){ els.btn.disabled=true; els.btn.textContent='✅ 已全部释放'; } else if(canClaim){ els.btn.disabled=false; els.btn.textContent='🔥 领取代币'; els.btn.onclick=()=>claimVest(vest.id); } else if(isCliff){ els.btn.disabled=true; els.btn.textContent=`⏳ 释放倒计时 ${formatCountdown(vest.cliffTime-now)}`; } else { els.btn.disabled=true; els.btn.textContent=`⏳ 下次可领：${formatDateTime(vest.lastClaimTime + vest.releaseInterval)}`; } } }
+                    } else if(!isOwner && view === 'all'){ if(isCliff){ if(els.btn){ els.btn.style.display='flex'; els.btn.disabled=true; els.btn.textContent=formatCountdown(vest.cliffTime-now); } if(els.notOwner) els.notOwner.style.display='none'; } else { if(els.btn) els.btn.style.display='none'; if(els.notOwner){ els.notOwner.style.display='block'; els.notOwner.textContent='这不是您的锁仓无法领取哦！'; } } }
+                    else { if(els.notOwner) els.notOwner.style.display='none'; if(els.btn){ els.btn.style.display='flex'; const canClaim = !isCliff && !isFullyReleased && (now >= vest.endTime || vest.released.eq(0) || now >= vest.lastClaimTime + vest.releaseInterval); if(isFullyReleased){ els.btn.disabled=true; els.btn.textContent='✅ 已全部释放'; } else if(canClaim){ els.btn.disabled=false; els.btn.textContent='🔥 领取代币'; els.btn.onclick=()=>claimVest(vest.id); } else if(isCliff){ els.btn.disabled=true; els.btn.textContent=formatCountdown(vest.cliffTime-now); } else { els.btn.disabled=true; els.btn.textContent=`⏳ 下次可领：${formatDateTime(vest.lastClaimTime + vest.releaseInterval)}`; } } }
                 });
             }
 
@@ -1016,7 +1015,7 @@
                             } else {
                                 updateCountdown(remaining, els.status, els.countdown);
                                 els.btn.disabled = true;
-                                els.btn.textContent = `剩余 ${formatCountdown(remaining)}`;
+                                els.btn.textContent = formatCountdown(remaining);
                             }
                         }
                     } else if (type === 'vest') {
@@ -1059,7 +1058,7 @@
                         } else if (!isProjectOwner) {
                             const remaining = data.endTime > now ? data.endTime - now : 0;
                             els.btn.disabled = true;
-                            els.btn.textContent = remaining > 0 ? `剩余 ${formatCountdown(remaining)}` : '待项目方领取';
+                            els.btn.textContent = remaining > 0 ? formatCountdown(remaining) : '待项目方领取';
                         } else {
                             const canClaim = (now >= data.cliffTime) && (unlockable > 0) && (
                                 now >= data.endTime ||
@@ -1073,7 +1072,7 @@
                             } else {
                                 els.btn.disabled = true;
                                 if (isCliff) {
-                                    els.btn.textContent = `⏳ 释放倒计时 ${formatCountdown(data.cliffTime - now)}`;
+                                    els.btn.textContent = formatCountdown(data.cliffTime - now);
                                 } else if (progress >= 100) {
                                     els.btn.textContent = '等待领取';
                                 } else {
@@ -1227,7 +1226,7 @@
                     else { statusText='📈 释放中'; statusClass='status-waiting'; }
                     let btnHTML='', notOwnerHTML='';
                     if(isCompletedView || isFullyReleased){ btnHTML='<button class="btn-claim-vest" disabled>已全部释放</button>'; }
-                    else if(!vest.isOwner && view==='all'){ if(isCliff){ btnHTML=`<button class="btn-claim-vest" disabled>⏳ 释放倒计时 ${formatCountdown(vest.cliffTime-now)}</button>`; notOwnerHTML='<div class="btn-claim-not-owner" style="display:none;">这不是您的锁仓无法领取哦！</div>'; } else { btnHTML='<button class="btn-claim-vest" style="display:none;"></button>'; notOwnerHTML='<div class="btn-claim-not-owner">这不是您的锁仓无法领取哦！</div>'; } }
+                    else if(!vest.isOwner && view==='all'){ if(isCliff){ btnHTML=`<button class="btn-claim-vest" disabled>${formatCountdown(vest.cliffTime-now)}</button>`; notOwnerHTML='<div class="btn-claim-not-owner" style="display:none;">这不是您的锁仓无法领取哦！</div>'; } else { btnHTML='<button class="btn-claim-vest" style="display:none;"></button>'; notOwnerHTML='<div class="btn-claim-not-owner">这不是您的锁仓无法领取哦！</div>'; } }
                     else { btnHTML=`<button class="btn-claim-vest" id="btnVest${vest.id}" disabled>⏳ ...</button>`; }
                     const sealHTML = `<div class="card-seal ${vest.isOwner ? 'seal-self' : 'seal-other'}">${vest.isOwner ? '本人' : '他人'}</div>`;
                     return `<div class="vest-card ${(isCompletedView||isFullyReleased)?'claimed':''} ${!vest.isOwner&&view==='all'?'not-owner':''}" data-vest-id="${vest.id}">${sealHTML}<div class="lock-card-header"><span class="lock-id">${addrDisplay}</span><span class="lock-status ${statusClass}">${statusText}</span></div><div class="lock-amount"><span class="amount-num">${total.toLocaleString('zh-CN',{maximumFractionDigits:2})}</span><span class="amount-unit">枚</span> <span class="lock-token">${escapeHtml(vest.symbol)}</span></div><div style="font-size:0.8rem;color:var(--text-dim);">已领取：${released.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${escapeHtml(vest.symbol)}</div><div class="vest-progress"><div class="vest-progress-bar" style="width:${progress.toFixed(1)}%;"></div></div><div class="vest-progress-text" style="font-size:0.7rem;color:var(--text-dim);">释放进度：${progress.toFixed(1)}%</div><div class="vest-available" style="font-size:0.8rem;color:var(--gold-light);margin-top:2px;">可领取：${unlockable.toLocaleString('zh-CN',{maximumFractionDigits:2})} ${escapeHtml(vest.symbol)}</div><div class="vest-note">过悬崖期后可线性释放！</div><div class="lock-time">📅 悬崖期结束：${formatDateTime(vest.cliffTime)}</div><div class="lock-time">📅 预计释放完成日期：${formatDateTime(vest.endTime)}</div>${btnHTML}${notOwnerHTML}</div>`;
