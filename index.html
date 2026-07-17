@@ -183,7 +183,6 @@
         body.show-cn .lang-en { display: none; }
         body.show-cn .lang-zh { display: inline; }
 
-        /* 移动端光晕适配 */
         @media (max-width: 767px) {
             .hero-blur-primary {
                 width: 300px !important;
@@ -197,7 +196,6 @@
             }
         }
 
-        /* Toast 通知 */
         .toast-container {
             position: fixed;
             top: 20px;
@@ -233,34 +231,22 @@
             to { opacity: 0; transform: translateX(50px); }
         }
 
-        /* 代码块横向滚动 + 隐藏滚动条 */
         .code-block {
             overflow-x: auto;
             white-space: nowrap;
-            scrollbar-width: none;          /* Firefox */
-            -ms-overflow-style: none;      /* IE/Edge */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
         .code-block::-webkit-scrollbar {
-            display: none;                  /* Chrome/Safari/Opera */
+            display: none;
         }
 
-        /* 系统动效偏好：减少动画 */
         @media (prefers-reduced-motion: reduce) {
-            body {
-                animation: none !important;
-            }
-            .animate-float {
-                animation: none !important;
-            }
-            .animate-pulse-slow {
-                animation: none !important;
-            }
-            .border-stream::before {
-                animation: none !important;
-            }
-            .btn-stream::after {
-                animation: none !important;
-            }
+            body { animation: none !important; }
+            .animate-float { animation: none !important; }
+            .animate-pulse-slow { animation: none !important; }
+            .border-stream::before { animation: none !important; }
+            .btn-stream::after { animation: none !important; }
             .animate-fade-up {
                 opacity: 1 !important;
                 transform: none !important;
@@ -268,9 +254,8 @@
             }
         }
 
-        /* 低性能设备弱化背景与动画 */
         body.low-power {
-            animation: bgFlow 36s ease infinite !important; /* 减慢背景流动 */
+            animation: bgFlow 36s ease infinite !important;
         }
         body.low-power .border-stream::before {
             opacity: 0.3;
@@ -281,7 +266,6 @@
             opacity: 0.3 !important;
         }
 
-        /* 移动端弱化流光 */
         @media (max-width: 767px) {
             .border-stream::before {
                 opacity: 0.4;
@@ -309,6 +293,11 @@
                 <a href="#tokenomics" class="hover:text-primary transition-colors duration-300 relative group">
                     <span class="lang-en">Tokenomics</span>
                     <span class="lang-zh">代币经济</span>
+                    <span class="absolute left-0 bottom-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+                </a>
+                <a href="#lock" class="hover:text-primary transition-colors duration-300 relative group">
+                    <span class="lang-en">Lock</span>
+                    <span class="lang-zh">锁仓</span>
                     <span class="absolute left-0 bottom-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
                 </a>
                 <a href="#contract" class="hover:text-primary transition-colors duration-300 relative group">
@@ -348,6 +337,10 @@
                 <a href="#tokenomics" class="py-3 text-base hover:text-primary transition-colors">
                     <span class="lang-en">Tokenomics</span>
                     <span class="lang-zh">代币经济</span>
+                </a>
+                <a href="#lock" class="py-3 text-base hover:text-primary transition-colors">
+                    <span class="lang-en">Lock</span>
+                    <span class="lang-zh">锁仓</span>
                 </a>
                 <a href="#contract" class="py-3 text-base hover:text-primary transition-colors">
                     <span class="lang-en">Contract</span>
@@ -531,8 +524,68 @@
             </div>
         </section>
 
-        <!-- 合约信息 / Contract (移除 LP Lock Record, 更新区块浏览器链接) -->
-        <section id="contract" class="py-20" aria-labelledby="contract-heading">
+        <!-- 锁仓记录 / Token Lock -->
+        <section id="lock" class="py-20" aria-labelledby="lock-heading">
+            <div class="container mx-auto px-4 md:px-6">
+                <div class="text-center max-w-3xl mx-auto mb-16 animate-fade-up">
+                    <h2 id="lock-heading" class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4 text-glow">
+                        <span class="lang-en">Token Lock Record</span>
+                        <span class="lang-zh">代币锁仓记录</span>
+                    </h2>
+                    <p class="text-grayText">
+                        <span class="lang-en">350,000,000 ART locked in smart contract, linear release over 1 year</span>
+                        <span class="lang-zh">3.5 亿 ART 已锁入智能合约，线性释放 1 年</span>
+                    </p>
+                </div>
+                <div class="bg-darkCard p-8 rounded-2xl border border-white/10 max-w-4xl mx-auto card-hover animate-fade-up">
+                    <div class="mb-6">
+                        <p class="text-grayText text-sm mb-2">
+                            <span class="lang-en">Lock Amount</span>
+                            <span class="lang-zh">锁仓数量</span>
+                        </p>
+                        <p class="text-3xl font-bold text-primary text-glow">350,000,000 ART</p>
+                    </div>
+                    <div class="mb-6">
+                        <p class="text-grayText text-sm mb-2">
+                            <span class="lang-en">Lock Contract Address</span>
+                            <span class="lang-zh">锁仓合约地址</span>
+                        </p>
+                        <div class="flex items-center gap-2 bg-dark p-4 rounded-lg border border-white/10 code-block">
+                            <code id="lockContractAddr" class="text-sm md:text-base break-all">0xa6832BCEF8fC63aD7901A27819Fb3635D3EaE3EA</code>
+                            <button data-copy-target="lockContractAddr" class="text-primary hover:text-secondary transition-colors flex-shrink-0 icon-tremble p-2 min-w-[44px] min-h-[44px]" aria-label="复制锁仓合约地址">
+                                <i class="fa-solid fa-copy" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <p class="text-grayText text-sm mb-2">
+                            <span class="lang-en">Lock Transaction Hash</span>
+                            <span class="lang-zh">锁仓交易哈希</span>
+                        </p>
+                        <div class="flex items-center gap-2 bg-dark p-4 rounded-lg border border-white/10 code-block">
+                            <code id="lockTxHash" class="text-sm md:text-base break-all">0xbea0330f96b3715b7e5c415e869a6d2a787c1856c9e5bf9fd4192f9758b3b2ec</code>
+                            <button data-copy-target="lockTxHash" class="text-primary hover:text-secondary transition-colors flex-shrink-0 icon-tremble p-2 min-w-[44px] min-h-[44px]" aria-label="复制锁仓交易哈希">
+                                <i class="fa-solid fa-copy" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <a href="https://bscscan.com/tx/0xbea0330f96b3715b7e5c415e869a6d2a787c1856c9e5bf9fd4192f9758b3b2ec" target="_blank" rel="noopener noreferrer" class="inline-block mt-2 text-sm text-primary hover:underline">
+                            <span class="lang-en">View on BscScan</span>
+                            <span class="lang-zh">在 BscScan 查看</span>
+                            <i class="fa-solid fa-arrow-up-right-dots ml-1 icon-tremble" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                    <div class="border-t border-white/10 pt-6">
+                        <p class="text-grayText">
+                            <span class="lang-en">350 million ART has been permanently locked into the smart contract for linear release over 1 year. This lock demonstrates the team's long-term commitment to the community and ensures a stable, deflationary ecosystem.</span>
+                            <span class="lang-zh">3.5 亿 ART 已永久锁入智能合约，采用线性释放方式，1 年内逐步解锁。项目方通过锁仓展示对社区的长期承诺，确保生态稳定与通缩共识。</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 合约信息 / Contract -->
+        <section id="contract" class="py-20 bg-darkCard" aria-labelledby="contract-heading">
             <div class="container mx-auto px-4 md:px-6">
                 <div class="text-center max-w-3xl mx-auto mb-16 animate-fade-up">
                     <h2 id="contract-heading" class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4 text-glow">
@@ -605,7 +658,7 @@
         </section>
 
         <!-- 销毁记录 / Burn Record -->
-        <section id="burn" class="py-20 bg-darkCard" aria-labelledby="burn-heading">
+        <section id="burn" class="py-20" aria-labelledby="burn-heading">
             <div class="container mx-auto px-4 md:px-6">
                 <div class="text-center max-w-3xl mx-auto mb-16 animate-fade-up">
                     <h2 id="burn-heading" class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4 text-glow">
@@ -617,7 +670,7 @@
                         <span class="lang-zh">总计 5.5 亿 ART 转入黑洞地址永久销毁</span>
                     </p>
                 </div>
-                <div class="bg-dark p-8 rounded-2xl border border-white/10 max-w-4xl mx-auto card-hover animate-fade-up">
+                <div class="bg-darkCard p-8 rounded-2xl border border-white/10 max-w-4xl mx-auto card-hover animate-fade-up">
                     <div class="mb-6">
                         <p class="text-grayText text-sm mb-2">
                             <span class="lang-en">Burn Amount</span>
@@ -630,7 +683,7 @@
                             <span class="lang-en">Burn Address (Black Hole)</span>
                             <span class="lang-zh">黑洞销毁地址</span>
                         </p>
-                        <div class="flex items-center gap-2 bg-darkCard p-4 rounded-lg border border-white/10 code-block">
+                        <div class="flex items-center gap-2 bg-dark p-4 rounded-lg border border-white/10 code-block">
                             <code id="burnAddr" class="text-sm md:text-base break-all">0x000000000000000000000000000000000000dEaD</code>
                             <button data-copy-target="burnAddr" class="text-primary hover:text-secondary transition-colors flex-shrink-0 icon-tremble p-2 min-w-[44px] min-h-[44px]" aria-label="复制销毁地址">
                                 <i class="fa-solid fa-copy" aria-hidden="true"></i>
@@ -643,7 +696,7 @@
                                 <span class="lang-en">Burn Transaction Hash</span>
                                 <span class="lang-zh">销毁交易哈希</span>
                             </p>
-                            <div class="flex items-center gap-2 bg-darkCard p-4 rounded-lg border border-white/10 code-block">
+                            <div class="flex items-center gap-2 bg-dark p-4 rounded-lg border border-white/10 code-block">
                                 <code id="burnTxHash" class="text-sm md:text-base break-all">0xfd919edd465ab371e62f1876017386ab1a81fd66e0cdb1f10524af589a57ff4c</code>
                                 <button data-copy-target="burnTxHash" class="text-primary hover:text-secondary transition-colors flex-shrink-0 icon-tremble p-2 min-w-[44px] min-h-[44px]" aria-label="复制交易哈希">
                                     <i class="fa-solid fa-copy" aria-hidden="true"></i>
@@ -811,6 +864,13 @@
                 <i class="fa-solid fa-palette text-primary text-2xl icon-tremble" aria-hidden="true"></i>
                 <span class="text-xl font-bold text-glow">ART TOKEN</span>
             </div>
+            <p class="text-grayText text-sm mb-4">
+                <span class="lang-en">Contact us: </span>
+                <span class="lang-zh">联系我们：</span>
+                <a href="mailto:2709508787@qq.com" class="text-primary hover:underline inline-flex items-center gap-1">
+                    <i class="fa-regular fa-envelope" aria-hidden="true"></i> 2709508787@qq.com
+                </a>
+            </p>
             <p class="text-grayText text-sm">
                 © 2026 ART Token. All Rights Reserved.
                 <span class="lang-en">Digital Art Web3 Ecosystem.</span>
@@ -840,20 +900,17 @@
             const body = document.body;
             const toastContainer = document.getElementById('toastContainer');
 
-            // 语言初始化
             const LANG_KEY = 'siteLang';
             if (localStorage.getItem(LANG_KEY) === 'cn') {
                 body.classList.add('show-cn');
             }
 
-            // 低性能设备检测
             const cores = navigator.hardwareConcurrency || 4;
             const memory = navigator.deviceMemory || 4;
             if (cores < 4 || memory < 4) {
                 body.classList.add('low-power');
             }
 
-            // 自定义 toast
             function showToast(message) {
                 const toast = document.createElement('div');
                 toast.className = 'toast';
@@ -872,7 +929,9 @@
                 const messages = {
                     contract: isCN ? '合约地址复制成功！' : 'Contract Address Copied Successfully!',
                     burnAddr: isCN ? '黑洞地址复制成功！' : 'Burn Address Copied Successfully!',
-                    burnTx: isCN ? '交易哈希复制成功！' : 'Transaction Hash Copied Successfully!'
+                    burnTx: isCN ? '交易哈希复制成功！' : 'Transaction Hash Copied Successfully!',
+                    lockContract: isCN ? '锁仓合约地址复制成功！' : 'Lock Contract Address Copied Successfully!',
+                    lockTx: isCN ? '锁仓交易哈希复制成功！' : 'Lock Transaction Hash Copied Successfully!'
                 };
                 const msg = messages[msgKey] || messages.contract;
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -906,6 +965,8 @@
                 let key = 'contract';
                 if (targetId === 'burnAddr') key = 'burnAddr';
                 else if (targetId === 'burnTxHash') key = 'burnTx';
+                else if (targetId === 'lockContractAddr') key = 'lockContract';
+                else if (targetId === 'lockTxHash') key = 'lockTx';
                 copyToClipboard(el.innerText.trim(), key);
             });
 
