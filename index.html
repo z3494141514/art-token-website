@@ -531,7 +531,7 @@
             </div>
         </section>
 
-        <!-- 合约信息 / Contract -->
+        <!-- 合约信息 / Contract (移除 LP Lock Record, 更新区块浏览器链接) -->
         <section id="contract" class="py-20" aria-labelledby="contract-heading">
             <div class="container mx-auto px-4 md:px-6">
                 <div class="text-center max-w-3xl mx-auto mb-16 animate-fade-up">
@@ -557,27 +557,16 @@
                             </button>
                         </div>
                     </div>
-                    <div class="grid md:grid-cols-2 gap-6 mb-8">
-                        <div>
-                            <p class="text-grayText text-sm mb-2">
-                                <span class="lang-en">LP Lock Record</span>
-                                <span class="lang-zh">流动性锁仓记录</span>
-                            </p>
-                            <a href="https://LP_LOCK_LINK" target="_blank" rel="noopener noreferrer" class="block bg-dark p-4 rounded-lg border border-white/10 text-primary hover:underline break-all code-block">
-                                <span class="lang-en">View LP Lock Record</span>
-                                <span class="lang-zh">查看锁仓凭证</span>
-                            </a>
-                        </div>
-                        <div>
-                            <p class="text-grayText text-sm mb-2">
-                                <span class="lang-en">Block Explorer</span>
-                                <span class="lang-zh">区块浏览器</span>
-                            </p>
-                            <a href="https://SCAN_LINK" target="_blank" rel="noopener noreferrer" class="block bg-dark p-4 rounded-lg border border-white/10 text-primary hover:underline break-all code-block">
-                                <span class="lang-en">View on Explorer</span>
-                                <span class="lang-zh">前往查看</span>
-                            </a>
-                        </div>
+                    <div class="mb-8">
+                        <p class="text-grayText text-sm mb-2">
+                            <span class="lang-en">Block Explorer</span>
+                            <span class="lang-zh">区块浏览器</span>
+                        </p>
+                        <a href="https://bscscan.com/address/0x1C97E16Bb102DF5b29d682b4cFeB38aa0B9Dfd4b" target="_blank" rel="noopener noreferrer" class="block bg-dark p-4 rounded-lg border border-white/10 text-primary hover:underline break-all code-block">
+                            <span class="lang-en">View on BscScan</span>
+                            <span class="lang-zh">在 BscScan 查看</span>
+                            <i class="fa-solid fa-arrow-up-right-dots ml-1 icon-tremble" aria-hidden="true"></i>
+                        </a>
                     </div>
                     <div class="border-t border-white/10 pt-6">
                         <h3 class="text-lg font-semibold mb-4 text-glow">
@@ -859,12 +848,12 @@
 
             // 低性能设备检测
             const cores = navigator.hardwareConcurrency || 4;
-            const memory = navigator.deviceMemory || 4; // 单位GB，部分浏览器不支持
+            const memory = navigator.deviceMemory || 4;
             if (cores < 4 || memory < 4) {
                 body.classList.add('low-power');
             }
 
-            // 自定义 toast（支持点击关闭）
+            // 自定义 toast
             function showToast(message) {
                 const toast = document.createElement('div');
                 toast.className = 'toast';
@@ -908,7 +897,6 @@
                 body.removeChild(textarea);
             }
 
-            // 事件委托处理复制按钮
             document.addEventListener('click', (e) => {
                 const btn = e.target.closest('[data-copy-target]');
                 if (!btn) return;
@@ -921,7 +909,6 @@
                 copyToClipboard(el.innerText.trim(), key);
             });
 
-            // 移动端菜单
             function openMenu() {
                 mobileMenu.classList.remove('hidden');
                 menuBtn.setAttribute('aria-expanded', 'true');
@@ -964,7 +951,6 @@
                 }
             });
 
-            // 语言切换
             function toggleLang() {
                 body.classList.toggle('show-cn');
                 localStorage.setItem(LANG_KEY, body.classList.contains('show-cn') ? 'cn' : 'en');
@@ -972,7 +958,6 @@
             langSwitch.addEventListener('click', toggleLang);
             mobileLangSwitch.addEventListener('click', toggleLang);
 
-            // 滚动与首屏动画修复
             let ticking = false;
             const SCROLL_THRESHOLD = 60;
             const FADE_OFFSET = 80;
